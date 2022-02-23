@@ -964,14 +964,14 @@ $ git clone https://xxxxxx%40google.com:123456@github.com/Super-Van/Notebook.git
 2021年暑期，因为github推行更安全的令牌机制，取代以前的密码，所以上述写法有所改变：
 
 ```bash
-$ git clone https://xxxxxx%40google.com://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@github.com/Super-Van/Notebook.git
+$ git clone https://xxxxxx%40google.com://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/Notebook.git
 ```
 
 或者不使用克隆，而是通过修改远程连接设置推送验证的跳过：
 
 ```bash
 # 前提是origin连接已被添加
-$ git remote set-url origin https://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@github.com/Super-Van/Notebook.git
+$ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/Notebook.git
 ```
 
 关于令牌机制的更多解读，可参见[github开发人员在七夕搞事情](https://blog.csdn.net/weixin_41010198/article/details/119698015)。
