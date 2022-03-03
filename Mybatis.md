@@ -1,7 +1,5 @@
 # Mybatis
 
-主讲：张月函、颜群。
-
 参考视频：[Mybatis视频教程](https://www.bilibili.com/video/BV1gs411j7kA)。
 
 ## 概述

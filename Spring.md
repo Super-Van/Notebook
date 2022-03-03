@@ -1,12 +1,16 @@
 # Spring
 
-主讲：颜群。
-
 参考视频：[Spring视频教程](https://www.bilibili.com/video/BV1ds411V7HZ)。
 
 框架=注解+反射+设计模式。
 
-注：可在eclipse中安装spring插件以提升开发效率。下载地址：http://download.springsource.com/release/TOOLS/update/e4.5/，注意版本号要与eclipse的版本号一致。一次安装不完整的话就多安装几次。另外还需在商店安装Spring Tools 3（standardalone edition）。
+可在eclipse中安装spring插件以提升开发效率，下载地址：
+
+```shell
+http://download.springsource.com/release/TOOLS/update/e4.5/
+```
+
+版本号要与eclipse的版本号一致，一次安装不完整的话就多安装几次，另外还需从商店安装Spring Tools 3（standardalone edition）作起底插件。
 
 ## 概述
 

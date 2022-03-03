@@ -1,6 +1,4 @@
-## Java设计模式
-
-主讲：韩顺平。
+# Java设计模式
 
 参考视频：[尚硅谷Java设计模式，韩顺平图解java设计模式](https://www.bilibili.com/video/BV1G4411c7N4)。
 

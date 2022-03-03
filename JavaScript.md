@@ -1,7 +1,5 @@
 # JavaScript
 
-主讲：老杜、Pink。
-
 参考视频：
 
 - [JavaScript基础语法](https://www.bilibili.com/video/BV1Sy4y1C7ha?p=201&spm_id_from=pageDriver)。
@@ -60,7 +58,7 @@ js程序不需要程序员手动编译执行，而是写完源代码后，通过
 
 注：一旦引入外部js文件，脚本块里的代码就无法执行，故不要在脚本块里写代码。但是后续脚本块是起作用的。
 
-### 数据类型及其转换
+### 数据类型
 
 #### 类型
 

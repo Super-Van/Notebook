@@ -1,7 +1,5 @@
 # JavaWeb
 
-主讲：颜群。
-
 参考视频：[JavaWeb视频教程（JSP/Servlet/上传/下载/分页/MVC/三层架构/Ajax）](https://www.bilibili.com/video/BV18s411u7EH)。
 
 ##   Tomcat
@@ -96,7 +94,7 @@ jsp（Java Server Page）是实现动态网页的核心技术，本质是servlet
   	// 方法
   	public void init() {
   		name = "Van";
-  		// 貌似方法体内不能写打印语句
+  		// 貌似方法体内不能写打印语句，而应交由专门负责输出的代码块打印
   	}
   %>
   ```
@@ -395,7 +393,7 @@ String sql = "select count(*) from login where name='" + name + "' where passwor
 xxx' or 1=1 --
 ```
 
-这会导致where子句失效（恒为真）。那么以上是普通语句存在的问题，而预编译语句能够避免注入。
+这会导致where子句失效（恒为真），普通语句存在注入问题，而预编译语句能够避免。
 
 ### 调用存储内容和存储函数
 
@@ -699,7 +697,7 @@ public class LoginDao {
 
 ## Servlet
 
-### 概念
+### 概述
 
 servlet继承自javax.servlet.http.HttpServlet，要想发挥作用，我们需重写doGet方法或doPost方法或service方法。
 
@@ -721,13 +719,13 @@ servlet继承自javax.servlet.http.HttpServlet，要想发挥作用，我们需�
 
 页面触发的请求会先由url-pattern或WebServlet注解拦截，再按后续步骤交由响应servlet处理。
 
-### 斜杠的深入理解
+### 理解斜杠
 
 上面提到，请求名里的斜杠表示项目根目录，而项目根目录有两个：src和WebContent（前后分离）。src存放源程序及其他配置文件，WebContent存放视图层文件。
 
 项目运行过程中，当接收到一个请求，系统会根据请求名同时在两个目录中查找，因为两个都是根目录。那么应注意区分的是，请求目标是页面文件的话，后缀如jsp、html需加上，而请求目标是servlet的话，后缀就不用加了，因为项目跑起来时servlet已经变成了字节码（联想虚拟机运行程序的指令：`java Hello`，同理这里也不用加后缀）。
 
-在web.xml的url-pattern标签中，顶头斜杠代表项目根目录，其后写什么任意。在jsp中，顶头斜杠代表域名（加端口号）的路径。若Context标签中的path值不指定，则两种顶头斜杠同义。
+在web.xml的url-pattern标签中，顶头斜杠代表项目根目录，其后写什么自定。在jsp中，顶头斜杠代表域名（加端口号）的路径，此路径映射到项目根目录。若Context标签中的path值不指定，则两种顶头斜杠同义。
 
 ### 生命周期
 
@@ -745,7 +743,7 @@ servlet继承自javax.servlet.http.HttpServlet，要想发挥作用，我们需�
 @WebServlet(value="/MyServlet" loadOnStartup=1)
 ```
 
-### API详解和源码分析
+### 源码分析
 
 由HTTP软件包和非HTTP软件包组成，故servlet API适用于任何通信协议。我们当前学的servlet是位于javax.servlet.http包里的类和接口，它不存在于JDK库中，属基础的HTTP协议。
 
@@ -787,9 +785,9 @@ Service层的方法是逻辑性的操作，对Dao层方法进行整合使用。
 
 ## EL表达式
 
-### 概念和基本用法
+### 概述
 
-Expression Language-表达式语言，用于替代、简化jsp里的Java代码。
+Expression Language-表达式语言，用于替代、简化jsp里的代码。
 
 示例：
 
@@ -797,16 +795,16 @@ Expression Language-表达式语言，用于替代、简化jsp里的Java代码�
 ${域对象A.A的属性B.B的属性C…… }
 ```
 
-可见得可获取级联（嵌套）属性。除了点操作符，也可用中括号操作符：
+可见可获取级联（嵌套）属性。除了点操作符，也可用中括号操作符：
 
 ```
 ${requestScope['A']["B"]['C'] }
 ```
 
-中括号操作符['']、[""]比点操作符.的功能更强大：
+中括号操作符`['']`、`[""]`比点操作符`.`适用细节更全：
 
-- 功能强大：可含特殊字符，如.  、-。
-- 获取变量值：带引号的是常量，不带引号的是变量。如`${requestScope[name]`、`${requestScope['name'] }）`。
+- 功能强大：可含特殊字符。如.  、-。
+- 获取变量值：带引号的是常量，不带引号的是变量。如`${requestScope[name] }`、`${requestScope['name'] }）`。
 - 访问数组：如`${requestScope.students[0] }`。
 
 取map对象：
@@ -843,6 +841,8 @@ ${pageContext.request.serverPort }
 
 ## JSTL
 
+### 概述
+
 Java Standard Tag Libray-Java标准标签库，是EL表达式的升级版。
 
 ### 导包
@@ -850,19 +850,19 @@ Java Standard Tag Libray-Java标准标签库，是EL表达式的升级版。
 - jstl。
 - standard。
 
-### 引入标签库
+### 引入
 
 ```jsp
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 ```
 
-其中`prefix="c"`指明标签前缀为c。
+其中`prefix="c"`指明标签前缀为c，其他值也行，我们约定用c。
 
 ### 标签库
 
 核心标签库：通用标签库、条件标签库、迭代标签库。
 
-#### 通用
+看通用标签库的一些例子：
 
 ```jsp
 <!-- 赋值标签c:set -->
@@ -888,11 +888,9 @@ Java Standard Tag Libray-Java标准标签库，是EL表达式的升级版。
 <c:remove var="student" scope="request" />
 ```
 
-#### 条件与迭代
+条件与迭代标签库包括`c:if`、`c:forEach`等标签，详见[菜鸟教程](https://www.runoob.com/jsp/jsp-jstl.html)。
 
-即c:if、c:forEach等标签，详见[菜鸟教程](https://www.runoob.com/jsp/jsp-jstl.html)。
-
-注：这些个标签属性值是用双引号包裹的，注意el表达式后不能接空格，接了的话所取任何值（尤其是对象）都会失效。
+注：这些标签属性值是用双引号包裹的，注意el表达式后不能接空格，接了的话数据解析会失效。
 
 ## 过滤器
 
@@ -1267,9 +1265,9 @@ $('#tip').load({
 
 变体太多，可参见[jQuery 参考手册 - Ajax](https://www.w3school.com.cn/jquery/jquery_ref_ajax.asp)。
 
-### 处理json对象
+### 处理json
 
-借助不同平台提供的jar包来处理，具体操作要看用哪种jar包了，故此处暂不记，实际用到再学。
+借助不同平台提供的jar包来处理，具体就要看使用哪种jar包了，此处暂不记。
 
 ## 使用IDEA
 
@@ -1587,7 +1585,7 @@ ComboPoolDataSource将硬编码和配置文件两种方式合二为一，通过�
 
 ### 注
 
-从上述几种连接池的使用上看出一个共同点：它们的名称，包括jar包的名称意思都是连接池，而实际拿出来用的类意思都是数据源。
+能看出一个共同点：这些连接池的名称，包括jar包的名称确实都表达连接池的意思，而实际拿出来用的类都表达数据源的意思。
 
 
 
@@ -1625,7 +1623,7 @@ ComboPoolDataSource将硬编码和配置文件两种方式合二为一，通过�
 
 集群的优点：
 
-- 负载均衡：多个服务器分担处理大量的请求。注：单结点Tomcat能稳定地处理200-300个并发请求。
+- 负载均衡：多个服务器分担大量请求。注：单结点Tomcat能稳定地处理200-300个并发请求。
 - 失败迁移：
 
 集群的分类：

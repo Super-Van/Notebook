@@ -1,7 +1,5 @@
 ## SpringBoot
 
-主讲：雷丰阳。
-
 参考视频：[springboot核心篇+springboot整合篇-雷丰阳-尚硅谷](https://www.bilibili.com/video/BV1Et411Y7tQ?p=3)。
 
 ### 入门

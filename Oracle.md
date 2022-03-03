@@ -1,7 +1,5 @@
 # Oracle
 
-主讲：颜群。
-
 参考视频：[oracle数据库教程](https://www.bilibili.com/video/BV1z4411W771?p=28)。
 
 ## 下载与安装

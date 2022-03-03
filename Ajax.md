@@ -1,7 +1,5 @@
 # Ajax
 
-主讲：李强。
-
 参考视频：[3小时Ajax入门到精通](https://www.bilibili.com/video/BV1WC4y1b78y)。
 
 ## 概述

@@ -1,7 +1,5 @@
 # Tomcat
 
-主讲：张月函。
-
 ## 概述
 
 Tomcat是一个免费的开放源代码的Servlet 容器。它是Apache软件基金会的一个顶级项目，由 Apache，Sun和其他一些公司及个人共同开发而成。由于有了Sun的参与与支持，最新的Servlet和 JSP 规范总是能在Tomcat中得到体现。

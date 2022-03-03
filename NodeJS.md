@@ -1,7 +1,5 @@
 # Node.js
 
-主讲：李鹏周。
-
 参考视频：[Node.JS-黑马程序员](https://www.bilibili.com/video/BV1Ns411N7HU)。
 
 ## 概述

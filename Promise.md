@@ -1,7 +1,5 @@
 # Promise
 
-主讲：李强。
-
 参考视频：[尚硅谷Web前端Promise教程从入门到精通](https://www.bilibili.com/video/BV1GA411x7z1)。
 
 ## 概述

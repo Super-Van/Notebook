@@ -1,24 +1,20 @@
 # SpringMVC
 
-主讲：颜群。
-
 参考视频：[SpringMVC视频教程](https://www.bilibili.com/video/BV1MW411A7Kn)。
 
-参考项目：springmvc、atguiguSSM等。
-
-注：eclipse环境下，整合SSM框架时，如果遇到配置文件访问网络报错的情况，可在首选项中取消XML Validation。
+eclipse环境下，整合SSM框架时，如果遇到配置文件访问网络报错的情况，可在首选项中取消XML Validation。
 
 <img src="D:\chaofan\typora\专业\SpringMVC.assets\image-20210825103327443.png" alt="image-20210825103327443" style="zoom: 80%;" />
 
-#### 发展
+## 发展
 
 ![image-20200419172026067](springMVC.assets/image-20200419172026067.png)
 
 上层调下层，下层为上层服务。SpringMVC经历了如上图所示的发展历程。SpringMVC相当于Servlet的升级版。
 
-#### 案例
+## 案例
 
-##### 导包
+### 导包
 
 除Spring的六个基本jar包外，加入spring-webmvc.jar。若是maven工程，pom.xml如下：
 
@@ -73,7 +69,7 @@
 </project>
 ```
 
-##### 配置
+### 配置
 
 创建springmvc配置文件springmvc.xml。
 
@@ -140,7 +136,7 @@
 
 请求名不含.action的话，先找servlet再找springmvc的控制器，写了的话找springmvc控制器。
 
-##### 使用
+### 使用
 
 还是那个套路，要让一个普通类变成特殊类（这里是springmvc的前端控制器controller），不外乎四种方式：继承父类、实现接口、写配置、打注解，推荐第四种，清晰简洁。
 
@@ -148,7 +144,7 @@
 
 注：控制器包名有：servlet、controller、handler、action。
 
-#### requestMapping注解
+## requestMapping注解
 
 该注解既可写在方法级，也可写在类级，拼接起来得到最终访问地址。
 
@@ -184,7 +180,7 @@ public class Father{
 
 ant（一种项目构建工具）风格的的请求路径：value值支持通配符：？代表单个字符；*代表0或多个字符；**代表包括/的任意目录。
 
-#### Rest（Restful）
+## Rest（Restful）
 
 rest指一种软件编程风格，特指前端请求类型，有四种：增-POST、删-DELETE、改-PUT、查-GET。普通浏览器只支持get和post请求，过滤器HiddenHttpMehtodFilter可通过对post请求进行加工以支持两种请求。
 
@@ -277,7 +273,7 @@ public class RequestTypeController {
 
 从上看出4个方法分别接收4中不同类型的请求。
 
-#### 处理前端参数
+## 处理前端参数
 
 常用注解：
 
@@ -336,7 +332,7 @@ public class Father{
 }
 ```
 
-#### 处理模型数据
+## 处理模型数据
 
 如果跳转时携带数据即既同View有关又同Model有关，我们可以通过ModelAndView、ModelMap、Map、Model等类来处理；也可通过@SessionAtrributes、@ModelAttribute等注解来处理。前者较为常见，且数据置于request对象中。
 
@@ -421,7 +417,7 @@ public class HelloController {
 
 另一个注解是@ModelAttribute，一般在数据更新时使用。此注解修饰的方法会在本类其他任何一个非此注解修饰的请求处理方法执行前执行，必须有Map类型的参数，目的是将对象（比如查询得到的）put进Map中，并传递给待执行的请求处理方法，默认key的值须与请求处理方法的参数类型的首字母小写单词相同。
 
-#### 视图、视图解析器和国际化
+## 视图、视图解析器和国际化
 
 Controller方法的返回值有String、View、ModelAndView，但都会转为ModelAndView，进一步地被视图解析器ViewResolver渲染为视图View（jsp、pdf等）。
 
@@ -484,9 +480,9 @@ JstlView支持jstl并实现国际化（主要针对语言）操作。实现国�
 
 可通过给InternalResourceViewResolver类的buildView方法打断点查看所解析出的视图是InternalResourceView还是JstlView。
 
-#### 视图解析器
+## 视图解析器
 
-##### 内嵌式控制器
+### 内嵌式控制器
 
 一个jsp页面向另一个jsp页面的跳转（转发或重定向）有三种情况：
 
@@ -511,7 +507,7 @@ JstlView支持jstl并实现国际化（主要针对语言）操作。实现国�
 
 - 无springMVC的介入，直接跳转。
 
-##### 指定请求方式
+### 指定请求方式
 
 可在请求处理方法中指定跳转方式，例如：
 
@@ -522,7 +518,7 @@ return "redirect:/views/hello.jsp"
 
 但注意一旦指定了跳转方式，视图解析器的前后缀补全功能就会失效，故应手动补全前后缀。
 
-#### 处理静态资源
+## 处理静态资源
 
 静态资源包括：html、css、js、图片、视频、音频等。
 
@@ -533,7 +529,7 @@ return "redirect:/views/hello.jsp"
 <mvc:default-servlet-handler></mvc:default-servlet-handler>
 ```
 
-#### 类型转换器
+## 类型转换器
 
 spring自带一些类型转换器，譬如从控制器方法的参数上可看出。
 
@@ -594,7 +590,7 @@ spring自带一些类型转换器，譬如从控制器方法的参数上可看�
 
 使用的时候注意前后端参数应一致，不一致可以@RequestParam作缓冲。
 
-#### 数据格式化
+## 数据格式化
 
 springMVC为我们提供了许多注解，以方便数据的格式化。
 
@@ -624,11 +620,11 @@ springMVC为我们提供了许多注解，以方便数据的格式化。
 
 数据格式化与数据校验有类似之处，即不符合指定的格式或不满足校验给定的格式都会生成下一节所讨论的错误消息，数据校验也会在下一节谈到。
 
-#### 错误信息封装与数据校验
+## 错误信息封装与数据校验
 
 看这个标题，就知道它俩是配合使用的。
 
-##### 错误信息封装
+### 错误信息封装
 
 看下面这个例子：
 
@@ -663,7 +659,7 @@ public Msg updateEmployee(@Valid Employee employee, BindingResult result) {
 
 该方法的第二个参数（必须放在第二位）就存着错误信息，可将其中错误信息装进Msg的实例，转成json传回前端。
 
-##### 数据校验
+### 数据校验
 
 安全起见，我们不仅需要前段校验，也需要后端校验。这里说的数据校验就是指后端的校验。
 
@@ -704,7 +700,7 @@ public Msg updateEmployee(@Valid Employee employee, BindingResult result) {
 
    于是乎一旦empName和empEmail中的某个值不满足指定格式，其对应message值就会存进上一节代码里的result对象中。
 
-#### 处理异步请求
+## 处理异步请求
 
 控制器方法处理请求，并返回json对象。步骤：
 
@@ -761,7 +757,7 @@ public Msg updateEmployee(@Valid Employee employee, BindingResult result) {
    }
    ```
 
-#### 文件上传
+## 文件上传
 
 springMVC实现文件上传的方式本质上和servlet的是一样的，都需要依赖commons-fileupload.jar和commons-io.jar，而springMVC的优点即简化代码。
 
@@ -840,7 +836,7 @@ springMVC实现文件上传的方式本质上和servlet的是一样的，都需�
    }
    ```
 
-#### 拦截器
+## 拦截器
 
 拦截器的原理和过滤器相同。想做出自己的拦截器，需实现HandleInterceptor接口，其下有三个方法：
 
@@ -908,9 +904,9 @@ springMVC实现文件上传的方式本质上和servlet的是一样的，都需�
 
 3. 使用。那么针对上面的配置，结果就是除testModel之外的请求都会被拦截。
 
-#### 异常处理
+## 异常处理
 
-##### ExceptionHandler注解
+### ExceptionHandler注解
 
 springMVC提供HandlerExceptionResolver接口，其每个实现类都对应一种异常处理方式。它提供了ExceptionHandler注解。
 
@@ -959,7 +955,7 @@ public class MyExceptionHandle {
 }
 ```
 
-##### ResponseStatus注解
+### ResponseStatus注解
 
 另一个接口叫ResponseStatusExceptionResolver，用于创建自己的异常类并自定义异常信息（包括额外的状态码和提示信息）界面。它提供的注解是ResponseStatus。
 
@@ -1045,7 +1041,7 @@ public class ExceptionController {
 }
 ```
 
-##### 其他两种异常处理方式
+### 其他两种异常处理方式
 
 springmvc自带的异常处理实现类叫DefaultHandlerExceptionResolver，通过它springmvc在常见异常（404、403、500）的基础上新增了一些异常，可进入源码查看。
 
