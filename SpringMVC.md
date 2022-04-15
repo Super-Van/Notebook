@@ -417,13 +417,13 @@ public class HelloController {
 
 另一个注解是@ModelAttribute，一般在数据更新时使用。此注解修饰的方法会在本类其他任何一个非此注解修饰的请求处理方法执行前执行，必须有Map类型的参数，目的是将对象（比如查询得到的）put进Map中，并传递给待执行的请求处理方法，默认key的值须与请求处理方法的参数类型的首字母小写单词相同。
 
-## 视图、视图解析器和国际化
+## 国际化
 
 Controller方法的返回值有String、View、ModelAndView，但都会转为ModelAndView，进一步地被视图解析器ViewResolver渲染为视图View（jsp、pdf等）。
 
 视图的顶级接口：View，视图解析器的顶级接口：ViewResolver。常见的视图和解析器有InternalResourceView、InternalResourceViewResolver等，JstlView是InternalResourceView的子类，springMVC解析jsp时会默认处理成InternalResourceView，但如果发现jsp中有jstl，则自动转为JstlView。
 
-JstlView支持jstl并实现国际化（主要针对语言）操作。实现国际化步骤：
+JstlView支持jstl并实现国际化（针对各国语言）操作。实现国际化步骤：
 
 1. 创建并配置资源文件，形如：`基名_语言_地区.properties`或`基名_语言.properties`。可在网上搜“国际化资源文件命名”。我们姑且创建文件名为i18n.properties（internationalization-国际化）与i18n_en_US.properties的资源文件。
 

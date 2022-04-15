@@ -2,9 +2,9 @@
 
 参考视频：[oracle数据库教程](https://www.bilibili.com/video/BV1z4411W771?p=28)。
 
-## 下载与安装
+## 安装
 
-取Oracle官网下载安装包，11g的安装包有两个，要把两个文件夹解压到一起。安装过程参考视频。最后验证一下，输入用户名和密码，登录数据库：
+去Oracle官网下载安装包（我已经存到onedrive了），11g的安装包有两个，要把两个文件夹解压到一起。安装过程参考视频。最后验证一下，输入用户名和密码，登录数据库：
 
 ```sql
 sqlplus scott/tiger;
@@ -12,9 +12,9 @@ sqlplus scott/tiger;
 
 注：拉长打印宽度：`set linesize = 300;`。拉长打印高度（减少分页）：`set pagesize = 300`。
 
-## 基本概念
+## 概述
 
-数据类型中有一种形如`NUMBER(7,2)`，表示7位数，其中小数2两位。
+数据类型中有一种形如`NUMBER(7,2)`，表示7位数，其中小数2位。
 
 ## DQL
 
@@ -82,12 +82,12 @@ alter session set NLS_DATE_FORMAT = 'yyyy-mm-dd';
 
 转义字符可以任意指定，一般用反斜杠。
 
-in和not in子句中也不能出现null，这个很好理解：`in(a, b, c)`等价于`value = a or value = b or value = c   `，加个null、配上等号就无意义了。
+in和not in子句中也不能出现null，这个很好理解：`in(a, b, c)`等价于`value = a or value = b or value = c   `，加个null等价后就无意义了。
 
-补上一条语句：
+上一条语句若有遗漏，则用a补上：
 
 ```sql
--- 注意分号前有空格
+-- 注意分号前有空格，不然补后接头处就成了emporder
 SQL> select empno, ename, sal from emp ;
 -- 结果省略
 SQL> a order by sal desc;
@@ -120,7 +120,8 @@ SQL> select instr('hello', 'll') from dual;
 SQL> select lpad('hello', 10, '*') 左填充, rpad('hello', 10, '&') 右填充 from dual;
 -- 去左右两边指定字符
 SQL> select trim('X' from 'XXhello worldXXXX'）from dual;
-SQL> select trim('  hello world      ') from dual; -- 默认去空字符              -- 替换子串为其他字符
+SQL> select trim('  hello world      ') from dual; -- 默认去空字符              
+-- 替换子串为其他字符
 SQL> select replace('hello', 'll', '*') from dual;
 ```
 
@@ -192,6 +193,8 @@ SQL> select * from emp where empno = '7788';
 
 ![image-20201002105445740](Oracle.assets/image-20201002105445740.png)
 
+可见日期与数字不能直接转。
+
 ```sql
 -- 字符转数字
 SQL> select to_number('￥123,456.7', 'L999,999.9') from dual;
@@ -254,6 +257,8 @@ begin
 	insert ...;
 	insert ...;
 end;
+-- 蠕虫复制
+insert into mytab(myno, myname) select empno, ename from emp;
 ```
 
 注：插入海量数据的方式还有数据泵、SQL Loader、外部表等。
@@ -264,7 +269,7 @@ end;
 truncate table emp;
 ```
 
-删除完如果后悔，可用后面接触到的事务中的`rollback`命令。
+删除完如果后悔，可用后面接触到的事务中的[rollback](#rollback)命令。
 
 delete支持回退，truncate不支持，因为DML都能回退，而truncate属于DDL，不支持。
 
@@ -279,13 +284,13 @@ delete支持闪回，truncate不支持。
 
 delete删除数据但不会释放空间，相当于把文件放进回收站，但没有完全删除，truncate会。
 
-delete会产生碎片，即删除一行记录后对应空间就空在那里，下一条插入的数据只能继续从最后插，truncate不会。如果我们经常进行增删操作，那么须整理碎片合并空间：
+delete会产生碎片，即删除一行记录后对应空间就空在那里，下一条插入的数据只能继续从最后插，truncate不会。如果我们经常进行增删操作，那么须整理碎片合并空间（仅插入则不用）：
 
 ```sql
 alter table move;
 ```
 
-另外一个方法时合并导出碎片空间然后导回到本表。
+另外一个方法是合并导出碎片空间然后导回到本表。
 
 ## DDL
 
@@ -347,7 +352,7 @@ drop table mytab purge;
 - 非空约束（not null）。
 - 默认约束（default）。
 
-其中，注意多个null不违反唯一约束。
+注意多个null并不违反唯一约束。
 
 约束分为列级约束和表级约束：
 
@@ -367,20 +372,20 @@ drop table mytab purge;
 主键约束：PK_字段名
 外键约束：FK_参照表_被参照表（或FK_字段名_参照表_被参照表或FK_参照表_被参照表_字段名）
 非空约束：NN_字段名
-默认约束：不需要命名，因为一般不出错
+默认约束：不需要命名，因为一般无错可出
 ```
 
-多张表的约束名之间不能重复。
+约束名在表内和表间不能重复。
 
 关于外键约束，我们需注意参照表和被参照表之间的级联处理。被参照表决定参照表，冲突解决手段包括级联删除、级联更新等。
 
-关于追加约束，检查、唯一、主键、外键约束都用add。比如：
+关于添加约束，检查、唯一、主键、外键约束都用add。比如：
 
 ```sql
 alter table student add constraint UQ_sname unique(sname);
 ```
 
-而非空和默认约束用的却是modify，而且默认约束连constraint都不用写（不会引发错误）。比如：
+而非空和默认约束用的却是modify，而且默认约束连constraint都不用写。比如：
 
 ```sql
 alter table student modify sname constraint NN_sname not null;
@@ -393,19 +398,13 @@ alter table student modify sname default '无名氏';
 alter table 表名 drop constraint 约束名;
 ```
 
-那么默认约束由于没有约束名，故其删除语句特殊：
+那么默认约束由于没有约束名，故其删除语句同追加：
 
 ```sql
-alter table 表名 modify 字段名 default null;
+alter table 表名 modify 字段名 default null; -- 没设默认值的字段的默认值就是null
 ```
 
-以上是从统一角度看待这些个约束，也可从完整性角度看待，即三大完整性：
-
-- 实体完整性。
-- 参照完整性。
-- 用户自定义完整性。
-
-这些知识参考教材。
+没有约束的直接修改方法，只能先删除后重新添加。
 
 ## 三大范式
 
@@ -424,28 +423,28 @@ oracle自带语句录制功能：
 ```sql
 -- 所写全部sql语句被存入note.txt中
 spool d:\note.txt;
-sql语句……
+sql语句...
 spool off;
 ```
 
 ## 事务
 
-概念：单个逻辑工作单元执行的一系列操作。
+概念：一组逻辑操作单元（一系列DML操作），让数据从一种状态变成另一种状态。
 
 它具有四大特性-ACID：
 
-- atomicity：原子性，即让多条语句的执行或一系列操作要么都成功，要么都不做，不可能前一部分成功而后一部分失败。
-- consistency：一致性，即事务执行前后，总量保持一致。总量一致如某次转账前后，两记录在此字段上的分量之和一致。
-- isolation：隔离性，即各个事务并发执行，互不干扰。
-- durability：持久性。
+- atomicity：原子性，指事物是一个不可分割的工作单位，即让多条语句的执行要么都成功要么都不做，不能仅部分成功。
+- consistency：一致性，指事物让数据库从一个一致性状态变为另一个一致性状态。简而言之即数据值总和不变，如某次转账前后，两者金额总数不变。
+- isolation：隔离性，指一个事务的执行（具体指对数据的操作）不受其他并发的事务干扰。
+- durability：持久性，指一旦事务被提交，对数据库的改变就是永久性的。
 
-原子性重中之重。
+原子性是重中之重。
 
 事务生命周期：如下图所示，开始于第一条增删改语句，终结于提交或回滚。注：对MySQL，语句一执行完就自动提交。
 
 ![事务生命周期](oracle.assets/事务生命周期.png)
 
-理解提交的机制。每一个客户端在访问数据库服务器时访问的是各自的缓存，若修改了数据，则只有在提交（commit）之后才能更新、共享给其他客户端。
+理解提交的机制。每一个客户端在访问数据库服务器时访问的是各自的缓存，若修改了数据，则只有在提交（commit）之后才能更新并共享给其他客户端。
 
 如下图所示。客户端1和客户端2各自进行着事务，原数据库中存在某数据1，客户端1现对其进行修改，改成2，那么对应服务器缓存中的该数据更新为2，而客户端2对应缓存中的该数据仍为1，接着执行commit指令之后，原数据库的该数据就变为2，那么客户端2下一次查询时该数据就是2。
 
@@ -454,14 +453,14 @@ spool off;
 提交的实现方式：
 
 - 显式（手动）提交：输入commit命令。
-- 隐式（自动）提交：当执行exit（正常退出）、DCL、DDL等语句时，系统来提交。
+- 隐式（自动）提交：关闭连接，执行DCL、DDL等语句。
 
-理解回滚（回退）的机制。回滚就是撤销，实现方式有两种：
+理解回滚（回退）的机制，回滚就是撤销，只针对已执行而未提交的DML语句（针对缓存而非原库），实现方式有两种：
 
-- 显式回滚：输入rollback命令，默认回滚到当前事务之前。
+- 显式回滚：输入<span id="rollback">rollback命令</span>，默认回滚到当前事务开始之前。
 - 隐式回滚：异常退出，如宕机、断电等。
 
-我们还能回滚到某一保存点的状态，使得回滚不会让之间所有的增删改都失效（这其实与事务的理念相悖）。实现如下：
+我们还能回滚到某一保存点的状态：
 
 ```sql
 -- 已执行若干条增删改语句
@@ -470,27 +469,34 @@ savepoint 保存点名;
 rollback to [savepoint] 保存点名;
 ```
 
-下面讨论事务的隔离级别。多个事务会产生一些并发问题：
+下面讨论事务的隔离级别，多个事务会产生一些并发问题，给定事务A和事务B：
 
-- 脏读：前者更新某数据但未提交，后者在此时间段前后会对此数据读到不一致的值，则其读到的新数据就是脏的。
-- 不可重复读：前者更新某数据并提交，后者在此时间段前后会对此数据读到不一致（不重复）的值。反映于update语句。
-- 幻读（虚读）：前者插入或删除记录并提交，后者在此时间段前后会读到不一致的记录数量。反映于insert和delete语句。
+- 脏读：B读到A执行DML语句但未提交时的字段值。临时内容绝不可取。
+- 不可重复读：B在A提交DML语句前后对某记录的字段读到不一样的值。
+- 幻读（虚读）：B在A提交DML语句前后读到增多的记录数。
 
-SQL99标准定义了四种隔离级别（递进关系）来克服并发问题：
+SQL99标准定义了四种隔离级别来克服并发问题：
 
 | 隔离级别                  | 脏读 | 不可重复读 | 虚读 |
 | ------------------------- | ---- | ---------- | ---- |
 | read uncommitted-读未提交 | 可   | 可         | 可   |
-| read committed-读已提交   | 否   | 可         | 可   |
-| repeatable read-可重复读  | 否   | 否         | 可   |
-| serializable-序列化       | 否   | 否         | 否   |
+| read committed-读已提交   |      | 可         | 可   |
+| repeatable read-可重复读  |      |            | 可   |
+| serializable-序列化       |      |            |      |
 
-将并发变成串行化（即序列化），就能从根本上解决并发问题，即让客户端互斥地更新相同数据。但事实上我们需在高效率（高并发）和高稳定性之间做平衡考虑。
+理解这几个级别的工作：
+
+- 读未提交：使得A对原库乃至缓存的DML结果均响应给B。
+- 读已提交：只允许A对原库的DML结果响应给B。
+- 可重复读：只允许A对原库的insert结果响应给B。
+- 序列化：使得各事务互斥地对某张表进行访问。
+
+将并发变成串行化（即序列化），就能从根本上解决并发问题，但事实上我们需在高效率（高并发）和高稳定性之间做平衡考虑。
 
 oracle只支持read committed和serializable，另外oracle自身扩充了一种叫read only，但它其实从属于serializable。
 
 ```sql
--- 切换隔离级别为序列化
+-- 针对当前连接，切换隔离级别为序列化
 set transaction isolation level serializable;
 -- 切回到默认
 set transaction isolation level read committed;
@@ -498,13 +504,11 @@ set transaction isolation level read committed;
 set transaction read only;
 ```
 
-99%的情况我们用read committed，后者性能太低。
-
-注：MySQL支持SQL99标准定义的全部四种隔离级别。
+一般我们只解决脏读问题，即采用read committed，后者性能太低。
 
 ## 序列
 
-序列的作用是模拟自增，本质是内存中的数组。
+序列的作用是模拟自增，本质是内存中的数组，数组长度固定，里面的元素可以一直在变。
 
 ```sql
 -- 创建序列
@@ -517,7 +521,7 @@ cycle | noncycle -- 循环与否（默认否）
 cache 缓存值 | no cache -- 缓存与否（默认否），用于为多张争夺id的表分配号码
 -- 从数据字典查看序列
 select * from user_sequences;
--- 使用序列
+-- 使用序列（这条例子不好）
 select myseq.nextval, myseq.currval, empno, ename from emp;
 --  通过序列实现主键自增
 insert into person(myseq.nextval, 'Van');
@@ -527,11 +531,11 @@ insert into person(myseq.nextval, 'Van');
 
 裂缝问题：比方说数组长度为20，当前拿到6，但下一次拿到的是21。列举一些情况：
 
-- 异常：比如排到6突然断电，正常后下一个号码就会是21。
-- 回滚：比如撤销两条插入语句，回到排6之后的状态，那下一次拿到的是9。
+- 异常：比如排到6突然断电。
+- 回滚：比如撤销两条插入语句，回到排6之后的状态。
 - 多表使用：多表抢着用同一个序列。
 
-想修改序列只需将语句中的create改为alter，后面的属性仍自由设置。
+想修改序列只需将语句中的create改为alter，后续设置同上。
 
 ## 索引
 
@@ -602,7 +606,7 @@ drop public synonym 别名;
 - plsql developer。
 - oracle sql developer（官方提供）。
 
-老师第二个，去官网[SQL Developer Downloads](https://www.oracle.com/tools/downloads/sqldev-downloads.html)下载。 下载好了直接解压到某目录，再点开sqldeveloper.exe进行安装，最后新建连接。注：欲建立连接，必先打开Oracle的监听器服务：OracleOraDb11g_home1TNSListener，之后1521端口才可以产生，接着要在cmd中输入`lsnrctl start`-启用oracle监听器才能建立连接。
+老师用第二个，去[SQL Developer Downloads](https://www.oracle.com/tools/downloads/sqldev-downloads.html)下载。 下载好了直接解压到某目录，再点开sqldeveloper.exe进行安装，最后新建连接。注：欲建立连接，必先打开Oracle的监听器服务：OracleOraDb11g_home1TNSListener，之后1521端口才可以产生，接着要在cmd中输入`lsnrctl start`-启用oracle监听器才能建立连接。
 
 基本语法：
 
@@ -886,9 +890,7 @@ begin
 end;
 ```
 
-## 存储过程和存储函数
-
-### 存储过程
+## 存储过程
 
 相当于java里的方法。
 
@@ -930,7 +932,7 @@ end;
 
 注：为了增进与公司同事的友好交流，不让友谊的小船被掀翻，与他人协作管理数据库时，写过程最好不要用到replace关键字，不然可能不知不觉把别人千辛万苦写的东西给改了。
 
-### 存储函数
+## 存储函数
 
 与存储过程相比，存储函数必须有return语句。示例如下：
 
@@ -965,14 +967,15 @@ begin
 end;
 ```
 
-若返回值仅一个，则用存储函数或存储过程；若返回值有多个，则用存储过程并out关键字更好（用多个out，看起来更统一一些）：
+若返回值仅一个，则用存储函数或存储过程；若返回值有多个，则用存储过程并out关键字更好：
 
 ```plsql
 -- 获取某员工的姓名和工资
--- 创建过程，使用多out
+-- 创建过程，使用多out in和out都写在参数列表中
 create or replace procedure getNameAndJob(pempno in emp.empno%type, pename out emp.ename%type, pjob out emp.job%type)
 as
 begin
+	-- 依次对应赋值
     select ename, job into pename, pjob from emp where empno = pempno;
 end;
 --执行过程
@@ -1014,9 +1017,10 @@ create or replace package body mypackage as
     procedure queryEmpList(dno number, empList out empcursor)
     as
     begin
-        open empList for -- 注意for关键字
+    	-- 注意for关键字
+        open empList for 
         select * from emp where empno = dno;
-        -- 因为要返回给调用，故不关闭游标
+        -- 因为要返回给调用处，故不关闭游标
     end queryEmpList; -- 结束时带上过程名
 end mypackage; -- 结束时带上包名
 ```
@@ -1058,7 +1062,7 @@ end;
 -- 修改学生表某字段后打印成功信息
 create trigger logUpdateStudent
 after
-update of stuname -- 注意of关键字，指定更新字段
+update of stuname
 on student
 declare
 begin
@@ -1076,7 +1080,8 @@ before insert
 on student
 begin
     if to_char(sysdate, 'day') in ('星期六', '星期日') or to_number(to_char(sysdate, 'hh24')) not between 9 and 18
-    then  raise application_error(-20001, '禁止非工作时间插入学生记录'); -- 自定义例外id和例外信息
+    -- 自定义例外id和例外信息
+    then raise application_error(-20001, '禁止非工作时间插入学生记录'); 
 end;
 /
 ```
@@ -1096,7 +1101,7 @@ end;
 /
 ```
 
-由上例可知，我们系统的校验可以在前端、后端、数据库多处进行，当然越早拦截越早返回。
+由上例可知，我们系统的校验可以在前端、后端、数据库多处进行，当然越早拦截越好。
 
 ## 数据字典
 
@@ -1117,7 +1122,7 @@ end;
 
 ## 闪回
 
-在commit之前，可用rollback撤销。在commit之后，可用闪回撤销。
+在commit之前，可用rollback撤销；在commit之后，可用闪回撤销。
 
 闪回的作用：
 
@@ -1133,7 +1138,7 @@ end;
 show parameter undo;
 ```
 
-结果中的undo_retention为闪回时间，默认为900秒，意即超过闪回区大小的数据必须在900秒以内闪回，不然无法闪回。可修改闪回时间：
+结果中的undo_retention为闪回时间，默认为900秒，意即超过闪回区容量的数据必须在900秒以内闪回，不然无法闪回。可修改闪回时间：
 
 ```sql
 -- both意为当前数据库当前时间有效，重启亦有效
@@ -1167,7 +1172,7 @@ flashback table 表名 to scn xxxxxxx;
 
 ### 闪回已删除表
 
-默认情况下，如果回收站中有同名的多张表，则闪回的是最近删除的表。如果闪回的表的表名和库中现有的表的表名冲突，则需重命名。
+默认，如果回收站中有同名的多张表，则闪回的是最近删除的表。如果闪回的表的表名和库中现有的表的表名冲突，则需重命名。
 
 ```sql
 flashback table 表名 to before drop rename to 新名;
@@ -1327,7 +1332,7 @@ sql优化的前提条件：数据量特别庞大。
 - 避免索引失效：如不要在where子句中基于索引用函数、计算、not、is null、自动转换等，这些都会使索引失效。
 - 尽量减少访问次数：这与第一条相矛盾，我们需要根据实际、经验、压力（性能）测试来权衡。
 
-## 附：学校课程练习
+## 附：课程练习
 
 ### 实验二
 

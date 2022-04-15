@@ -12,7 +12,9 @@
 
 ## 下载Apache和PHP
 
-过程过于繁杂，自行记忆，幸亏安装包已保存至OneDrive。注意Apache安装路径最后的文件夹名不要改。
+过程过于繁杂，自行记忆，幸亏安装包已保存至OneDrive。
+
+注意Apache安装路径最后的文件夹名不要改。
 
 ## 相关配置
 
@@ -83,8 +85,8 @@ addType application/x-httpd-php .php
 2. 指定MySQL扩展的路径（因为php_mysqli.dll在ext中）。
 
    ```ini
-   ;extension_dir = "ext"
-   ;增加扩展路径
+   ; extension_dir = "ext"
+   ; 增加扩展路径
    extension_dir = "d:/server/PHP7/ext"
    ```
 

@@ -1,6 +1,6 @@
 # Promise
 
-参考视频：[尚硅谷Web前端Promise教程从入门到精通](https://www.bilibili.com/video/BV1GA411x7z1)。
+参考视频：[Web前端Promise教程从入门到精通](https://www.bilibili.com/video/BV1GA411x7z1)。
 
 ## 概述
 
@@ -390,7 +390,7 @@ let result = p.then(value => {
     // 在成功的回调中抛异常
     throw "error"
 }, reason => {
-    // 在失败的回调中返回非promise对象的值，包括无返回值
+    // 在失败的回调中返回非promise对象的值，包括undefined
     return 521
     // return new Promise((resolve,reject)=>{
     //     resolve("success")

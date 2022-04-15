@@ -52,7 +52,7 @@ vue有很多特点和在web常见的高级功能：
 
 生产环境：http://vuejs.org/js/vue.min.js。
 
-#### npm安装
+#### NPM安装
 
 后续学习到webpack和CLI的时候，再使用此方式。
 
@@ -327,6 +327,8 @@ const app = new Vue({
 - 有el无template：把el对应元素当作template，去编译。
 - 无el有template：直接编译template。
 - 有el有template：用template替换掉el对应元素，去编译。
+
+可看出归根结底template最重要。
 
 ## 基础语法
 
@@ -1291,9 +1293,8 @@ v-model后面也可以接修饰符，这里主要讲三种修饰符：
 ```js
 const app = new Vue({
     el: "#app",
-    // 注册组件
+    // 注册组件 标签名: 组件名
     components: {
-        // 标签名: 组件
         myCpn: cpn
     }
 });
@@ -2178,7 +2179,7 @@ var myModule = (function () {
 })()
 ```
 
-目前JS已经支持模块化了，即文件里的成员本身就具有模块作用域，但通过script标签引入的JS代码是非模块化的。
+目前JS已经支持模块化了，即文件里的成员默认具有模块作用域，但通过script标签引入的JS代码是非模块化的。
 
 有了模块化开发，开发者之间约定好不能冲突的就从变量名变成模块名（文件名）了。
 
@@ -2395,9 +2396,7 @@ module.exports = {
 
 然后就可直接使用`.\node_modules\.bin\webpack`命令了。
 
-以后开发中会使用另一个更常用的打包命令`npm run build`，那么我们需要将原命令映射于此。
-
-具体地，在package.json中编写：
+以后开发中会使用另一个更常用更简捷的打包命令`npm run build`，那么我们需要将原命令映射于此。具体地，在package.json中编写：
 
 ```json
 "scripts": {
@@ -2406,9 +2405,7 @@ module.exports = {
 },
 ```
 
-而且可喜的是，对scripts里配置的命令，webpack优先从局部模块开始找而非全局模块。故上述build属性值可改为`webpack`。
-
-如此便可使用等价的npm命令。
+对scripts里配置的命令，webpack优先从局部模块开始找而非全局模块，故上述build属性值可改为`webpack`。
 
 附带讲。package.json里的devDependencies存放的是开发期依赖，它们是生产的必要条件但不参与生产；而dependencies属性存放的是生产期依赖，它们在开发和生产期都不可或缺。
 
@@ -2651,7 +2648,7 @@ new Vue({
 })
 ```
 
-最终地，相比js，vue自身提供了更佳的文件类型`.vue`，我们把app.js的内容转写到app.vue中：
+最终，相比js，vue自身提供了更佳的文件类型`.vue`，我们把app.js的内容转写到app.vue中：
 
 ```vue
 <template>
@@ -2678,7 +2675,7 @@ export default {
 </style>
 ```
 
-可见vue文件里的代码是三大件完全分离的。
+可见vue文件里的代码是三大件分离的。
 
 编译打包前，要安装加载vue文件的loader和template编译器，并作相应配置。
 
@@ -3367,7 +3364,7 @@ export default {
 ```vue
 <template>
   <div>
-    <!-- 这里的userId名称要跟path:"/user/:userId"里的userId名称一致  -->
+    <!-- 这里的名称userId要跟path:"/user/:userId"里的名称userId一致  -->
     <h3>你好，{{ $route.params.userId }}</h3>
   </div>
 </template>
@@ -3454,9 +3451,9 @@ const HomeNews = () => import("../components/HomeNews")
 
 前面提到的[动态路由](#动态路由)就是带参跳转的一种，参数夹杂在路由中。
 
-负责传递参数的对象有两个-params和query，动态路由对应前者，故本节只学习后者。
+负责传递参数的对象有两个-params和query，前者对应动态路由，故本节只学习后者。
 
-顾名思义，使用请求字符串，它独立于路由之外，故无需加工映射，只需在to属性值里添加参数，然后在相应组件中获取。
+顾名思义，使用请求字符串，它独立于路由之外，故无需修改映射，只需在to属性值里添加参数，然后在相应组件中获取。
 
 以激活访问用户信息组件为例。准备好此组件，在映射表中配置，然后看下面几坨代码：
 
@@ -3481,7 +3478,7 @@ const HomeNews = () => import("../components/HomeNews")
 </template>
 ```
 
-附带我们看下JS实现的带参跳转：
+我们看下JS实现的带参跳转：
 
 ```js
 this.$route.push(`/user/${this.userId}`);
@@ -3494,6 +3491,8 @@ this.$route.push({
   },
 });
 ```
+
+附带讲，我们发现怎么点来点去，地址栏怎么变，浏览器控制台的Network一栏都毫无波澜，这就印证了前端路由的有效性，无需后端插手。
 
 ### router与route
 
@@ -3580,7 +3579,7 @@ router.beforeEach((to, from, next) => {
 多参考官方文档对[导航守卫](https://router.vuejs.org/zh/guide/advanced/navigation-guards.html)的详细介绍。看一些例子：
 
 ```js
-// 在/home路由对象中追加
+/* 在/home路由对象中追加 */
 beforeEnter: (to, from, next) => {
   // 准备从/about到/home
   console.log(`准备从${from.path}到${to.path}`);
@@ -3590,7 +3589,7 @@ beforeEnter: (to, from, next) => {
 ```
 
 ```js
-// 在Home.vue中添加
+/* 在Home.vue中添加 */
 beforeRouteLeave(to, from, next) {
   console.log("离开home");
   // /home/news
@@ -3629,7 +3628,7 @@ destroyed() {
 ```
 
 ```js
-/* 在Home.vue中添加 */ 
+// 在Home.vue中添加
 data() {
   return {
     path: "",

@@ -1,34 +1,36 @@
-# Java设计模式
+Java设计模式
 
-参考视频：[尚硅谷Java设计模式，韩顺平图解java设计模式](https://www.bilibili.com/video/BV1G4411c7N4)。
+参考视频：[图解java设计模式](https://www.bilibili.com/video/BV1G4411c7N4)。
 
-### 前导知识
+## 概述
 
-设计模式本身不依赖任何语言，但需要用某种语言来呈现，就用目前主流的语言Java，并以图解的方式讲解。
+### 概念
 
-#### 设计模式的重要性
+设计模式本身不依赖任何语言，但需要用某种语言来呈现。
 
-软件工程中，设计模式（design pattern）是对软件设计中普通存在（反复出现）的各种问题所提出的解决方案，该术语是由埃里希·伽马（Erich Gamma）在上世纪90年代从建筑设计领域引入到计算机科学的。
+软件工程中，设计模式（design pattern）是对软件设计中普遍存在的各种问题所提出的解决方案，该术语是由埃里希·伽马（Erich Gamma）在上世纪90年代从建筑设计领域引入到计算机科学的。
 
-- 联想一座大厦和一间小破屋比，大厦要考虑与解决的问题要多得多。
-- 拿实际工作尽力来说，我们会碰到如下问题：
-- 一个项目已经开发完了，但客户又提出增加新的功能。
-- 项目开发完了，原来的程序员离职了，你要接受来维护该项目，就怕可维护性（可读性）低、规范性低。
-- 好的公司面试你，会问你在做项目时用到了哪些设计模式，怎样使用的，解决了什么问题。
-- 设计模式在软件中的哪些地方得到体现。由低到高：OOP->功能模块（设计模式+算法+数据结构）->框架（多种设计模式）->架构（服务器集群）。
-- 想成为合格的软件工程师，花时间来研究设计模式是非常有必要的。
+设计模式使程序或软件向着下面这些方向迈进：
 
-#### 七大设计原则
+- 重用性-相同的代码不多次重复。
+- 可读性-即编程规范性，其他程序员容易读懂。
+- 扩展性、维护性-很方便地增加新功能及移除旧功能，不影响其余代码。
 
-##### 设计模式的目的
+仔细阅读别人写的很多源码和框架，渐渐地就能领会出设计模式的精妙之处。
 
-编写软件的过程中，程序员面临着来自耦合性、内聚性、可维护性、可扩展性、重用性、灵活性等多方面的挑战，设计模式就能使程序（软件）具有更好的代码重用性（相同的代码不多次编写）、可读性（即编程规范性，其他程序员容易阅读、理解）、可扩展性（即可维护性，很方便增加新功能）、可靠性（增加新功能并不影响原有的功能，耦合度低）、高内聚且低耦合。
+设计模式分三大类，共计23种：
 
-##### 设计模式七大原则
+- 创建型模式（类层面）：单例、抽象工厂、原型、建造者、工厂。
+- 结构型模式（整个系统层面）：适配器、桥接、装饰、组合、外观、享元、代理。
+- 行为型模式（方法层面）：模板方法、命令、访问者、迭代器、观察者、中介者、备忘录、解释器、状态、策略、职责链（责任链）。
 
-设计模式的原则其实就是程序员在编程时应当遵守的原则，也是各种设计模式的基础或依据。
+不同书籍对模式的分类或命名有差异。
 
-- 单一接口原则。
+### 设计原则
+
+设计模式的所遵守的原则有七个：
+
+- 单一职责原则。
 - 接口隔离原则。
 - 依赖倒转（倒置）原则。
 - 里氏替换原则
@@ -36,666 +38,56 @@
 - 迪米特法则。
 - 合成复用原则。
 
-##### 单一职责原则（Single Responsibility Principle)
+请自行参考文章。
 
-一个应该只承担“一项职责”，这一项职责的范围是不好界定的，需根据实际情况划定。
+### UML
 
-例如，类A负责多个职责，当测试其功能时发现由职责范围过大（或职责过多）引起错误的情况，就说明类A的粒度不够高（分得不够细），应该对其进行分解，分解得到更具体的类。
+#### 概述
 
-```java
-package singleResponsibility;
+Unified Modeling Language-统一建模语言，是一种用于软件系统分析和设计的语言工具。
 
-/**
- * 原始类包揽所有交通工具的运行方法，都在马路上跑，结果可想而知，是不合适的
- * 
- * @author 21708
- *
- */
-public class Primitive {
+UML本身是一套符号化的规定，这些符号用于描述软件模型中的各个元素和他们之间的关系。
 
-	public void run(String vehicle) {
-		System.out.println(vehicle + "在公路上运行。");
-	}
+重中之重的是类之间的关系：
 
-	public static void main(String[] args) {
-		Primitive vehicle = new Primitive();
-		vehicle.run("公交车");
-		vehicle.run("私家车");
-		vehicle.run("大货车");
-		// 由于run方法的职责过于宽泛或职责过多，下面三个参数传进run就有问题
-		vehicle.run("火车");
-		vehicle.run("飞机");
-		vehicle.run("轮船");
-	}
-}
-```
+- 依赖（Dependency）：一个类用到了另一个类（不管它出现在什么地方）。
+- 关联（Association）：一个类充当另一个类的成员变量。
+- 聚合（Aggregation）：类B的对象充当类A的成员变量，但B对象的生命周期与A的可一致可不一致。
+- 组合（Composite）：类B的对象充当类A的成员变量，且B对象的生命周期与A的需保持一致。
+- 泛化（Generalization）：一个类继承另一个类。
+- 实现（Realization）：一个类实现一个接口。
 
-```java
-package singleResponsibility;
+由上可得关联、聚合、组合、泛化、实现都是特殊的依赖；聚合与组合是关联的两种具体形式。
 
-/**
- * 在一个方法内部使用判断语句，分情况讨论
- * 
- * @author 21708
- *
- */
-public class Improve2 {
+#### 依赖
 
-	// 这版既在类级别上违反单一职责原则，且在方法级别上违反，有很大隐患
-	public void run(String vehicle) {
-		// 判断性代码是最丑的，复杂度会变高，可读性低，耦合性高
-        //越高级的代码，越少使用多分支语句，宁愿用类来代替
-		if (vehicle == "飞机")
-			System.out.println(vehicle + "在天上运行");
-		else if (vehicle == "火车")
-			System.out.println(vehicle + "在铁路上运行");
-		else if (vehicle == "轮船")
-			System.out.println(vehicle + "在水上运行");
-		else
-			System.out.println(vehicle + "在公路上运行。");
-	}
+没啥好说的，只要在某类定义中看到其他类的影子，就说明有依赖关系产生了，具体要看这种依赖是强还是弱，目标就是弱化。
 
-	public static void main(String[] args) {
-		Improve2 vehicle = new Improve2();
-		vehicle.run("公交车");
-		vehicle.run("私家车");
-		vehicle.run("大货车");
-		// 改进之后，虽然下面三个没问题，但有隐患
-		vehicle.run("火车");
-		vehicle.run("飞机");
-		vehicle.run("轮船");
-	}
-}
-```
+#### 关联
+
+关联具有：
+
+- 导向性：单向单箭头、双向无箭头。
+- 多重性：一对一、一对多、多对多。
+
+关联分为组合和聚合。
+
+#### 聚合
+
+被依赖类和依赖类呈现整体与部分的关系，但整体与部分的生命周期可以不一致，做法是仅从外部将部分对象传入整体对象。
+
+看下面人和香烟的例子。
 
 ```java
-package singleResponsibility;
-
-/**
- * 写多个类分别担负不同职责，真正实现单一职责
- * 
- * @author 21708
- *
- */
-public class Improve1 {
-
-	public static void main(String[] args) {
-		Car car = new Car();
-		car.run("汽车");
-	}
-}
-
-class Car {
-	public void run(String vehicle) {
-		System.out.println(vehicle + "在公路上运行。");
-	}
-}
-
-class Train {
-	public void run(String vehicle) {
-		System.out.println(vehicle + "在铁路上运行。");
-	}
-}
-
-class Plane {
-	public void run(String vehicle) {
-		System.out.println(vehicle + "在天上运行。");
-	}
-}
-
-class Boat {
-	public void run(String vehicle) {
-		System.out.println(vehicle + "在水上运行。");
-	}
-}
-```
-
-```java
-package singleResponsibility;
-
-/**
- * 在一个类内部写多个方法，分别担负不同职责，假性实现单一职责。在类级别违反该原则，而在方法级别没有违反。只有在逻辑足够简单、方法足够少的情况下，才在类级违反，在方法级别保持。
- * 
- * @author 21708
- *
- */
-public class Improve3 {
-
-	public void skyRun(String vehicle) {
-		System.out.println(vehicle + "在天上运行");
-	}
-
-	public void railwayRun(String vehicle) {
-		System.out.println(vehicle + "在铁路上运行");
-	}
-
-	public void waterRun(String vehicle) {
-		System.out.println(vehicle + "在水上运行");
-	}
-
-	public void roadRun(String vehicle) {
-		System.out.println(vehicle + "在公路上运行");
-	}
-
-	public static void main(String[] args) {
-		Improve3 vehicle = new Improve3();
-		vehicle.roadRun("汽车");
-		vehicle.railwayRun("火车");
-		vehicle.waterRun("轮船");
-		vehicle.skyRun("飞机");
-	}
-}
-```
-
-总结：
-
-- 降低类的复杂度，一个类只负责一项职责。
-- 提高类的可读性、可维护性（只新增，不修改）。
-- 降低变更引起的风险。一个类越复杂，担责越多，修改就极不方便，牵一发而动全身。
-
-##### 接口隔离（分离更准确）原则（Interface Segregation Principle)
-
-可理解为单一职责原则的接口版。
-
-客户端不应该依赖存在浪费情况的接口即没有用完它里面的所有功能，亦即一个类对另一个类的依赖应该建立在最小的接口上。
-
-举例：类A通过某接口依赖类B，类C通过该接口依赖类D，如果此接口对于A和C来说都不是最小接口即其中总有部分方法A和C是用不到的，而B和D都不得不将接口里的方法全部实现，于是造成了不必要的冗余。
-
-![image-20200319132422558](Java设计模式.assets/image-20200319132422558.png)
-
-如果不分离的话，各实现类就得把与自己无关、不该自己负责重写的方法给重写，增加了开销（额外的工作）。
-
-```java
-package interfaceSegregation;
-
-public class Primitive {
-
-	public static void main(String[] args) {
-		Beast beast = new Beast();
-		beast.run(new BeastMoveImpl());
-
-		Bird bird = new Bird();
-		bird.fly(new BirdMoveImpl());
-	}
-}
-
-/**
- * 兽类和鸟类共用的接口
- * 
- * @author 21708
- *
- */
-interface IAnimalMove {
-
-	String run();
-
-	String fly();
-
-	String swim();
-
-	String creep();
-}
-
-class BeastMoveImpl implements IAnimalMove {
-
-	@Override
-	public String run() {
-		return "在奔跑";
-	}
-
-	@Override
-	public String fly() {
-		// 冗余
-		return null;
-	}
-
-	@Override
-	public String swim() {
-		// 冗余
-		return null;
-	}
-
-	@Override
-	public String creep() {
-		// 冗余
-		return null;
-	}
-
-}
-
-class BirdMoveImpl implements IAnimalMove {
-
-	@Override
-	public String run() {
-		// 冗余
-		return null;
-	}
-
-	@Override
-	public String fly() {
-		return "在飞翔";
-	}
-
-	@Override
-	public String swim() {
-		// 冗余
-		return null;
-	}
-
-	@Override
-	public String creep() {
-		// 冗余
-		return null;
-	}
-
-}
-
-class Beast {
-
-	private String name;
-
-	/**
-	 * 使用未隔离的接口，依赖实现类
-	 * 
-	 * @param move
-	 */
-	public void run(IAnimalMove move) {
-		name = "兽类";
-		System.out.println(name + move.run());
-	}
-
-	/**
-	 * 使用隔离的接口，依赖实现类
-	 * 
-	 * @param move
-	 */
-	public void run(IBeastMove move) {
-		name = "兽类";
-		System.out.println(name + move.run());
-	}
-}
-
-class Bird {
-
-	private String name;
-
-	public void fly(IAnimalMove move) {
-		name = "小鸟";
-		System.out.println(name + move.fly());
-	}
-
-	public void fly(IBirdMove move) {
-		name = "小鸟";
-		System.out.println(name + move.fly());
-	}
-}
-```
-
-将IAnimalMove进行拆分成两个接口，供不同类使用，避免了开销。
-
-![image-20200319145643443](Java设计模式.assets/image-20200319145643443.png)
-
-```java
-package interfaceSegregation;
-
-public class Improve {
-
-	public static void main(String[] args) {
-		Beast beast = new Beast();
-		beast.run(new BeastMove());
-
-		Bird bird = new Bird();
-		bird.fly(new BirdMove());
-	}
-}
-
-/**
- * 拆分后专属兽类的接口
- * 
- * @author 21708
- *
- */
-interface IBeastMove {
-	String run();
-}
-
-/**
- * 拆分后专属鸟类的接口
- * 
- * @author 21708
- *
- */
-interface IBirdMove {
-	String fly();
-}
-
-/**
- * 兽类接口的实现类
- * 
- * @author 21708
- *
- */
-class BeastMove implements IBeastMove {
-
-	@Override
-	public String run() {
-		return "在奔跑";
-	}
-}
-
-/**
- * 鸟类接口的实现类
- * 
- * @author 21708
- *
- */
-class BirdMove implements IBirdMove {
-
-	@Override
-	public String fly() {
-		return "在飞翔";
-	}
-}
-```
-
-在实际应用中，我们就要具体看某个实现类是否存在冗余覆盖情况，有的话就得拆分接口。
-
-##### 依赖倒转原则（Dependency Inversion Principle）
-
-不应该是抽象依赖细节，而应该是细节依赖抽象。
-
-高层模块应该依赖抽象而非底层模块，底层模块也应该依赖抽象。
-
-中心思想：面向接口编程。
-
-设计理念：相对于细节的多变性，抽象的东西要稳定得多，以抽象为基础搭建的架构要比以细节为基础搭建的架构稳定得多。那么在Java中，抽象的载体就是接口或抽象类，细节的载体就是实现类。使用接口或抽象类的目的是制定好规范，而并不涉及到任何具体操作，把展现细节的具体操作交给它们的实现类去完成。
-
-注意事项：底层模块尽量要有所继承的抽象类或所实现的接口，或两者兼有，这样一来程序稳定性会更好；变量声明的类型也尽量是抽象类或接口，这样我们的对象引用和实际对象间就存在一个缓冲，便于程序的扩展和优化；继承时需遵循里氏替换原则。
-
-```java
-package dependendyInversion;
-
-public class Primitive {
-
-	public static void main(String[] args) {
-		Receiver receiver = new Receiver();
-		Email email = new Email();
-		receiver.receive(email);
-	}
-
-}
-
-/**
- * 实现发送消息的功能
- * 
- * @author 21708
- *
- */
-class Email {
-
-	public String send() {
-		return "电子邮件信息：Hello World!";
-	}
-}
-
-/**
- * 实现接收消息的功能
- * 
- * @author V
- *
- */
-class Receiver {
-
-	/**
-	 * 耦合性高，传入参数居然是个对象 一旦新增其他发送方式如QQ、微信那么还得加方法，用不同参数 用Object要判断类型还要向下强转，麻烦且有隐患
-	 * 用泛型也不行
-	 * 
-	 * @param email 实例对象
-	 */
-	public void receive(Email email) {
-		System.out.println(email.send());
-	}
-
-}
-```
-
-```java
-package dependendyInversion;
-
-public class Improve {
-
-	public static void main(String[] args) {
-		AnotherReceiver receiver = new AnotherReceiver();
-		receiver.receive(new QQ());
-		receiver.receive(new WeChat());
-	}
-
-}
-
-/**
- * 发送信息的接口，可由多种聊天软件实现
- * 
- * @author 21708
- *
- */
-interface ISender {
-	String send();
-}
-
-/**
- * QQ
- * 
- * @author 21708
- *
- */
-class QQ implements ISender {
-
-	@Override
-	public String send() {
-		return "QQ信息：Hello World!";
-	}
-
-}
-
-/**
- * 微信
- * 
- * @author 21708
- *
- */
-class WeChat implements ISender {
-
-	@Override
-	public String send() {
-		return "微信信息：Hello World!";
-	}
-
-}
-
-class AnotherReceiver {
-
-	/**
-	 * 这里参数用的就是接口，有了缓冲，有了多态，避免增加额外方法
-	 * 
-	 * @param sender
-	 */
-	public void receive(ISender sender) {
-		System.out.println(sender.send());
-	}
-}
-```
-
-用传递实现依赖关系的三种方式：
-
-- 接口传递
-- 构造器传递
-- setter传递
-
-##### 里氏替换原则（Liskove Substitution Principle）
-
-该原则讨论了类的继承的问题。
-
-继承包含这样一层含义：父类中的凡是已经实现好、很完善（就是子类没必要重写）的方法实际上设定了规范或契约，虽然他不强制要求所有子类必须遵循这些契约，但若子类对这些已经实现的方法进行任意修改（重写），就会对整个继承体系造成破坏。
-
-继承在给程序设计带来便利的同时，也带来了弊端。比如使用继承会给程序带来侵入性，程序的可移植性降低，对象间的耦合性增强。若一个类被其他类继承，则当它需要修改时，必须考虑到对所有子类可能产生的影响，一旦做了不合理的修改，子类可能出问题。
-
-核心思想：使用继承时，子类尽量不要重写父类的方法。举一个极端的例子，子类重写了父类的所有方法，那这继承没有任何意义，这哪叫继承，这不是要造老子的反吗？
-
-里氏替换原则告诉我们，继承实际上让两个类的耦合（依赖关系）增强了。在适当情况下，可以用聚合、组合或依赖来解决问题。
-
-继承的目的不是重写，而是利用现有的写好的加扩展出新的。
-
-##### 开闭原则（Open-Closed Principle）
-
-开闭原则是编程中最基础、最重要的原则，它既是设计模式的原则又是设计模式的目标。
-
-一个软件实体（如函数、类、模块）应该开放扩展（允许扩展出新的代码），关闭修改（不允许修改现有的代码），用抽象构建框架，用实现完成细节。
-
-编程中遵循其他原则和设计模式的终极目的就是不违背开闭原则。
-
-典例就是用依赖倒置（新增类去实现接口）实现开闭原则。
-
-##### 迪米特法则（Demeter Principle）
-
-又称最少知道原则（Least Knowledge Principle），意即一个对象应该对其他对象保持最少的了解。
-
-类与类之间的关系越密切，耦合度越大。
-
-迪米特法则又称为最少知道原则，即一个类对自己所依赖的类知道得越少越好。也就是说，被依赖的类不管多么复杂，都应该尽量将逻辑封装在内部（而不是写在依赖类的方法中），对外除了提供public方法，不泄露任何消息。
-
-耦合的方式包括依赖、聚合、组合、关联等。有耦合关系的两个对象之间是朋友关系，那么朋友分直接的朋友和陌生的朋友。以局部变量的形式出现在某类的内部的另一个类就是陌生的朋友，那么我们就不希望交陌生的朋友即避免让其他类充当局部变量。
-
-迪米特法则只是要求降低类间（对象间）的耦合关系，并非要求它们间完全没有依赖关系。
-
-##### 合用复用法则（Composite Reuse Principle）
-
-意即尽量使用聚合或合成，而不用继承。
-
-##### 总结
-
-针对接口编程，不针对（具体）实现编程。
-
-为了解耦而不断优化。
-
-#### UML
-
-##### 概述
-
-Unified Modeling Language-统一建模语言。
-
-是一种用于软件系统分析和设计的语言工具，用于帮助软件开发人员思考和记录思路。
-
-UML本身是一套符号化的规定，这些符号用于描述软件模型中的各个元素和他们之间的关系，如类、接口、实现、泛化、依赖、组合、聚合等。
-
-常用UML建模工具有Rational Rose、starUML及一些插件。
-
-重中之重是一些关系：
-
-- 依赖（Dependency）：一个类用到了另一个类（不管它出现在什么地方，如成员变量、返回值、参数、局部变量），就产生了依赖关系。
-- 关联（Association）：一个类充当另一个类的成员变量，就产生了关联关系。
-- 聚合（Aggregation）：类B充当类A的成员变量，且B是A的setter和构造器的参数（即仅使用A的引用而非堆中的实际对象），就产生了聚合关系（不完整，还有条件就是不能出现实例化）。
-- 组合（Composite）：类B充当类A的成员变量，在A的字段声明处初始化B（或在构造器体内声明并初始化，也就是使用到A的实际对象），就产生了组合关系。
-- 泛化（Generalization）：一个类继承另一个类，就产生了泛化关系。
-- 实现（Realization）：一个类实现了一个接口，就产生了实现关系。
-
-分析以上可得：关联、聚合、组合、泛化、实现都是依赖的特殊形式。
-
-##### 类图（Class Diagram）
-
-类图是描述类与类之间的关系的，是UML中最核心的。
-
-类之间的关系即以上六种。
-
-下面用人和烟、人和水的关系来阐述前四个关系。
-
-##### 依赖
-
-```java
-package uml;
-
-public class Person {
-
-	public void smoke() {
-		// 最一般化的依赖，其他类作局部变量
-		Cigarette cigarette = new Cigarette();
-		System.out.println("I love " + cigarette.getBrand());
-	}
-
-	public static void main(String[] args) {
-		Person person = new Person();
-		person.smoke();
-	}
-}
-
-class Cigarette {
-
-	private String brand = "中华";
-
-	public String getBrand() {
-		return brand;
-	}
-
-	public void setBrand(String brand) {
-		this.brand = brand;
-	}
-
-}
-```
-
-##### 关联
-
-关联具有导向性，分单向关系和双向关系。
-
-关联具有多重性：有0、1、n..m、m...等情形。
-
-![image-20200323143321021](Java设计模式.assets/image-20200323143321021.png)
-
-```java
-public class Person {
-    // 关键就是类作为实例域
-	private IDCard idCard;
-}
-class IDCard {
-	private Person person;
-}
-```
-
-##### 聚合
-
-被依赖类和依赖类的亲密度不那么高，即没有被依赖类对象，依赖类也可存在。聚合是关联的特例，故也具有导向性和多重性。
-
-![image-20200323141315406](Java设计模式.assets/image-20200323141315406.png)
-
-注：方法写法错误，应是：方法名（参数 :参数类型) :返回值类型。
-
-```java
-package uml;
-
 public class Person {
 
 	// 作实例域是前提，先有关联关系，再往聚合关系发展
 	private Cigarette cigarette;
-
-	/**
-	 * @param cigarette 作构造器的参数
-	 */
-	public Person(Cigarette cigarette) {
-		this.cigarette = cigarette;
-	}
-
-	/**
-	 * @param cigarette 作setter的参数
-	 */
-	public void setCigarette(Cigarette cigarette) {
-		this.cigarette = cigarette;
-	}
     
-    public void setCigarette() {
-		this.cigarette = null;
-	}
-
-    // 我们可以看出，耦合性没组合关系强的原因在于Person对象不依赖具体的某个Cigarette实例对象（没用到new关键字，没创建Cigarette对象，上面出现的都是对象引用），即使Cigarette对象无法产生，Person对象也可产生
-    
+    public Person(Cigarette cigarette) {
+        this.cigarette = cigarette;
+    }
+ 
 	public void smoke() {
 		System.out.println("I love " + cigarette.getBrand());
 	}
@@ -703,12 +95,13 @@ public class Person {
 	public static void main(String[] args) {
 		Cigarette cigarette = new Cigarette();
 		Person person = new Person(cigarette);
+        // 假设调用完person很快被回收
 		person.smoke();
+        cigarette.setBrand("红金龙");
 	}
 }
 
 class Cigarette {
-
 	private String brand = "中华";
 
 	public String getBrand() {
@@ -718,63 +111,37 @@ class Cigarette {
 	public void setBrand(String brand) {
 		this.brand = brand;
 	}
-
 }
 ```
 
-##### 组合
+Cigarette对象cigarette可以先于Person对象person创建，并迟于person销毁。
 
-被依赖类和依赖类的亲密度高。没有被依赖类就没有依赖类，两者不可分割，同生同灭。组合也是关联的特例。
+#### 组合
 
-![image-20200323143427255](Java设计模式.assets/image-20200323143427255.png)
+被依赖类和依赖类同样呈现整体与部分的关系，且整体与部分的生命周期一致，做法是让部分对象仅从整体对象内部产生。
 
 ```java
-package uml;
-
 public class Person {
-
-	// 作实例域是前提，先有关联关系，基于实例化要求往组合关系发展
-	private Water water = new Water();
-
-    // 从上下两处new我们就看出相比于聚合，组合的耦合度就强了，因为Water对象无法产生的话，Person对象亦无法产生
+	// 作实例域是前提，先有关联关系，再往组合关系发展
+	private Eye eye;
     
 	public Person() {
-		// 借助无参构造器实现组合，声明局部变量并初始化，初始化是关键
-		this.water = new Water();
+		// 构造Person对象同时构造Eye对象
+		this.eye = new Eye();
+	}
+    // 不提供带参构造器，以防止组合变聚合
+    
+    public static void main(String[] args) {
+		Person person = new Person();
 	}
 }
 
-class Water {
-	
-    // 盯着public，将其改为private的话就印证了上面的分析
-    public Water(){}
-    
+class Eye {
+    public Eye(){};
 }
 ```
 
-##### 泛化
-
-省略
-
-##### 实现
-
-省略
-
-#### 设计模式概述和分类
-
-设计模式不是具体代码，而是某类问题的通用解决方案，故具有普适性。设计模式代表了最佳实践，解决方案是众多软件开发人员经过相当长一段时间后从经验中总结出来的。
-
-设计模式在本质上提高软件的维护性、通用性和扩展性，并降低软件的复杂度。
-
-仔细阅读别人写的很多源码和框架，渐渐地就能领会出设计模式的精妙和好处。
-
-设计模式分三类，供23种：
-
-- 创建型模式（类层面）：单例、抽象工厂、原型、建造者、工厂。
-- 结构型模式（整个系统层面）：适配器、桥接、装饰、组合、外观、享元、代理。
-- 行为型模式（方法层面）：模板方法、命令、访问者、迭代器、观察者、中介者、备忘录、解释器、状态、策略、职责链（责任链）。
-
-不同书籍的模式分类或模式名称有差异。
+eye属性引用的Eye对象与所属的Person对象person同生共死。
 
 ### 构建型模式
 
@@ -1148,7 +515,7 @@ enum Singleton {
 
 若想使用某类的实例，则须记住不得用new关键字，而是用返回实例的公有方法。
 
-区分单例创建的线程安全问题和单例使用的线程安全问题。前者的分析在上面各种方法中已经给出，后者的分析就以SpringMVC和Struts2为例，它里面的Controller、Service和Dao默认都是单例的，这几个类本身是线程不安全的，因此不要在其中定义实例域，不然有混数据的危险，但是其中的各个方法都是线程安全的。Struts2就没有单例模式，每个线程都分配一个新的实例化对象。
+区分单例创建的线程安全问题和单例使用的线程安全问题。前者的分析在上面各种方法中已经给出，后者的分析就以SpringMVC和Struts2为例，它里面的Controller、Service和Dao默认都是单例的，这几个类本身是线程不安全的，因此不要在其中定义实例域，不然有数据污染的危险，但是其中的各个方法都是线程安全的。Struts2就没有单例模式，每个线程都分配一个新的实例化对象。
 
 #### 工厂模式（Factory Pattern）
 
@@ -3274,7 +2641,7 @@ class Client {
 
 目标对象可以是远程对象、创建时开销大的对象或需要安全控制的对象。
 
-代理模式的形式有三种：静态代理、动态代理（jdk代理、接口代理）和Cglib（在内存中动态地创建对象，不需要实现接口，属动态代理范畴）代理。
+代理模式的形式有三种：静态代理、动态代理和Cglib代理。
 
 使用代理模式时，要求被代理对象和代理对象实现相同的接口或继承相同的父类。
 
@@ -3282,9 +2649,11 @@ class Client {
 
 ###### 静态代理
 
+所谓静态，是指编译期间代理类和被代理类都确定下来。
+
 类图：
 
-![image-20200625102851918](Java设计模式.assets/image-20200625102851918.png)
+![静态代理](java设计模式.assets/静态代理.png)
 
 可以看出，若让多个目标对象实现接口，那么代理对象就能像AOP那样，给多个目标对象切入相同的扩展功能。也可创建多个代理对象给多个目标对象切入多种相同扩展功能。
 
@@ -3296,31 +2665,46 @@ class Client {
 package proxy.staticProxy;
 
 /**
- * 目标对象和代理对象共同实现的接口
+ * 代理类
  * 
  * @author Van
  */
-public interface ITeacherDao {
+public class Lawyer implements Actionable {
+	// 多态，为多个目标类服务
+	private Actionable litigant;
+
+	public Lawyer(Actionable litigant) {
+		this.litigant = litigant;
+	}
+
 	/**
-	 * 教学
+	 * 扩展目标类的功能
 	 */
-	public void teach();
+	@Override
+	public void litigate() {
+		System.out.println("开庭前的工作我律师来做");
+		// 目标类原本的功能
+		litigant.litigate();
+		System.out.println("胜诉后的工作我律师来做");
+	}
 }
+
 ```
 
 ```java
 package proxy.staticProxy;
 
 /**
- * 目标对象或被代理对象
+ * 目标类 妻子因离婚而起诉
  * 
  * @author Van
+ *
  */
-public class TeacherDaoImpl implements ITeacherDao {
+public class Wife implements Actionable {
 
 	@Override
-	public void teach() {
-		System.out.println("正在教学中");
+	public void litigate() {
+		System.out.println("妻子的起诉工作");
 	}
 
 }
@@ -3330,26 +2714,15 @@ public class TeacherDaoImpl implements ITeacherDao {
 package proxy.staticProxy;
 
 /**
- * 代理对象
+ * 目标类 教授因知识产权而起诉
  * 
  * @author Van
  */
-public class TeacherDaoProxy implements ITeacherDao {
+public class Professor implements Actionable {
 
-	private ITeacherDao teacherDao;
-
-	public TeacherDaoProxy(ITeacherDao teacherDao) {
-		this.teacherDao = teacherDao;
-	}
-
-	/**
-	 * 扩展目标对象的功能
-	 */
 	@Override
-	public void teach() {
-		System.out.println("在前面扩展功能");
-		teacherDao.teach();
-		System.out.println("在后面扩展功能");
+	public void litigate() {
+		System.out.println("教授的起诉工作");
 	}
 
 }
@@ -3360,104 +2733,114 @@ package proxy.staticProxy;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * 测试类
- * 
- * @author Van
- */
 public class ClientTest {
 	@Test
 	void testStaticProxy() {
-		ITeacherDao teacherDaoProxy = new TeacherDaoProxy(new TeacherDaoImpl());
-		teacherDaoProxy.teach();
+        // 为不同目标对象切入相同的扩展工作
+		Actionable lawyer = new Lawyer(new Professor());
+		lawyer.litigate();
+		lawyer = new Lawyer(new Wife());
+		lawyer.litigate();
 	}
 }
+
 ```
 
 优点：在不修改目标对象的前提下，能通过代理对象对其进行功能扩展。
 
-缺点：可能会有很多代理类，不好管理；一旦接口增加很多方法，目标对象和代理对象就都要写很多，难以维护。
+缺点：针对给多个接口里的方法扩展相同功能的场景（AOP便是如此），无论是让一个代理类多实现还是让多个代理类分别实现，都会显得代码冗余了，维护性也差。由此引出动态代理。
 
 ###### 动态代理
 
-代理对象不需要实现接口，但目标对象要实现。
+代理类不需要实现接口，也就免去了一个代理类或多个代理类重复性地重写方法的负担，但被代理类要实现。
 
-利用JDK的API动态地在内存中生成代理对象。代理类所在包：java.lang.reflect.Proxy，具体是使用newProxyInstance方法。
+利用JDK的API动态地在内存中生成代理对象。代理类为java.lang.reflect.Proxy，调用其newProxyInstance方法得到动态代理对象。
 
 类图：
 
-![image-20200625162815634](Java设计模式.assets/image-20200625162815634.png)
+![动态代理](java设计模式.assets/动态代理.png)
+
+如图所示，这两个接口的方法的签名都大不相同，代理类不用实现任何接口，就能做到将相同操作切到任一方法周围。
 
 源代码：
 
 ```java
-package proxy.dynamicProxy;
-
 /**
- * 目标对象实现的接口
+ * 可维权
  * 
  * @author Van
  */
-public interface ITeacherDao {
-	/**
-	 * 教学
-	 */
-	public void teach();
+public interface Maintainable {
+	public void maintain(String work, int code);
 }
 ```
 
 ```java
-package proxy.dynamicProxy;
-
 /**
- * 目标对象
+ * 可离婚
+ * 
+ * @author Van
+ *
+ */
+public interface Divorcing {
+	public void divorce(String work, String slogan);
+}
+```
+
+```java
+/**
+ * 目标类 教授
  * 
  * @author Van
  */
-public class TeacherDaoImpl implements ITeacherDao {
+public class Professor implements Maintainable {
 
 	@Override
-	public void teach() {
-		System.out.println("正在教学中");
+	public void maintain(String work, int code) {
+		System.out.println(code + "教授做维权的工作");
 	}
 
 }
 ```
 
 ```java
-package proxy.dynamicProxy;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
-/**代理对象工厂，利用反射技术生成为聚合的目标对象创建代理对象
+/**
+ * 目标类 妻子
+ * 
  * @author Van
+ *
  */
-public class ProxyFactory {
-	private Object teacherDao;
+public class Wife implements Divorcing {
 
-	public ProxyFactory(Object teacherDao) {
-		this.teacherDao = teacherDao;
+	@Override
+	public void divorce(String work, String slogan) {
+		System.out.println("妻子做离婚的工作" + slogan);
 	}
 
-	public Object getProxyInstance() {
-		/*
-		 * public static Object newProxyInstance(
-		 *     ClassLoader loader,    当前目标对象使用的类加载器
-		 *     Class<?>[]interfaces,  目标对象实现的接口类型，使用泛型确认类型
-		 *     InvocationHandler h    执行目标对象的方法时，会触发事件处理器
-		 * )
-		 */ 
-		return Proxy.newProxyInstance(teacherDao.getClass().getClassLoader(), teacherDao.getClass().getInterfaces(),
-				new InvocationHandler() { 
+}
+```
 
+```java
+/**
+ * 代理对象工厂
+ * 
+ * @author Van
+ */
+public class LawyerFactory {
+	/**
+	 * @param target 用Ojbect类型接收各种目标对象
+	 * @return
+	 */
+	public static Object getLawyer(Object target) {
+		// 利用反射根据目标对象生成代理对象 传入目标对象的类加载器、实现的接口及事件处理器接口的匿名实现类的匿名对象
+		return Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(),
+				new InvocationHandler() {
 					@Override
 					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-						System.out.println("JDK代理开始");
-						//利用反射机制调用目标对象的方法
-						Object returnValue = method.invoke(teacherDao, args);
-						System.out.println("JDK代理提交");
+						System.out.println(args[0] + "律师开展开庭前的工作");
+						// 利用反射动态调用目标对象的某个方法，invoke的返回值就是此方法的返回值
+						Object returnValue = method.invoke(target, args);
+						System.out.println(args[0] + "律师开展胜诉后的工作");
 						return returnValue;
 					}
 				});
@@ -3466,31 +2849,23 @@ public class ProxyFactory {
 ```
 
 ```java
-package proxy.dynamicProxy;
-
-import org.junit.jupiter.api.Test;
-
-/**
- * 测试类
- * 
- * @author Van
- */
-class ClientTest {
-
-	@Test
-	void testDynamicProxy() {
-		// 目标对象
-		ITeacherDao teacherDao = new TeacherDaoImpl();
-		// 将目标对象送进代理工厂，生成ITeacherDao的代理对象
-		ProxyFactory proxyFactory = new ProxyFactory(teacherDao);
-		ITeacherDao teacherDaoProxy = (ITeacherDao) proxyFactory.getProxyInstance();
-		// teacherDaoProxy = class com.sun.proxy.$Proxy8。$符号表示该对象是代理对象
-		System.out.println("teacherDaoProxy = " + teacherDaoProxy.getClass());
-		teacherDaoProxy.teach();
-	}
-
+@Test
+void testDynamicProxy() {
+    // 目标对象
+    Professor professor = new Professor();
+    Wife wife = new Wife();
+    // 将目标对象送进代理工厂，再由代理工厂生成对应的代理对象
+    Maintainable maintainLawyer = (Maintainable) LawyerFactory.getLawyer(professor);
+    Divorcing divorceLawyer = (Divorcing) LawyerFactory.getLawyer(wife);
+    // teacherDaoProxy = class com.sun.proxy.$Proxy9 $符号表示该对象是代理对象
+    System.out.println("teacherDaoProxy = " + divorceLawyer.getClass());
+    // 用同一个代理类的不同代理对象调相应接口的方法，但扩展相同的功能
+    maintainLawyer.maintain("维权", 1024);
+    divorceLawyer.divorce("离婚", "离婚万岁，结婚受罪");
 }
 ```
+
+这样就实现了无论什么接口的什么方法，仅凭一个代理类就能扩展同一套功能，这也就是AOP的精髓。
 
 ###### Cglib代理
 

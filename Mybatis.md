@@ -58,7 +58,7 @@ MyBatis 是一个支持普通 SQL查询、存储过程和高级ORM映射的优�
 
 之所以采用属性配置文件的方式，是因为后期要改数据源的话，容易找到这些属性并修改。
 
-创建db.properties文件，放在src中，与com同级。
+创建db.properties文件，放在src中。
 
 ```properties
 jdbc.driver = com.mysql.cj.jdbc.Driver
@@ -230,7 +230,7 @@ mybatis内置类型处理（转换）器见于[typeHandlers](https://mybatis.org
 
 其中id标签针对主键字段；result标签针对非主键字段。
 
-应认真学习官方文档的[结果映射与高级结果映射](https://mybatis.org/mybatis-3/zh/sqlmap-xml.html#Result_Maps)部分，尤注意association、collection标签。辅以resultMap标签的多层嵌套结构适用于多表连接查询，比如类A的一个实例域是内部类B组成的列表，而类B的一个实例域又是内部类C，即表A对表B作一对多查询，表B对表C作一对一查询。来看一个例子-根据班级号查询某班全体学生包括健康码在内的所有信息：
+应认真学习官方文档的[结果映射与高级结果映射](https://mybatis.org/mybatis-3/zh/sqlmap-xml.html#Result_Maps)部分，尤注意association、collection标签。辅以resultMap标签的多层嵌套结构适用于多表连接查询，比如类A的一个实例域是类B对象组成的列表，而类B的一个实例域又是一个类C对象，即表A对表B作一对多查询，表B对表C作一对一查询。来看一个例子-根据班级号查询某班全体学生包括健康码在内的所有信息：
 
 ```xml
 <mapper namespace="com.van.dao.IClassDao">
@@ -348,7 +348,7 @@ student.setName("张%");
 
 HashMap可作parametType的值，有几节已讨论过。
 
-HashMap也可作resultType的值。一个map对应一组实例域或一条记录，若返回多组实例域，则需将dao层方法的返回值类型设为map列表`List<HashMap<String, Object>>`。
+HashMap也可作resultType的值。一个map对应一组实例域或一条记录，若返回多组实例域，则需将dao层方法的返回值类型设为`List<HashMap<String, Object>>`。
 
 ```xml
 <select id="selectAsMap" resultType="hashMap">
@@ -653,11 +653,11 @@ class MybatisTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// 基于写好的配置（主要是数据库环境），建造SqlSessionFactory（工厂模式）
+		// 基于写好的配置（主要是数据库环境），生成SqlSessionFactory（工厂模式了解一下）
 		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-		// 使用工厂生产SqlSession对象
+		// 工厂生产SqlSession对象
 		SqlSession session = sqlSessionFactory.openSession();
-		// 使用SqlSession对象创建dao接口的代理对象
+		// 通过SqlSession对象创建dao接口的代理对象
 		mapper = session.getMapper(IStudentDao.class);
 		// 附释放资源：session.close(); inputStream.close();
 	}
@@ -715,7 +715,7 @@ class MybatisTest {
 }
 ```
 
-使用诸sql语句的方式有两种，这里用的是非基础方式，也叫约定代替配置方式。基础方式是用namespace.id的形式定位sql语句，但是无复用性，每用一个sql就写一次namespace。
+使用诸sql语句的方式有两种，这里用的是非基础方式，也叫约定代替配置方式。基础方式是用`namespace.id值`的形式定位sql语句，但是无复用性，每用一个sql就写一次namespace。
 
 约定也可理解为默认。接口里的方法必须遵循以下约定：
 
@@ -841,7 +841,7 @@ void testStudentLazyLoad() {
 void testClassLazyLoad() {
     Class classOne = classDao.selectStudentsByCnoLazy((short) 1);
     for (Student student : classOne.getStudents()) {
-        // 调用student.toString()访问到了内部类实例域code
+        // 调用student.toString()访问到了实例域code
         System.out.println(student);
     }
 }
@@ -905,7 +905,7 @@ mybatis默认关闭二级缓存。想开启的话，要做下面这几件事：
 
 - 实体类实现序列化接口：`public class Student implements Serializable {...}`。有时还应让作此类实例域的内部类等一干类全部实现序列化接口。
 
-附带一提。正常情况下命名空间（接口名）与映射器一一对应，但当一个命名空间对应于多个不同的映射器文件，本来针对各自命名空间的这些映射器就乱套地共享二级缓存里的同一块区域，当然我们应该规避这种情况。
+附带一提。正常情况下命名空间（接口名）与映射器一一对应，但当不同的映射器文件写同一个命名空间，本来针对各自命名空间的这些映射器就乱套地共享二级缓存里的同一块区域，当然我们应该规避这种情况。
 
 我们可能想让某个SQL语句禁用二级缓存：
 

@@ -8,7 +8,9 @@
 
 [HTTP请求行、请求头、请求体详解](https://www.jianshu.com/p/eb3e5ec98a66)一文对request和response作了充分的解读。
 
-我们一般把端口号到请求字符串之间的这段叫作路径名，如上面的`/server`。
+我们一般把端口号到请求字符串之间的这段叫作路径名，如`/server`。
+
+页面刷新并地址栏变化与否只与客户端发的请求是同步还是异步有关，与服务端响应视图数据还是普通数据无关。比方说同步请求也可以对应响应JSON格式数据，只不过渲染奇葩页面；异步请求也可以对应响应视图数据，只不过页面毫无变化。
 
 ## 实践
 
@@ -162,9 +164,9 @@ app.all("/server", (req, res) => {
 
 即content-type，下面引用一段解释：
 
-> Content-type是实体首部字段，用于说明请求或返回的消息是用什么格式进行编码的，在request header和response header里都有存在。 用来向服务器或者浏览器说明传输的文件格式，以便服务器和浏览器按照正确的格式进行解析。在最初的的http post请求只支持application/x-www-form-urlencoded,参数是通过浏览器的url进行传递，但此种方法不支持文件上传，所以后来Content-type 扩充了multipart/form-data类型以支持向服务器发送二进制数据，以及随着后面web应用的日益发展增加了application/json的类型
+> Content-type是实体首部字段，用于说明请求或返回的消息是用什么格式进行编码的，在request header和response header里都有存在。 用来向服务器或者浏览器说明传输的文件格式，以便服务器和浏览器按照正确的格式进行解析。在最初的的http post请求只支持application/x-www-form-urlencoded,参数是通过浏览器的url进行传递，但此种方法不支持文件上传，所以后来Content-type 扩充了multipart/form-data类型以支持向服务器发送二进制数据，以及随着后面web应用的日益发展增加了application/json的类型。
 
-Content-Type取值主要有三种：
+请求头的Content-Type取值主要有三种：
 
 - application/x-www-form-urlencoded：规定参数形如`vip=10&level=6`，记为A。
 - multipart/form-data：规定参数写法同上，记为B。
@@ -188,7 +190,7 @@ A的请求体如下：
 
 本节知识点的实践会在后面给出。
 
-发异步请求，但地址是响应视图（html文档）的地址，最后我们发现页面不刷新，浏览器地址栏也不变，得到的响应体就是一个html文档，同时响应头里的内容类型为text/html。可见页面的刷新并地址栏变化与否只与客户端发的请求是同步还是异步有关，与服务端响应视图数据还是普通数据无关。参考[此文章](https://blog.csdn.net/weixin_42950079/article/details/106511064)了解响应内容类型，另有[官方介绍](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type)，尤注意里面的media-type（MIME type链接）。
+参考[此文章](https://blog.csdn.net/weixin_42950079/article/details/106511064)了解响应内容类型，另有[官方介绍](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type)，尤注意里面的media-type（MIME type链接）。
 
 ### 响应json
 
@@ -197,7 +199,8 @@ A的请求体如下：
 ```js
 // json对象转字符串（也叫序列化？）
 // res.send(JSON.stringify(data))
-res.send(data) // 貌似send方法会自动进行序列化？
+// 貌似send方法会自动进行序列化？
+res.send(data) 
 // 有专门的方法将对象转为json字符串再发
 res.json({name, "van", age: 18})
 ```
@@ -380,7 +383,7 @@ AJAX默认是遵守同源策略的，也就是不支持跨域的，我们可以�
 
 ### JSONP
 
-jsonp（json with padding）是一个民间的跨域解决方案，纯粹靠程序员的聪明才智才开发出来的。
+jsonp（json with padding）是一个民间的跨域解决方案，纯粹靠程序员的聪明才智开发出来的。
 
 它只支持get请求。
 
@@ -422,5 +425,5 @@ btn.onclick = fucntion() {
 
 ### CORS
 
-CORS即cross-origin resource sharing-跨域资源共享。CORS是官方的跨域解决方案，特点是不需要客户端作任何操作，完全交由服务端实现，支持get和post请求。具体地，此标准新增一组[HTTP响应头字段](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS#http_%E5%93%8D%E5%BA%94%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5)，允许服务器声明哪些源站点有权跨域访问资源，通过响应头告诉浏览器当前请求可以跨域，浏览器就会对响应放行。
+CORS即cross-origin resource sharing-跨域资源共享。CORS是官方的跨域解决方案，特点是不需要客户端作任何操作，完全交由服务端实现，支持get和post请求。具体地，此标准新增[一组HTTP响应头字段](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS#http_%E5%93%8D%E5%BA%94%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5)，允许服务器声明哪些源站点有权跨域访问资源，通过响应头告诉浏览器当前请求可跨域，浏览器就对响应放行（响应可能有害，这才有同源策略，请求跨不跨没关系，对本机不影响）。
 

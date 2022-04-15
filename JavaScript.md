@@ -73,7 +73,7 @@ undefined既是类型也是唯一值。
 若非布尔类型的值出现在if语句、三元表达式等地方，程序会自动调用Boolean函数对其进行转化：带否定含义的值的类型变为false，反之变为true。
 
 ```js
-// false 下述以外的都带肯定含义 最简单验证方法是直接用方法Boolean(其他类型)
+// false 下述以外的都带肯定含义 最简单验证方法是用Boolean(其他类型)
 null
 undefined
 '' // 空字符串
@@ -82,7 +82,7 @@ undefined
 NaN // 无效数字
 false
 
-// 但是要注意 写明==或===符号的话就没有自动转换的效果了 比如
+/* 但是要注意，写明==或===符号的话就没有自动转换的效果了 */ 
 if (23.3 == true)
     // 不打印
     console.log(1)
@@ -90,7 +90,7 @@ if (23.3 == true)
 console.log({} == true); // 自动转换的话{}会转为true 提一下python里空字典{}自动转为false
 ```
 
-null既是类型也是唯一值。而`typeof null`得到的是object。
+null既是类型也是唯一值，但`typeof null`得到的是object。
 
 null与undefined值等类型不等。用`==`（仅比值）比较这两个值得true，用`===`（比值且比类型）比较这两个值得false。也有`!==`。
 
@@ -114,6 +114,8 @@ numAdd = function (a, b) {
 - 深蓝色-number。
 - 浅蓝色-boolean。
 - 灰色-特殊类型。
+
+![image-20220314103855128](D:\chaofan\typora\专业\JavaScript.assets\image-20220314103855128.png)
 
 #### 转换
 
@@ -225,10 +227,10 @@ var num = 10;
 function fn() {
     var num = 20;
     function fun() {
-        console.log(num);
+        console.log(num); // 输出20
     }
 }
-fun(); // 输出20
+fun(); 
 ```
 
 #### 注
@@ -305,7 +307,7 @@ for (var i = 0; i < btns.length; i++) {
 
 ### 函数
 
-#### 定义和调用
+#### 定义与调用
 
 ```js
 // 函数定义
@@ -316,16 +318,17 @@ function sayHello() {
 sayBye = function () {
     alert("Bye!");
 }
+// 函数调用
 sayHello();
 sayBye();
 ```
 
 #### 函数名唯一
 
-js中的函数没有重载。虽然按自己的理解，重载的关键是参数列表不同，恰好对于js存在参数个数不同的情况，但现实是在js中写重名函数的话后面的会覆盖前面的。
+JS中没有函数的重载。虽然按自己的理解，重载的关键是参数列表不同，对JS来说存在参数个数不同的情况，但现实是在JS中写重名函数的话后面的会覆盖前面的。
 
 ```js
-// 没有重载，命名唯一，后面覆盖前面
+// 没有重载，后面覆盖前面
 function fun(a, b) {
     return a + b;
 }
@@ -472,7 +475,7 @@ console.log(a); // undefined
 
 ### 类
 
-注：这里的“类”叫法并不规范，因为js从ES6开始才引入类的概念。这里为了好理解，姑且也叫类。
+注：这里的叫法并不规范，因为JS从ES6开始才引入类的概念，为了好理解，姑且也叫类。
 
 #### 定义和使用
 
@@ -493,7 +496,8 @@ function Student(id, name, age, gender) { // 类名首字母大写；而普通�
         return this.id;
     }
 }
-//通过类的prototype属性给它扩展属性和方法，但仅能扩展实例方法
+
+// 通过类的prototype属性给它扩展属性和方法，但仅能扩展实例方法
 Student.prototype.info = function () {
     return "id: " + this.id + "&ensp;" + "name: " + this.name + "&ensp;" + "age: " + this.age + "&ensp;" + "gender: " + this.gender;
 }
@@ -529,17 +533,16 @@ document.write("String".myExt()); // 用类名String调用实例方法无效
 可以注意到：
 
 - 类的构造函数和类体融合了，这也是弱类型的表现。构造函数的一大作用也就是将共同的属性和方法抽象出来，再封装到函数（类）里面。构造函数无需显式定义return语句就可返回对象。
-- 访问类属性（类比java的field）必须用到this，突出对象。
+- 访问类属性（类比java的field）必须用到this，突出当前对象。
 - 类的prototype属性支配其他属性和方法。
 - 一个对象可以映射为一个数组，那么就可以通过中括号取下标来访问属性，字符串型的属性名充当下标。
 
 #### 对象创建
 
-承接上文，可以用new关键字和键值对集合（字面量）创建对象：
+承接上文，可以用new关键字和键值对集合创建对象：
 
 ```js
-// new Object
-var obj = new Object(); // 未通过构造函数
+var obj = new Object();
 obj.name = "Van";
 obj.age = 18;
 obj.sex = "man";
@@ -642,7 +645,7 @@ var date1 = new Date(2019, 10, 1); // 会有问题，月份加1
 var date2 = new Date("2019-10-1 8:8:8");
 ```
 
-有一些常用的日期格式化方法诸如：getFullYear、getMonth、getDate、getDay、getHours、getMinutes、getSeconds等。例如：
+常用的日期格式化方法诸如getFullYear、getMonth、getDate、getDay、getHours、getMinutes、getSeconds等。例如：
 
 ```js
 var week = ["星期天", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
@@ -658,7 +661,7 @@ var timestamp = now.valueOf();
 timestamp = now.getTime();
 // 下面这种写法更常用
 timestamp = +new Date();
-// 更简单的写法 静态方法
+// 更简单的写法-静态方法
 Date.now()
 ```
 
@@ -689,16 +692,16 @@ console.log(countDown("2021-3-9 22:00:00"));
 
 ### 数组
 
-`typeof arr`得到的是object因为数组本质上是对象。但对象不一定是数组。
+`typeof arr`得到的是object因为数组本质上是对象。
 
-js里的数组可自动扩容，不存在越界的问题。
+JS里的数组可自动扩容，不存在越界的问题。
 
 ```js
 // 对象创建
 var arr1 = new Array(2); // 两个元素的空数组
 var arr2 = new Array(3, 4, 5); // [3, 4, 5]
 
-// 字面量创建。数组各个元素类型可任意
+// 字面量创建 数组各个元素类型可任意
 var arr = [true, null, "shit", 1, 2, undefined];
 arr[7] = 25; // 动态扩容
 
@@ -713,7 +716,7 @@ for (var i = 0; i < arr.length; i++) {
 }
 ```
 
-用for-in语句遍历对象时循环变量存放对象的属性，故属性个数决定迭代次数；而用它遍历数组时循环变量存放元素的下标，故元素个数决定迭代次数。不像for循环的迭代次数要显式指定。
+用for-in语句遍历对象时循环变量存放对象的属性，故属性个数决定迭代次数；而用它遍历数组时循环变量存放元素的下标，故元素个数决定迭代次数，不建议用for-in遍历数组。
 
 关于添加元素，参考文档。理解push()和unshift()，分别是从后面和前面添加元素，返回本数组的新长度，本数组发生变化。
 
@@ -801,7 +804,7 @@ var oldArray = ["c", "a", "z", "a", "x", "a", "x", "c", "b"];
 console.log(unique(oldArray));
 ```
 
-将数组转换为字符串，关注toString()和join()：
+将数组转换为字符串，关注下面两个方法：
 
 ```js
 var arr = [1, 2, 3];
@@ -809,7 +812,7 @@ console.log(arr.toString() === "1,2,3");
 console.log(arr.join("-"));
 ```
 
-除上面提到的几个方法之外，还有一些值得关注的方法：concat()、slice()、splice()。
+除上面提到的方法之外，还有一些值得关注的方法：concat()、slice()、splice()。
 
 ### 基本包装类型
 
@@ -825,7 +828,7 @@ console.log(str.length); // 3
 console.log(typeof str); // string
 ```
 
-可见得数组及任何对象的类型都是object。再看第6、7行，虽然str的类型是字符串，但它看似也具备了对象才具备的属性，这如何解释呢？
+可见得数组及任何对象的类型都是object。再看第6、7行，虽然str的类型是字符串，但它看似也具备了对象的属性，这如何解释呢？
 
 由此引出基本包装类型，即把简单数据类型包装成复杂数据类型。就比如上面例子里的第6行，实质str会经历如下过程：
 
@@ -847,7 +850,7 @@ var str = "home";
 str = "school";
 ```
 
-分析上段代码：str相当于一个引用，可指向（引用）不同的对象（内存空间），比如这里从开始指向`"home"`到后来指向`"school"`，可看出变量引用的可变性。而字符串对象的不可变性就在于`"home"`和`"school"`的内存空间都是不改变的，各自独立。
+分析上段代码：str相当于一个引用，可指向（引用）不同的对象（内存空间），比如这里从开始指向`"home"`到后来指向`"school"`，可看出变量引用的可变性。而字符串对象的不可变性在于`"home"`和`"school"`所属内存空间存的东西是不可改变的。
 
 由于不可变性，我们不要高频率拼接字符串，这会新开辟大量的内存空间。
 
@@ -939,7 +942,7 @@ console.log(maxFreqeunce(str));
 
 关注concat、substr、replace、split、toUpperCase、toLowerCase等方法。
 
-### 简单类型和复杂类型
+### 类型比较
 
 前面对这两种类型都有所介绍，现在从内存分配和参数传递对它们进行理解。
 
@@ -947,14 +950,14 @@ console.log(maxFreqeunce(str));
 
 简单类型又叫基本数据类型或值类型，复杂类型又叫引用类型。
 
-- 值类型变量的内存空间存储的是值本身。值类型包括：string、number、boolean、undefined、null（可是`typeof null`的结果是object，这其实是人为的疏漏，一直没改）。如果我们打算用一个变量在以后存储（引用）对象，就可将其初始化为null。
-- 引用类型的变量的内存空间存储的是地址。new关键字创建的对象、Object、Array、Date等对象都属于引用数据类型。
+- 值类型变量的内存空间存储的是值本身。值类型包括：string、number、boolean、undefined、null（可是`typeof null`的结果是object，这其实是人为的疏漏，一直没改）。
+- 引用类型的变量的内存空间存储的是地址。new关键字创建的对象、Object、Array、Date等的对象都属于引用数据类型。如果我们尚不知某变量存储（引用）哪个对象，就可暂设为为null。
 
 #### 内存分配
 
-栈：由操作系统自动分配与释放。一般存放函数的参数、局部变量等。其中存放的都是简单数据类型。
+栈：由操作系统自动分配与释放。一般存放函数的参数、局部变量等，都属简单数据类型。
 
-堆：一般由程序员分配与释放，或者由垃圾回收机制控制。其中存放的都是复杂数据类型。
+堆：一般由程序员分配与释放，或者由垃圾回收机制控制。堆中存放的都属于复杂数据类型。
 
 #### 参数传递
 
@@ -983,7 +986,7 @@ ageAdd(person);
 console.log(person); // {name: "Tom", sex: "man", age: 19}
 ```
 
-在函数内部形参引用目标的变化并不会影响外部变量的引用。如：
+但是在函数内部形参引用目标的变化并不会影响外部变量的引用。如：
 
 ```js
 function swap(human1, human2) {
@@ -1000,6 +1003,8 @@ console.log(person1); // {name: "Tom", sex: "man", age: 18}
 console.log(person2); // {name: "Bob", sex: "man", age: 22}
 ```
 
+从上述例子可知，与Java相同，JS遵循值传递机制，赋值或传参给予的都是所存的内容，不管这个内容是值还是址。址传递给予的是自己的地址。
+
 ## Web APIs
 
 ### 概述
@@ -1011,8 +1016,6 @@ Web APIs阶段有如下要点：
 - Web APIs是W3C组织的标准。
 - 我们主要学习Web APIs中的DOM和BOM。
 - Web APIs是我们js独有的部分。
-
-### API和Web API
 
 API（application program interface-应用程序接口）是一类预定义好的函数，作用是为应用程序或开发人员提供基于某软件或硬件的一组类（对象）或函数。我们不用访问源码及理解内部实现细节。
 
@@ -1271,9 +1274,9 @@ nodeType的值：
 
 关于父子节点。`ol.children`是获取所有子元素节点的非官方用法。另外`ol.children[0]`相当于`ol.firstElementChild`，`ol.children[ol.children.length - 1]`相当于`ol.lastElementChild`，前者兼容性较好。
 
-关于兄弟节点。值得注意的有nextElementSibling、previousElementSibling。
+关于兄弟节点，值得注意的有nextElementSibling、previousElementSibling。
 
-关于创建并添加节点方法：
+创建并添加节点的方法：
 
 ```js
 var li = docuemnt.createElement("li");
@@ -1283,9 +1286,9 @@ ul.appendChild(li);
 ul.insertBefore(document.createElment("li"), ul.children[0]);
 ```
 
-后面补充了新方法[insertAdjacentHTML](developer.mozilla.org/zh-CN/docs/Web/API/Element/insertAdjacentHTML)和[insertAdjacentText](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/insertAdjacentText)。
+补充新方法[insertAdjacentHTML](developer.mozilla.org/zh-CN/docs/Web/API/Element/insertAdjacentHTML)和[insertAdjacentText](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/insertAdjacentText)。
 
-关于删除节点：
+删除节点：
 
 ```js
 var ul = document.querySelector("ul");
@@ -1323,7 +1326,7 @@ document.createElement()
 
 ##### 注册事件
 
-给元素的某个事件属性赋上回调函数的方法叫注册事件或绑定事件。有两种方式：传统方式和方法监听方式。
+给元素的某个事件属性赋上回调函数叫注册事件或绑定事件。有两种方式：传统方式和方法监听方式。
 
 前者的事件属性都是以on开头，缺点是针对同一事件，后面的回调函数会覆盖前面的回调函数。
 
@@ -1380,7 +1383,6 @@ js对捕获阶段和冒泡阶段进行了综合。
 
 ```js
 /* 捕获 */
-
 var son = document.querySelector(".son");
 // true-捕获阶段，事件传播顺序：document->html->body->.fahter->.son
 son.addEventListener("click", function () {
@@ -1395,7 +1397,6 @@ father.addEventListener("click", function () {
 
 ```js
 /* 冒泡 */
-
 var son = document.querySelector(".son");
 // 不写第三个参数或写false-冒泡阶段，事件传播顺序：.son->.father->body->html->document
 son.addEventListener("click", function () {
@@ -1756,7 +1757,7 @@ window.onload = function () {
 ```
 
 ```js
-/* 提交表单后跳转，获取携带参数里的用户名 */
+// 提交表单后跳转，获取携带参数里的用户名
 font.innerHTML = location.search.substr(1).split("=")[1];
 ```
 
@@ -1799,7 +1800,7 @@ offset和style的区别：
 有两个案例：
 
 ```js
-/* 拖拽模态框 */
+// 拖拽模态框
 var modal = document.querySelector(".modal");
 modal.addEventListener("mousedown", function (clickEvent) {
     function move(moveEvent) {
@@ -2246,7 +2247,7 @@ function animate(obj, place) {
     obj.timer = setInterval(() => {
         var step = (place - obj.offsetLeft) / 10;
         step = step > 0 ? Math.ceil(step) : Math.floor(step);
-        // 为了进退自如，只能写==
+        // 为了进退兼备，只能写==
         if (obj.offsetLeft == place) {
             clearInterval(obj.timer);
         }
@@ -2273,7 +2274,6 @@ function animate(obj, place, callback) {
     obj.timer = setInterval(() => {
         var step = (place - obj.offsetLeft) / 10;
         step = step > 0 ? Math.ceil(step) : Math.floor(step);
-        // 为了进退自如，只能写==
         if (obj.offsetLeft == place) {
             clearInterval(obj.timer);
             // 定时器销毁后执行
@@ -2295,17 +2295,15 @@ btnBackward.addEventListener("click", function () {
 });
 ```
 
-回调函数的强大与实用性自不必多说。
-
 ## JSON
 
-#### 概念
+### 概述
 
 JavaScript Object Notation-js对象记录，是一种标准的轻量级的数据交换格式（90%以上的系统交换数据用json）。特点是体积小、易解析。实际开发中用的最多的两种数据交换格式是json和xml（标准由w3c制定），后者虽然体积大、解析麻烦，但严谨。
 
 注：html和xml共有一个爹叫SGML（标准通用标记语言）。两者分工不同：html主要做页面展示，故语法比较随意；xml主要做数据存储和数据描述，故语法很严格。
 
-#### 语法
+### 语法
 
 键必须由双引号包裹，字符串值必须用双引号。示例如下：
 
@@ -2319,7 +2317,7 @@ var jsonObj = {
 
 通过` JSON.stringify()`把js对象转换为字符串，以便向客户端发送。
 
-反之，从web服务器接收的数据是字符串形式的，于是通过`JSON.parse()`解析数据，得到js对象。
+反之，从web服务器接收的数据是字符串形式的，于是通过`JSON.parse()`解析数据，得到JS对象。
 
 ## 进阶
 
@@ -2341,21 +2339,19 @@ var jsonObj = {
 
 两相对比：POP的性能比OOP的高，跟硬件联系得很紧密，例如单片机就采用POP思想。而OOP易维护、易扩展、易复用，可设计出高内聚、低耦合的系统，使系统更加灵活、更加利于维护。故各有优劣。
 
-#### 类和对象
+#### 类与对象
 
 OOP的大致思路：
 
-1. 抽象一批对象共同的属性和行为然后封装成一个类。
+1. 抽象出一批对象共同的属性和行为封装成一个类。
 2. 对类进行实例化，获取类的对象。
 
 在js中，我们定义对象是一组无序的属性和方法的集合。广义来看，所有类型的数据都是对象，如字符串、数值、数组、布尔值、函数等都属于对象。
 
-交叉阅读[ECMAScript 类](####类)那一节，在es6中新引入class关键字来声明一个类。
+交叉阅读ECMAScript一章的[类](####类)一节，在ES6中新引入class关键字来声明一个类。
 
 ```js
-class Star {
-    /* 明星类 */
-    
+class Star {    
     /**
      * @description: 构造函数
      * @param {string} uname 姓名
@@ -2381,7 +2377,9 @@ console.log(jackson);
 jackson.sing("beat it");
 ```
 
-只要用new关键字创建对象，就会自动调用该对象的constructor方法即构造函数。如果我们不显式写明这个函数，它也会自动生成（不带参）。
+只要用new关键字创建对象，就会自动调用该对象的constructor方法即构造函数。即使不显式写这个函数，它也会自动生成无参构造函数。
+
+类声明不像函数声明那样有预解析。
 
 #### 类的继承
 
@@ -2410,7 +2408,7 @@ var son = new Son(2, 2);
 console.log(son.sum());
 ```
 
-当子类中含有与某个父类方法同名的方法，并且调用该方法时，会采取就近原则（不要理解为java里面的覆盖），先从子类查找看有没有该方法，有的话就执行，没有再在父类里找。另外，可以在子类方法中调用父类的同名方法。有例为证：
+当子类中含有与某个父类方法同名的方法，并且调用该方法时，会采取就近原则（不要理解为java里面的重写），先从子类查找看有没有该方法，有的话就执行，没有再在父类里找。另外，可以在子类方法中调用父类的同名方法。有例为证：
 
 ```js
 class Father {
@@ -2450,7 +2448,7 @@ class Father {
 }
 class Son extends Father {
     constructor(x, y) {
-        // 父类构造函数必须在子类属性赋值前面调用，这只是强制性要求
+        // 父类构造函数必须在首行调用，强制性要求
         super(x, y);
         this.x = x;
         this.y = y;
@@ -2466,41 +2464,66 @@ console.log(son.subtract());
 
 #### 原型与构造函数
 
-在ES6之前，js并没有引入类的概念，故对象不是由类实例化出来的，而是由前述[ECMAScript 类](####类)中的构造函数创建的，注意此构造函数与本章中提到的构造函数constructor不是一个概念。
+##### 概述
+
+在ES6之前，JS并没有引入类的概念，故对象不是由类实例化出来的，而是由前述[类](####类)中的构造函数创建的，注意此构造函数与本章中提到的构造函数constructor不是一个概念。
 
 创建对象有三种方式，前面都提到过：
 
-- 利用new关键字+构造函数（函数名大写）。
+- 利用new关键字+构造函数。
 - 利用对象字面量。
 
-##### 实例成员和静态成员
+##### 实例成员与静态成员
 
 属性和方法都是成员。
 
-实例成员：通过this添加的成员。它只能通过实例化的对象来访问。
+实例成员：通过this添加（this是不能省略的）的成员，它只能通过实例来访问。
 
-静态成员：直接在构造函数上添加的成员。如：
+静态成员：直接在构造函数上添加的成员，它只能通过构造函数（相当于类名）来访问。如：
 
 ```js
-Student.score="100";
-Student.displayScore(){
+Student.score = "100";
+// 又是构造函数又是类
+Student.displayScore = function() {
     console.log(Student.score);
 }
 ```
 
-静态成员只能通过构造函数（相当于类名）来访问。
-
 ##### 构造函数的原型
 
-当同类的每个实例中有函数这样的复杂数据类型时，各个实例的函数（定义）会占用独立的内存空间（如`a.fun === b.fun`的结果是false），于是实例数量很庞大的话，带上函数占的内存空间也会很大，就会造成内存浪费。于是我们希望本类不同实例的同名函数共享空间，加之JS是单线程的，也不必由此担心线程安全问题。
+当同类的每个实例中有函数这样的复杂数据类型时，各个实例的函数（定义）会占用独立的内存空间，于是实例数量很庞大的话，带上函数占的内存空间也会很大，就会造成内存浪费。我们希望本类不同实例共享一块空间。
 
-通过原型分配的方法为所有实例共享，es6新引入类概念的实例方法也是共享的，但传统类定义里的方法`this.函数名 = function(){...}`不是共享的。
+挂载到原型上的方法为所有实例共享，ES6新引入类概念的实例方法也是共享的，但传统类定义里的方法`this.函数名 = function(){...}`不是共享的。我们通过一段代码一张图，结合前面的Star类看传统的情况：
 
-js设定每一个构造函数都有一个prototype属性，指向（引用）另一个对象，该对象的所有属性和方法就会被构造函数占有。
+```js
+function Star(name, age) {
+    this.name = name
+    this.age = age
+    this.sing = function () {
+        console.log(`${this.name} is singing`);
+    }
+}
+var star1 = new Star("miyuki", 20)
+var star2 = new Star("joe", 22)
+// false
+console.log(star1.sing === star2.sing);
+```
 
-综上所述，prototype属性（对象）的作用就是共享方法。故一般情况下，我们把属性定义到构造函数里，而把方法放到原型对象中。
+![传统方法不共享](javascript.assets/传统方法不共享.png)
 
-我们还需注意，在写法上，构造函数的原型属性写作`类名.prototype`，所以我们也可把构造函数的原型叫作类的原型，后者刚好跟下一节概念-对象（类实例）的原型作对比。
+这图不够严谨，姑且不划分出内存各个区域，并将一切方法当作对象，能看出空间的浪费，共用一块就行。
+
+JS设定每一个构造函数都有一个prototype属性，引用一个对象，该对象的所有属性和方法能被构造函数使用。
+
+prototype属性的作用就是共享方法，故一般情况下，我们把属性定义到构造函数里，而把方法放到原型对象中。我们再看引入prototype之后的情况：
+
+![引入prototype](javascript.assets/引入prototype.png)
+
+先假定本类实例能调prototype的sing方法，就节省了许多空间，且`this.name`是能对应上当前实例的，不会乱套，另外JS是单线程的，也不会对方法的局部变量造成污染。
+
+在写法上，构造函数的原型属性写作`类名.prototype`，所以我们也可把构造函数的原型叫作类的原型，这刚好跟下一节里的概念-对象（类实例）的原型作对比。
+
+须注意，原型对象中任意方法体内的this指向的并非原型自身，而依旧是当前实例。
 
 ##### 对象的原型
 
@@ -2512,9 +2535,9 @@ var tom = new Student();
 tom.hello();
 ```
 
-看上述代码我们不禁又会问：既然hello方法放在构造函数的原型prototype里，那么对象tom如何能调用它呢？我们就要引出对象原型的概念。
+看上述代码我们不禁又会问：既然hello方法放在构造函数的原型里，那么对象tom如何能调用它呢？我们引出对象的原型的概念。
 
-\_\_proto\_\_是对象的一个属性，指向的即是构造函数的原型prototype，因此实例就可通过\_\_proto\_\_使用prototype里的方法。不难看出prototype是显式原型，\_\_proto\_\_是隐式原型，实例的隐式原型指向构造函数的显式原型。而且，在内存中\_\_proto\_\_和prototype的地址是完全一致的（所以这俩是一个东西的两种身份）：
+\_\_proto\_\_是实例的一个属性，它与构造函数的原型prototype是等价的，因此实例就可通过\_\_proto\_\_使用类原型对象里的方法。不难看出prototype是显式原型，\_\_proto\_\_是隐式原型，实例的隐式原型与构造函数的显式原型存储相同地址值。
 
 ```js
 class Student {
@@ -2525,17 +2548,37 @@ class Student {
     }
 };
 var bob = new Student("Van", 18, "man");
-// true
+// true 两者引用同一块空间
 console.log(bob.__proto__ === Student.prototype);
+
+// 对传统类同样适用 承上例
+console.log(star1.__proto__ === Star.prototype);
+/* 引入之后共享方法空间了 */
+Star.prototype.sing = function () {
+    console.log(`${this.name} is singing`);
+}
+// true 但不知道是怎么把star1.__proto__.sing减省为star1.sing的
+console.log(star1.sing === star2.sing);
 ```
 
-再看调用某方法时方法的查找原则：先看类体内是否含有目标方法，有就直接执行，没有就通过实例的原型属性\_\_proto\_\_去构造函数的原型属性prototype中查找，然后执行（再找不到就该报错了）。
+画图理解一下：
+
+![对象原型](javascript.assets/对象原型.png)
+
+调用某方法时的查找原则：先看当前对象是否含有此方法（`this.函数名 = ...`造出来的），有就直接执行，没有就取实例的原型属性\_\_proto\_\_引用的对象即构造函数的原型属性prototype引用的对象中查找，然后执行（再找不到就该报错了）。
 
 ##### 原型的constructor属性
 
-在构造函数的原型属性prototype和对象的原型属性\_\_proto\_\_这两个对象中都有一个constructor属性，两个constructor属性都指回到类的构造函数或者说类自身。
+构造函数的原型属性prototype暨对象的原型属性\_\_proto\_\_引用同一个地址，从而共有一个constructor属性，这个constructor属性指回到类的构造函数或者说类自身。同样看图好理解：
 
-需注意上述状态是js帮我们完成的，联系到前面写的对构造函数的原型添加方法，有时如果我们不是添加，而是任性地整个覆盖prototype，像下面这样：
+```java
+// star1.__proto__.constructor等价于Star.prototype.constructor
+console.log(star2.__proto__.constructor === Star.prototype.constructor);
+```
+
+![constructor](javascript.assets/constructor.png)
+
+如果我们不是对构造函数的原型添加方法，而是任性地覆盖整个prototype，像下面这样：
 
 ```js
 // 将对象整个赋给prototype
@@ -2549,7 +2592,7 @@ Student.prototype = {
 }
 ```
 
-那么prototype就不再拥有constructor属性了（实例的原型不受影响），就更别谈其指向了。于是我们需手动添加constructor属性并将其指回到类：
+那么prototype就不再拥有constructor属性了（实例的原型不受影响），于是我们需手动添加constructor属性并将其指回到类：
 
 ```js
 Student.prototype = {
@@ -2580,11 +2623,9 @@ Student.prototype = {
 
 故再强调原型链与\_\_proto\_\_的意义就在于确定一个对象成员的查找机制或路线。若各级prototype和对象本身都存在同名成员，则依据就近原则选定。
 
-须注意，原型的this指向的并非原型自身，而依旧是实例对象。
-
 ##### 利用原型扩展内置类
 
-此做法之前接触过，以一个例子回顾一下：
+之前接触过，以一个例子回顾一下：
 
 ```js
 Array.prototype.sum = function () {
@@ -2617,7 +2658,7 @@ var student = {
 };
 // 会打印Window
 fn.call();
-// 会打印Object即student对象
+// 会打印Object
 fn.call(student);
 ```
 
@@ -2649,15 +2690,14 @@ function Father(name, age) {
 }
 // 子构造函数
 function Son(name, age, sex) {
-    // 让父构造函数的this变成子构造函数的this即让其指向子构造函数，那么子类就拥有父类属性
-    Father.call(this, name, age);
+    Father.call(this, name, age); // 让父构造函数的this变成子构造函数的this即让其指向子构造函数，那么子类就拥有父类属性
     this.sex = sex
 }
 var son = new Son("tom", 20, "man");
 console.log(son);
 ```
 
-属性的继承解决了，然后利用原型实现对方法的继承：
+属性的继承解决了，然后通过改变原型属性的引用实现对方法的继承：
 
 ```js
 // 父构造函数
@@ -2676,9 +2716,9 @@ function Son(name, age, sex) {
 }
 // 将父类实例赋给子类原型
 Son.prototype = new Father();
-// 一定别忘了令constructor属性指回到本对象
+// 一定别忘了添加constructor属性并使其指回到本对象
 Son.prototype.constructor = Son;
-// 然后再扩充子类方法
+// 业已获得父类方法，然后扩充子类方法
 Son.prototype.fly = function () {
     console.log("I am flying...");
 }
@@ -2691,7 +2731,7 @@ son.fly();
 
 ![组合继承](javascript.assets/组合继承.png)
 
-特别注意：想想第16行为何不写成`Son.prototype = Father.prototype`？如此由于指向的内存区相同，往子类原型里新增的方法就也会在父类原型里出现，但这是不合理的。于是我们转而将父类实例赋给子类原型，这样一来当往子类原型里添加新方法，即便子类原型与父类实例地址相同，父类实例也不能拥有该方法，因为实例的方法只能靠类定义或原型定义产生，而且父类实例与父类原型毕竟是不同对象，故父类原型就更不会拥有该方法，合理了。
+特别注意：想想第16行为何不写成`Son.prototype = Father.prototype`？如此由于指向的内存区相同，往子类原型里新增的方法就自然而然也被父类享有，但这是不合理的。于是我们转而将父类实例赋给子类原型，这样一来当往子类原型里添加新方法，即便子类原型与父类实例地址相同，父类实例也不能调用该方法，因为实例方法只能靠构造函数或原型产生，合理了。
 
 #### 类的本质
 
@@ -2703,33 +2743,14 @@ son.fly();
 
 - 类有原型属性。
 - 类的原型的constructor属性指向类本身。
-- 可通过类原型给类添加实例方法（插一句静态方法就无需经由原型了，这一点之前也提过）。
+- 可通过类原型给类添加实例方法（静态方法就无需经由原型了，这一点之前也提过）。
 - 类实例的\_\_proto\_\_属性指向类原型。
 
-故相对于ES5，ES6在类的相关功能上并为作出大幅改进，只是让语法看起来更有模有样，更像类。所以ES6其实就是语法糖。
+故相对于ES5，ES6在类的相关功能上并未作出大幅改进，只是让语法看起来更有模有样，更像类，所以ES6其实就是语法糖。
 
-注：语法糖就是便捷写法。同样的功能，同样的原理，同样的效率……，只是在形式上简化代码、让代码更易于理解。典型地的比如`i++`就是`i = i + 1`的语法糖。
+注：语法糖就是便捷写法。同样的功能，同样的原理，同样的效率……，只是在形式上简化代码、让代码更易于理解。典型地，`i++`就是`i = i + 1`的语法糖。
 
-#### 注
-
-类声明不像函数声明那样有预解析。
-
-在类内方法中使用实例属性和实例方法时，一定别忘了冠以this。
-
-厘清实例方法里的this指向问题，它不是一成不变的，铁律就是它永远指向方法的调用者，有时调用者是实例对象，有时却是某个事件源。有例为证：
-
-```js
-constructor() {
-    this.btn = document.querySelector("button");
-    this.btn.onclick = this.remind;
-}
-remind() {
-    // 可能是当前对象也可能是元素btn
-    console.log(this);
-}
-```
-
-### ES5新增的方法
+### ES5新增方法
 
 #### 数组方法
 
@@ -2762,7 +2783,7 @@ some作用是检测是否有存在满足指定条件的元素。返回值是布�
 
 ```js
 array = [55, 32, 18, 10, 66, 42];
-// 后两个参数都没用到，都可省略
+// 后两个参数都没用到，可一并省略
 var flag = array.some(function (value) {
     // 若当前元素value满足条件则将返回值置为true并退出循环，否则继续往后检测
     return value < 3;
@@ -2867,7 +2888,7 @@ for (var item in product) {
 console.log(Object.keys(product));
 // 不报错，但删除无效
 delete product.address;
-// 梅开二度。descriptor完全不变的话无事发生，有所变化的话后面会报错
+// 梅开二度 descriptor完全不变的话无事发生，有所变化的话后面会报错
 Object.defineProperty(product, "address", {
     value: "定福庄大学",
     // 不可被遍历
@@ -2881,7 +2902,7 @@ console.log(product);
 
 ### 严格模式
 
-#### 概念
+#### 概述
 
 js代码有两种模式：正常模式和严格模式（strict mode）。之前练习的代码都是正常模式，从es5开始有的严格模式是具有限制性的js变体，意即在严格条件下执行js代码。
 
@@ -2894,9 +2915,9 @@ js代码有两种模式：正常模式和严格模式（strict mode）。之前�
 - 提高编译器效率，提高运行速度。
 - 为未来版本的es作铺垫。比如增设一些保留字如class、enum、export、extends、import、super。
 
-想了解更多关于严格模式的内容可参考[MDN 严格模式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Strict_mode)。
+更多严格模式相关内容可参考[MDN 严格模式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Strict_mode)。
 
-#### 开启严格模式
+#### 启用
 
 开启严格模式分为为脚本开启严格模式和为函数开启严格模式两种情况。
 
@@ -2930,7 +2951,7 @@ function fn2() {
 
 #### 语法变化
 
-我们通过一些案例来看看在严格模式下js语法的变化。
+我们通过一些案例来看看在严格模式下JS语法的变化。
 
 ##### 变量规定
 
@@ -2938,7 +2959,7 @@ function fn2() {
 
 严禁删除已经声明的变量。如`delete x;`会报错。
 
-##### 函数内this的指向
+##### this的指向
 
 严格模式下全局作用域里的函数内部的this指向的是undefined。
 
@@ -2972,7 +2993,7 @@ add(1, 2);
 
 ### 函数进阶
 
-#### 函数的定义和调用
+#### 定义与调用
 
 有三种定义方式：
 
@@ -3025,7 +3046,7 @@ setTimeout(function () {
 })();
 ```
 
-#### 改变this的指向
+#### this的指向
 
 这个问题之前我们讨论过多次，针对上一节6种函数形式，我们能很快指出它们内部this的指向，诸如window、事件源、对象等。
 
@@ -3051,7 +3072,7 @@ fn.apply(obj, [1, 2]);
 var max = Math.max.apply(Math, [1, 2, 3, 4, 5]);
 console.log(max);
 // 原写法
-var max = Math.max(...[1, 2, 3, 4, 5]);
+max = Math.max(...[1, 2, 3, 4, 5]);
 ```
 
 bind函数不会调用函数，但能改变内部this的指向。语法为：`var newFun = fun.bind(thisArg, arg1, arg2, ...)`。
@@ -3071,7 +3092,7 @@ var fun = fn.bind(obj, 1, 2);
 fun();
 ```
 
-这个bind函数因为不能调用，看似比前面两个差，但其实比前面两个用得更多。因为回调函数会窃喜：我们不想立即执行某函数，但是又想改变其this指向。看一个用例：
+这个bind函数因为不能调用，看似比前面两个差，但其实比前面两个用得更多。因为很适合回调函数：我们不立即执行回调函数，且有时想改变其this指向。看一个用例：
 
 ```js
 /* 点击按钮之后禁用，3秒后恢复 */
@@ -3116,17 +3137,32 @@ for (var i = 0; i < btns.length; i++) {
 
 这里this为什么没有受i的影响？仔细想想，之前强调过：this永远指向调用本函数的对象。那么它就先找函数，再找对象，这里的函数是随着i的变化注册到相应不同按钮上的，故最后找到的对象就是对应的某个按钮。
 
+this的指向并不是一成不变的，但有铁律即永远指向方法的调用者，有时调用者是实例对象，有时却是某个事件源。有例为证：
+
+```js
+constructor() {
+    this.btn = document.querySelector("button");
+    this.btn.onclick = this.remind;
+}
+remind() {
+    // 可能是当前对象也可能是元素btn
+    console.log(this);
+}
+```
+
+###
+
 #### 高阶函数
 
 以函数作为参数或返回值的函数叫做高阶函数。
 
 函数也是一种数据类型，故可以赋给变量或属性，当然也可以当其他函数的参数或返回值。
 
-之前接触到的回调函数就典型地体现了高阶函数的性质。
+回调函数就是典型的高阶函数，作其他函数的参数。
 
 ```js
 function fun(callback) {
-    // 有就执行，没有就跳过
+    // 有就执行，没有就跳过 附带讲函数的实参是可以不给的，不给就是undefined
     callback && callback(1, 2);
 }
 fun(function (a, b) {
@@ -3134,11 +3170,11 @@ fun(function (a, b) {
 });
 ```
 
-有一批常用的高阶函数（map、filter、reduce等）属于数组实例方法，详见[JavaScript 数组迭代](https://www.w3school.com.cn/js/js_array_iteration.asp)。
+有一批常用的高阶函数（map、filter、reduce等）属于数组的实例方法，详见[JavaScript 数组迭代](https://www.w3school.com.cn/js/js_array_iteration.asp)。
 
 #### 闭包
 
-《JavaScript高级程序设计》一书对闭包作了定义：闭包（clousure）指有权访问另一个函数作用域中变量（包括参数）的函数。直观表现上是函数体套函数体且内层函数使用外层函数的变量或参数。
+《JavaScript高级程序设计》一书对闭包作了定义：闭包（clousure）指有权访问另一个函数作用域中变量（包括参数）的函数。闭包产生的充要条件是函数体套函数体且内层函数使用外层函数的变量或参数。
 
 常规来说，函数外部不能访问函数内部的局部变量，但内层函数能访问外层函数的局部变量（可联系到前面学的[作用域链](#scope)）：
 
@@ -3153,7 +3189,7 @@ function outFun() {
 }
 outFun();
 // 下面这行是会报错的，inFun函数相当于outFun的局部变量，外面访问不了
-// inFun();
+inFun();
 ```
 
 在浏览器中，可通过调试在控制台的侧边栏中看到closure的相关描述。如上例：
@@ -3181,7 +3217,7 @@ outFun(100)
 ```js
 /**
  * @description: 高阶函数（外层函数）
- * @return {Function} 内层函数
+ * @return {function} 内层函数
  */
 function outFun() {
     var a = 1;
@@ -3192,7 +3228,7 @@ function outFun() {
     return inFun;
 }
 var f = outFun();
-// 加括号调用，执行接收过来的内层函数
+// 加括号调用，执行接收的内层函数
 f();
 ```
 
@@ -3209,15 +3245,15 @@ var f = outFun();
 f();
 ```
 
-闭包的主要作用是扩大变量的作用域。比如上例中，f函数拿到outFun函数的局部变量inFun。又比如我们总能在嵌套的回调函数结构中看见闭包。
+闭包的主要作用是扩大变量的作用域。比如上例中，f函数拿到outFun函数的局部变量inFun。
 
-下面看一些零散的实例：
+下面看一些零散的用例：
 
-- 老生常谈的例子。点击序列元素的某一项，打印其下标。
+- 老生常谈，点击序列元素的某一项，打印其下标。
 
   ```js
   var lis = document.querySelectorAll("li");
-  // 方式一：给元素添加index属性
+  /* 方式一：给元素添加index属性 */
   for (var i = 0; i < lis.length; i++) {
       lis[i].index = i;
       lis[i].onclick = function () {
@@ -3225,20 +3261,20 @@ f();
       }
   }
   
-  // 方式二：利用闭包
+  /* 方式二：利用闭包与立即执行函数 */
   for (var i = 0; i < lis.length; i++) {
-      // 立即执行函数 让循环变量i作为参数进来，从而内部i的作用域为局部
-      (function (i) {
+      // 让循环变量i作为实参传进来，内部i的作用域为局部
+      (function (i) { // 形参-局部变量i
           lis[i].onclick = function () {
               console.log(i);
           }
-      })(i)
+      })(i) // 实参-循环变量i
   }
   ```
 
   理解一下方式二：立即执行函数里包着的匿名回调函数就是一个闭包，它访问外部立即执行函数的参数i。
 
-  闭包并不一定十全十美，甚至更复杂。如本例中，立即执行函数的变量i会一直不被销毁，从而一直占用内存，造成内存泄漏。==（此处理解尚不严谨，要着重学习内存泄漏）==
+  闭包带一定隐患。如本例中，立即执行函数的变量i会一直不作为垃圾变量被自动回收，从而一直占用内存，造成内存泄漏。
 
 - 每隔3秒打印所有li的内容及每3秒打印一个li的内容：
 
@@ -3319,7 +3355,7 @@ f();
 
 #### 递归
 
-在体内调用自身的函数叫做递归函数，调用自身的过程叫做递归。
+在体内调用自己的函数叫做递归函数，调用自己的过程叫做递归。
 
 使用递归时一定要避免的错误是栈溢出（stack overflow），避免此错误的唯一解是存在有效的返回条件。
 
@@ -3382,7 +3418,7 @@ function fibonacciSeq(n) {
 console.log(fibonacciSeq(6));
 ```
 
-### 浅拷贝和深拷贝
+### 浅拷贝与深拷贝
 
 关于浅拷贝和深拷贝的概念一些参考书已经写得很清楚了，这里略述。
 
@@ -3417,8 +3453,8 @@ source = {
 }
 /**
  * @description: 深拷贝
- * @param {object} target 目标对象
- * @param {object} source 源对象
+ * @param {object} target 目标对象（或数组或普通值）
+ * @param {object} source 源对象（或数组或普通值）
  * @return {undefined}
  */
 function deepCopy(target, source) {
@@ -3451,11 +3487,11 @@ console.log(target.appendix.age);
 
 #### 概述
 
-正则表达式（regular expression）是用于匹配字符串中字符序列的模式。在js中，它以对象的形式存在。
+正则表达式（regular expression）是用于匹配字符串中字符序列的模式。在JS中，它以对象的形式存在。
 
 具体而言，正则表达式用来检索或替换满足某个模式（规则）的文本。应用如表单的验证、过滤页面中的敏感词、从字符串中提取特定内容等等。
 
-关于它在js中的应用，我们需要学会：
+关于它在JS中的应用，我们需要学会：
 
 - 认识常见的正则表达式符号。
 
@@ -3521,7 +3557,7 @@ console.log(reg.test("123123")); // false
 ```js
 // 覆盖trim方法，消除前后空格
 String.prototype.trim = function () {
-    // 注意替换方法
+    // 替换方法链式调用
 	return this.replace(/^\s+/, "").replace(/\s+$/, "");
 }
 
@@ -3530,7 +3566,7 @@ var email = "2022640281@qq.com";
 document.write(pattern.test(email));
 ```
 
-正则表达式后面可以跟一个参数：
+正则表达式可以被尾随一个参数：
 
 - g：全局匹配。
 - i：忽略大小写。
@@ -3607,14 +3643,15 @@ array[0] = "me";
 array[1] = "you";
 // 内部元素改变
 console.log(array);
-// 报错 此数组虽然内容上与原数组完全相同但地址不同
+
+// 报错 此数组虽然内容上与原数组完全相同但地址不同，而运行时引用型常量所保存的地址必须不变
 array = [1, 2];
 console.log(array);
 ```
 
 #### 解构
 
-es6允许按对应位置从数组中提取值并赋值。
+ES6允许按对应位置从数组中提取值并赋值。
 
 ```js
 let [a, b, c] = [1, 2, 3];
@@ -3633,7 +3670,7 @@ let { name, age } = { name: "tom", age: 22 };
 console.log(name);
 console.log(age);
 
-// 另一种写法，key匹配，value才是变量
+// 另一种写法，key相匹配，value才是变量
 let { name: realName, age: realAge } = { name: "tom", age: 22 };
 console.log(realName);
 console.log(realAge);
@@ -3686,11 +3723,11 @@ let obj = {
 obj.say();
 ```
 
-本例中的箭头函数所处作用域是全局作用域（注意obj作用普通对象并不能产生作用域），故this指向window对象，而window有没有age属性，故弹出undefined。
+本例中的箭头函数所处作用域是全局作用域（注意obj作为一个对象其字面量体内并不能产生作用域），故this指向window对象，而window有没有age属性，故弹出undefined。
 
 #### 剩余参数
 
-剩余参数允许将不定量的实参包装成数组。例如：
+剩余参数允许将不定量的参数包装成数组。例如：
 
 ```js
 function fun(first, second, ...args) {
@@ -3728,22 +3765,50 @@ console.log(b);
 console.log(c);
 ```
 
+可同[arguments](#arguments)作交叉理解。
+
 #### 扩展运算符
 
 剩余参数是将多变量打包成一个变量，正相反，扩展运算符是将单变量展开成多变量。这里主要谈Array的扩展运算符。
 
-它形如`...array`。
+它形如`...array`，写法跟剩余参数是一样的。
 
 用处：
 
 - 可将数组或者对象转为用逗号分隔的参数序列。
+
+  ```js
+  let arr = [1, 2, 3]
+  // 1 2 3
+  console.log(...arr);
+  // 相当于执行
+  console.log(1, 2, 3)
+  ```
+
 - 可实现数组的合并。
+
+  ```java
+  let arr1 = [1, 2, 3]
+  let arr2 = ["4", "5", "6"]
+  let arr3 = [...arr1, ...arr2]
+  // [1, 2, 3, '4', '5', '6'] 说过了元素类型可以不统一
+  console.log(arr3);
+  // 利用push合并
+  arr3.push(...[true, false])
+  ```
 
 - 可将伪数组转换为数组。
 
+  ```js
+  const divs = document.querySelector("div")
+  // 转换为真正的数组后就能调用数组的特有方法
+  let divArr = [...divs]
+  divArr.push(document.querySelector(".row"))
+  ```
+
 #### Array的扩展方法
 
-静态方法`from(类数组，item => 操作)`可以将类数组或可迭代对象转换为数组，还能额外对诸元素进行操作。
+静态方法`from(类数组，item => 操作)`可以将类数组或可迭代对象转换为数组，还能额外对诸元素进行加工。
 
 实例方法`find((item, index) => 条件)`返回数组中第一个满足条件的元素，找不到则返回undefined。
 
@@ -3790,7 +3855,7 @@ console.log(html);
 
 #### 数据结构Set
 
-es6提供新的数据结构Set，和数组类似，但是它的元素都是唯一的。
+ES6提供新的数据结构Set，和数组类似，但是它的元素都是唯一的。
 
 它是以类形式存在的，可向构造函数中传入数组以初始化：
 
@@ -3820,7 +3885,7 @@ console.log(unique);
 
 ## 移动端
 
-### touch系列事件
+### touch事件系列
 
 ```js
 const div = document.querySelector("div")

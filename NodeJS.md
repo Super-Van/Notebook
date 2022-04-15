@@ -1,16 +1,18 @@
 # Node.js
 
-参考视频：[Node.JS-黑马程序员](https://www.bilibili.com/video/BV1Ns411N7HU)。
+参考视频：[Node.JS视频教程](https://www.bilibili.com/video/BV1Ns411N7HU)。
+
+关于node的调试，参考视频[代码快速演示devtools调试node](https://www.bilibili.com/video/BV1vf4y1m7sj?from=search&seid=6021563095627602754)。
 
 ## 概述
 
 ### 概念
 
-不是一门语言，不是库，不是框架，是一个js运行时环境，可以解析和执行js代码，即现在的js可以完全脱离浏览器来运行。
+不是一门语言，不是库，不是框架，是一个JS运行时环境，可以解析和执行JS代码，即现在的js可以完全脱离浏览器来运行。
 
 - 浏览器中的JavaScript：EcmaScript、DOM、BOM。
 
-- node.js中的JavaScript：没有DOM、BOM（这些必须依赖浏览器），只有EcmaScript。
+- node.js中的JavaScript：没有DOM、BOM（这些依赖浏览器），只有EcmaScript。
 
 node.js构建于Chrome V8引擎之上。代码只是具有特定格式的字符串而已，只有引擎才能认识、解析和执行。Google Chrome的v8引擎是目前公认的解析执行js代码最快的引擎，于是node.js的作者对它进行分离移植，开发出了一个独立的js运行时环境。
 
@@ -36,7 +38,7 @@ node能用来开发后端web服务器（主要）、命令行工具等。
 
 从node中我们还能学到B/S编程模型、模块化编程、node常用的API、异步编程、Express开发框架、ES6等等。
 
-一言以蔽之，node能让JS从前端语言变成后段语言。
+一言以蔽之，node能让JS从前端语言变成后端语言。
 
 ### 预备知识
 
@@ -151,7 +153,7 @@ server.on('request', function (request, response) {
 
 上述代码可理解为：js在node.js环境中运行，使得主机能够提供服务，摇身一变成服务器。那么此时我们就可将js不再视作往常的前端语言而是一个服务端语言了，因为它不再由浏览器上解析执行了，而是在一个新的环境node中运行，且具备服务（接收请求、返回数据）职能。然后我们的主机既有客户端（浏览器）又有服务端（上述js代码生成），实现了http通信。
 
-所以我们应清晰地理解node是个什么样的存在。它扩大了js的业务范围，包括把后端的活儿也抢了。
+所以我们应清晰地理解node是个什么样的存在。它扩大了js的业务范围，把后端的活儿也抢了。
 
 ## 模块系统初探
 
@@ -327,7 +329,7 @@ server.on('request', function (request, response) {
 });
 ```
 
-后面会使用到第三方的express web框架，它把上述代码全都封装起来了，让我们更轻松地调用。老生常谈：学框架的同时要看底层。
+后面会使用到第三方的express web框架，它把上述代码全都封装起来了，让我们更轻松地调用。
 
 附[Content-Type对照表](https://tool.oschina.net/commons)。
 
@@ -478,9 +480,7 @@ server.on('request', function (request, response) {
 </tbody>
 ```
 
-附带提一下node的调试，参考视频[代码快速演示devtools调试node](https://www.bilibili.com/video/BV1vf4y1m7sj?from=search&seid=6021563095627602754)。
-
-## 服务端渲染和客户端渲染
+## 服务端渲染与客户端渲染
 
 我们在服务端使用模板引擎将数据渲染到页面中就实现服务端渲染，比如之前接触过的JSP、thymeleaf，再就是上面记述的node+art-template。而且也可从这个角度说明JS可以转型为服务端语言。
 
@@ -567,7 +567,7 @@ exports.body = {
 
 ```js
 module.exports = "bye"
-// 后续还有对module.exports的赋值的话，则覆盖前面的
+// 后续还有对module.exports的赋值的话，覆盖前面的
 
 // 在另一个文件中加载
 let bye = require("./xxx")
@@ -580,7 +580,7 @@ console.log(bye) // bye
 
 node中，每个模块内部都有一个隐式对象叫module，此对象中又有一个成员（属性）叫exports。而且模块尾部还有一个隐式返回语句`return module.exports`。所以本质上，模块的所有成员都是挂载到module对象的exports属性上。
 
-随后node为了简化写法，就将module的exports属性赋给exports变量，实现代码也是隐式的：`var exports = module.exports`。我们可以验证：
+node为了简化写法，就将module的exports属性赋给exports变量，实现代码也是隐式的：`var exports = module.exports`。我们可以验证：
 
 ```js
 // true
@@ -592,7 +592,7 @@ console.log(exports === module.exports)
 那么我们就继续分析：
 
 - 若想返回多个成员，则对exports添加这些属性，而又因为exports与module的exports引用同一块地址，故module的exports也有了这些属性，最后由返回语句返回给加载模块使用。
-- 若想返回单个成员，情况就不一样了。我们把某个成员赋给exports，exports显然就不再指向module的exports所指向的地址，故此成员就不会挂载到module的exports中，也就不能被返回出去。因此对于单个成员的导出，我们只能写`module.exports = xxx`。
+- 若想返回单个成员，情况就不一样了。我们把某个成员直接赋给exports，exports就不再指向module的exports所指向的地址，故此成员就不会挂载到module的exports中，也就不能被返回出去。因此对于单个成员的导出，我们只能写`module.exports = xxx`。
 
 实在觉得绕的话，就放弃使用exports，只用`module.exports`。
 
@@ -613,7 +613,6 @@ let train = require("./train")
 let val = require("../val")
 // / 绝对路径 即当前文件的磁盘根目录 很少用
 let test = require("/test")
-// 基于以上三种情况的衍生路径就不列举了
 ```
 
 标识不带路径标识符`/`的模块就一定是非自定义模块即核心模块或第三方模块。
@@ -828,11 +827,7 @@ npm 5之前没有这个东西。
 
 另一个作用要看它的名字里有个lock（锁），意即锁定包的版本（版本问题有时候是很令人头疼的）。我们可以验证一下，把项目的lock文件和node_modules文件夹删掉，并手动改低package文件中某包的版本，再`npm install`，结果会发现下载得到的包的版本并非改之后的低版本，而是最新版，即自动升级。
 
-### 注
-
-#### 文件路径和模块路径
-
-辨析一下这两个东西。
+### 文件路径与模块路径
 
 一般地，相对路径的`./`开头是可以省略的。请看下面的例子：
 
@@ -856,30 +851,26 @@ fs.readFile("data/val.json", (err, data) => {
 require("./data/util")
 ```
 
-另外任何情况下不要把`./`和`/`混淆了。
+另外千万不要把`./`和`/`混淆了。
 
-#### 相对路径和绝对路径
+### 相对路径与绝对路径
 
-关于下面要讲的几点，很多语言都是相通的，这里就把node和python联起来讲。
-
-第一点。一个项目中无论相对路径出现在哪个文件，尤其是与入口文件路径不同的文件，相对路径的起点都只能是命令行的执行目录，并且有时候执行目录和入口文件所在目录不一样，比如在上一级目录运行入口文件：
+无论相对路径出现在哪个文件，起点都只能是命令行的当前目录。有时候当前目录、入口文件及该文件所在目录均不一样，比如：
 
 ```shell
-node webapp\app.js
-python src\train.py
+# 在入口文件的上一级目录运行入口文件且该文件在入口文件所在目录的下一级目录，绵延三级
+PS D:\chaofan\vscode\nodejs> node .\demo\main.js
 ```
 
-像python的`os.getcwd()`也有上述特点，返回的是命令行执行目录的绝对路径。
+由于此机制，有时稍不注意，某文件中写的相对路径就可能找不到。于是我们马上想到将相对路径改为显式绝对路径，但这又存在另一个问题，即文件或项目一旦移动就会使原显式绝对路径失效。最后，node提供非模块成员`__filename`及`__dirname`，为我们动态获取当前文件的绝对路径（隐式绝对路径）及其目录的绝对路径。
 
-由于此机制，有时稍不注意，某文件中写相对路径的地方就可能出错。于是我们马上想到将相对路径改为显式绝对路径，但这又存在另一个问题，即文件或项目一旦移动就会使原显式绝对路径失效。最后还是语言本身给我们带来福音，node提供`__dirname`，python提供`os.path.dirname(__file__)`，均为我们动态获取当前文件的绝对路径，而完全不受命令行支配。
+附带讲，引入模块时，node不光执行主函数体，也连带执行其他文件的可执行代码。
 
-附带讲，python与node相似，当引入模块时，都会执行其中主函数体以外的代码。
+JS中require语句里的相对路径对上述问题免疫，因为其导包起点永远是当前文件所在目录。
 
-第二点。js中require语句里的相对路径对第一点问题免疫，起点永远是当前文件所在目录。python的from语句中的`.`操作符同理。
+我们有必要掌握node的[path模块](http://nodejs.cn/api/path.html)，里面有许多实用API。
 
-最后我们有必要掌握node的[path模块](http://nodejs.cn/api/path.html)，里面许多东西很实用。
-
-## npm常用命令
+## NPM常用命令
 
 npm有两层含义：一是[npm网站](https://www.npmjs.com/)，二是npm命令行工具。
 
@@ -1169,7 +1160,6 @@ app.use(router)
 以我们的项目为例：
 
 ```js
-// 删除学生
 router.get("/deleteStudent", (req, res) => {
     // 调用函数B 带函数体的匿名函数A作函数B的回调函数 注意到A在这里是B的实参，而err又是A的形参
     studentDao.deleteStudent(req.query.id, (err) => { // 作实参的A被定义
@@ -1188,12 +1178,11 @@ router.get("/deleteStudent", (req, res) => {
 // 自定义同步任务即函数B，函数A即callback为其回调函数 与上对比，此处A是B的形参，体现了高阶函数的思想
 exports.deleteStudent = function (id, callback) { // 作形参的A被调用
     fs.readFile(dbPath, "utf-8", (err, data) => { // 两重任务-外层同步，内层异步，兼有两重回调函数-本函数是内层异步任务readFile的回调函数，callback是外层同步任务的回调函数，用于获取内层异步任务回调函数的结果
-        // 读文件的完成（只不过存在多分支）
+        /* 读文件的完成（只不过存在分支） */ 
         if (err) {
             // 这里err又是A的实参
             callback(err)
         }
-        // 读文件的完成
         else {
             let students = JSON.parse(data)
             let targetIndex = students.findIndex((item) => {
@@ -1201,11 +1190,10 @@ exports.deleteStudent = function (id, callback) { // 作形参的A被调用
             })
             students.splice(targetIndex, 1)
             fs.writeFile(dbPath, JSON.stringify(students), (err) => {
-                // 写文件的完成
+                /* 写文件的完成 也存在分支 */ 
                 if (err) {
                     callback(err)
                 }
-                // 写文件的完成
                 else {
                     callback(null)
                 }
@@ -1222,7 +1210,7 @@ exports.deleteStudent = function (id, callback) { // 作形参的A被调用
 最后我们就抛开回调函数这一思想，看看更简洁的写法：
 
 ```js
-// 最简洁 不做函数B 不做函数A 
+/* 最简洁 不做函数B 不做函数A  */
 router.get("/deleteStudent", (req, res) => {
     fs.readFile(dbPath, "utf-8", (err, data) => {
         if (err) {
@@ -1249,7 +1237,7 @@ router.get("/deleteStudent", (req, res) => {
 ```
 
 ```js
-// 次简洁 保留函数A，不做函数B，这样一来A就无法作回调
+/* 次简洁 保留函数A，不做函数B，这样一来A就无法作回调 */ 
 router.get("/deleteStudent", (req, res) => {
     // 只能写里面 实在想写在外面，就只能将res设为fun的参数
     function fun (err) => {
@@ -1574,7 +1562,6 @@ Student.updateOne(
 
 ```js
 /* student.js */
-
 const mongoose = require("mongoose")
 // 默认端口是27017 保持默认的话可省略
 mongoose.connect("mongodb://localhost/itcast")
@@ -1600,7 +1587,6 @@ module.exports = Student
 
 ```js
 /* router.js */
-
 const express = require("express")
 // 路由容器
 const router = express.Router()
@@ -1869,7 +1855,7 @@ p.then(
 )
 ```
 
-resolve和reject的职责在于改变容器状态及拿到异步任务结果；then方法的两个参数函数的职责在于处理异步任务结果。
+resolve和reject的职责在于改变容器状态及拿到异步任务结果；then方法的两个参数函数的职责在于在容器状态改变之后根据异步任务结果做后续操作。
 
 我们继续来看promise怎么对回调嵌套进行优化的：
 
@@ -1909,7 +1895,7 @@ let p3 = new Promise((resolve, reject) => {
     })
 })
 
-// 省略了失败结果的回调
+/* 省略了失败结果的回调 */
 p1.then(
     function (data) {
         console.log("读取文件 a")
@@ -2040,19 +2026,19 @@ promise这些干封装的框架在性能上当然没有原生的高，且封装�
 
 最开始的做法是：以表单校验为例，发送同步请求后，浏览器等客户端会锁死等待，直到得到服务端响应的结果，然后在本页面渲染结果，不管结果是完整的html文档还是细碎的json等数据甚至是异常信息，本页原来的内容会被清空。
 
-上述细碎数据就包括`用户名已存在`这样的提示信息，那么人们觉得这种不成页面的东西呈现在眼前很丑，所以后来想到新的做法：还是同步请求，不过服务端不是单纯返回数据，而是渲染好数据（可包括原表单请求体），仍旧转发到原html文档。于是对用户来说，看起来页面没啥变化，就多了一坨提示信息。
+上述细碎数据就包括`用户名已存在`这样的提示信息，那么人们觉得这种不成页面的东西呈现在眼前很丑，所以后来想到新的做法：还是同步请求，不过服务端不是单纯返回数据，而是再次整体渲染好数据（可包括原表单请求体），仍旧转发到原html文档。于是对用户来说，看起来页面没啥变化，就多了一坨提示信息。
 
 目前这种基于同步请求，完全由服务端控制的交互方式仍有许多网站（如github）在使用，因为它较为统一。那么再后来，就有用户体验师为用户着想，提出了更丰富优雅的交互方式，便形成了异步请求：页面里其他东西都不动，只靠前端通过操作dom渲染出收到的提示数据，来实现交互。
 
 一个安全的网站既有前端校验又有后端校验，故上述交互工作服务端和客户端都参与了。
 
-当服务端处理异步请求，转发和重定向是无效的，转发和重定向只在对同步请求的处理中才有用。注意这种无效是从页面展示这个角度说的，即页面（包括地址栏）不发生任何变化。具体我们分开来看：对于转发，服务端那条转发代码就是废的；对于重定向，虽然页面毫无波澜，但实质上浏览器确实偷偷访问了重定向地址，只不过访问了个寂寞，收到的html文档无用武之地。通过浏览器跳转实现重定向：`window.location.href = "/"`。
+当服务端处理异步请求，转发和重定向是无效的，转发和重定向只在对同步请求的处理中才有用。注意这种无效是从页面展示这个角度说的，即页面（包括地址栏）不发生任何变化。但是在控制台中能发现，实质上浏览器确实访问了转发或重定向的地址，还能解析响应体如html文本，但解析出来只能在控制台展示。可以通过浏览器端的跳转实现重定向：`window.location.href = "/"`。
 
 ## Session
 
 session和cookie的主要理论知识在这儿就不赘述了，只是谈一些附加的要点。
 
-作为用户，我们常感知到的是浏览器为我们持久化cookie，避免每次关闭浏览器，下次再打开、访问某网站就得重新登录。其实也能想到在服务端，应该要把session也持久化，以避免服务器宕机，导致用户同样得重新登录。两种重新登录的原因不一样，前者是cookie丢失，session找不到配对的；后者是session丢失，cookie找不到配对的。无论哪种原因，结果都是服务端生成新的session，交付客户端新的cookie，体现于id值的变化。类比生活中的例子：前者是钥匙被偷了了，要换新锁，并配新钥匙；后者是锁坏了，也要换新锁，并配新钥匙。
+作为用户，我们常感知到的是浏览器为我们持久化cookie，避免每次关闭浏览器，下次再打开、访问某网站就得重新登录。其实也能想到在服务端，应该要把session也持久化，以避免服务器宕机，导致用户同样得重新登录。两种重新登录的原因不一样，前者是cookie丢失，session找不到配对的；后者是session丢失，cookie找不到配对的。无论哪种原因，结果都是服务端生成新的session，交付客户端新的cookie，体现于id值的变化。类比生活中的例子：前者是钥匙被偷了，要换新锁，并配新钥匙；后者是锁坏了，也要换新锁，并配新钥匙。
 
 ## Express的中间件
 
@@ -2087,13 +2073,12 @@ app.post()
 
 我们看项目里许多调用use的地方首参都没有，即默认地匹配到任意请求，不关心路径名与请求类型。
 
-从应用上将，它和JavaWeb里的过滤器异曲同工。
+从作用上讲，它和JavaWeb里的过滤器异曲同工。
 
 express官网给了一个关于中间件的[指南](http://expressjs.com/en/guide/using-middleware.html#using-middleware)，它按职能对中间件作了分类，如应用级别、路由级别、错误处理。这里通过改写项目，来重点实践一下错误处理中间件：
 
 ```js
 /* app.js 其他省略 */
-
 // 挂载路由 要在后两个中间件的前面
 app.use(router)
 // 404中间件 没被匹配到的请求就会被此处理
@@ -2110,7 +2095,6 @@ app.use(function (err, req, res, next) {
 
 ```js
 /* router.js */
-
 // 登录
 router.post("/login", (req, res, next) => {
     User.findOne({

@@ -1,10 +1,10 @@
 # Axios
 
-参考视频：[尚硅谷Web前端axios入门与源码解析](https://www.bilibili.com/video/BV1wr4y1K7tq?spm_id_from=333.999.0.0)。
+参考视频：[Web前端axios入门与源码解析](https://www.bilibili.com/video/BV1wr4y1K7tq?spm_id_from=333.999.0.0)。
 
 前置知识：Promise、AJAX。
 
-我们用一个简易服务端JSON-Server作为练习用的服务端，可去[Json Server](https://www.npmjs.com/package/json-server)查看一些使用技巧。
+我们用一个简易服务端JSON-Server作为练习用，可去[Json Server](https://www.npmjs.com/package/json-server)查看一些使用技巧。
 
 ## 概述
 
@@ -105,7 +105,7 @@ axios的诸请求方法提到的config参数都指的是配置对象，梳理一
 - baseURL：字符串；服务端地址的协议到端口号部分。
 - headers：对象；对请求头的设置。
 - params：诸请求方法均支持的请求字符串。axios会自动将对象转为参数串。
-- data：参数串或对象；请求体。不指定内容类型条件下，axios会根据形式（参数串自动设定内容类型。
+- data：参数串或对象；请求体。不指定内容类型条件下，axios会根据形式自动设定内容类型。
 - timeout：请求中断时限。
 
 关于其他属性可参见[请求配置](https://www.axios-http.cn/docs/req_config)。有不少属性是仅在后端的node环境中才生效的。

@@ -1,6 +1,6 @@
 # Maven
 
-参考视频：[尚硅谷Java视频教程_Maven视频](https://www.bilibili.com/video/BV1Pt411y7Rh)。
+参考视频：[Maven视频教程](https://www.bilibili.com/video/BV1Pt411y7Rh)。
 
 ## 概述
 
@@ -122,25 +122,25 @@ Project Object Model-项目对象模型。pom.xml是Maven工程的核心配置�
 
 Maven解析依赖信息时会到本地仓库查找所依赖的jar包，那么当某项目依赖我们自己开发的项目，应使用`mvn install`命令将被依赖项目装入仓库，这样依赖信息才能成功解析。
 
-#### 依赖的范围
+#### 范围
 
 直接上表：
 
 | 范围     | 编译 | 测试 | 运行 | 打包 | 例子        |
 | -------- | ---- | ---- | ---- | ---- | ----------- |
 | compile  | 是   | 是   | 是   | 是   | spring-core |
-| test     | 否   | 是   | 否   | 否   | junit       |
-| provided | 是   | 是   | 否   | 否   | servlet-api |
-| runtime  | 否   | 是   | 是   | 是   | jdbc driver |
+| test     |      | 是   |      |      | junit       |
+| provided | 是   | 是   |      |      | servlet-api |
+| runtime  |      | 是   | 是   | 是   | jdbc driver |
 
 稍微对表头这四个阶段作一番说明：
 
-- 编译指编译除测试文件以外自己写的源文件，一个简单的判定法是看包内成员是否出现在代码中。
+- 编译指编译除测试文件以外自己写的源文件，一个简单的判定法是看包里的东西是否出现在这些源文件中。
 - 测试指对测试类的编译与运行，就包括对测试类及自己写的源文件的编译。参与编译的就一定会参与测试。
 - 运行指除测试运行以外在生产环境中项目的运行。如servlet-api就不参与运行，因为tomcat提供了。
-- 打包指依赖被打进当前项目的jar包或war包。provided范围与runtime范围的依赖关于编译和测试一定呈现相反的态势，如servlet-api参与编译而不参与测试，jdbc driver参与测试而不参与编译。
+- 打包指生产环境中没有的依赖被打进当前项目的jar包或war包。
 
-部署的前提是jar包或war包，故打包是跟部署紧密相关的。
+部署的前提是存在jar包或war包。
 
 maven官网有更为详细的介绍：
 
@@ -156,11 +156,11 @@ maven官网有更为详细的介绍：
 
 可参考文章[maven scope 的作用](https://blog.csdn.net/u010002184/article/details/87989164)。
 
-#### 依赖的传递性
+#### 传递性
 
 比方说，工程A依赖于工程B，工程B依赖于工程C，那么工程A传递依赖于工程C。进一步得到，工程C所引用的jar包都会自动地被工程A引用。test、provided依赖不具有传递性。
 
-#### 依赖的排除
+#### 排除
 
 有时候我们不想让传递而来的不稳定的jar包引入工程，于是就得设置依赖的排除。排除操作也具有传递性，比如排除了A项目的某个jar包，那么依赖A项目的B项目的相应jar包也会被排除。
 
@@ -173,9 +173,9 @@ maven官网有更为详细的介绍：
 </exlusions>
 ```
 
-#### 依赖的原则
+#### 优先原则
 
-作用：解决jar包冲突的问题。
+作用：解决同名（除开版本号）jar包冲突的问题。
 
 原则一：路径最短者优先。
 
@@ -185,7 +185,7 @@ maven官网有更为详细的介绍：
 
 ![依赖原则2](Maven.assets/依赖原则2-1581866874346.png)
 
-#### 统一管理依赖的版本号
+#### 统一版本号
 
 1. 在properties标签中用自定义标签定义统一的版本号。比如：
 
@@ -213,7 +213,7 @@ maven官网有更为详细的介绍：
 </properties>
 ```
 
-#### 在网上查找依赖信息
+#### 查询
 
 可上各类框架、类库的官网查找，也可去[mvnrepository](https://mvnrepository.com/)查找，这个网站收录了主流框架和类库的依赖信息。也可以去[阿里云仓库](https://maven.aliyun.com/mvn/search)或其他地方找。
 
@@ -348,9 +348,9 @@ mvn install
 mvn site
 ```
 
-## 在eclipse中使用Maven
+## eclipse中的使用
 
-### 与eclipse的集成
+### 集成
 
 eclipse已内置maven插件。
 
