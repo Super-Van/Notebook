@@ -4,13 +4,13 @@
 
 ## 概述
 
-理论部分省略，可参考[ajax-w3school](https://www.w3school.com.cn/js/js_ajax_intro.asp)与[ajax-mdn](https://developer.mozilla.org/zh-CN/docs/Web/Guide/AJAX)。这里主要围绕实践作记录。
+即async JavaScript and XML，理论部分省略，可参考[ajax-w3school](https://www.w3school.com.cn/js/js_ajax_intro.asp)与[ajax-mdn](https://developer.mozilla.org/zh-CN/docs/Web/Guide/AJAX)。
 
-[HTTP请求行、请求头、请求体详解](https://www.jianshu.com/p/eb3e5ec98a66)一文对request和response作了充分的解读。
+[HTTP请求行、请求头、请求体详解](https://www.jianshu.com/p/eb3e5ec98a66)一文对请求报文和响应报文作了充分的解读。
 
 我们一般把端口号到请求字符串之间的这段叫作路径名，如`/server`。
 
-页面刷新并地址栏变化与否只与客户端发的请求是同步还是异步有关，与服务端响应视图数据还是普通数据无关。比方说同步请求也可以对应响应JSON格式数据，只不过渲染奇葩页面；异步请求也可以对应响应视图数据，只不过页面毫无变化。
+页面刷新并地址栏变化与否只与客户端发的请求是同步还是异步有关，与服务端响应视图数据还是普通数据无关。比方说同步请求也可以对应JSON字符串响应体，只不过渲染出奇葩页面；异步请求也可以对应视图数据响应体，只不过页面毫无变化。
 
 ## 实践
 
@@ -77,7 +77,7 @@ app.listen(8000, () => {
 </script>
 ```
 
-依靠[onload](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequestEventTarget/onload)事件的前端实现更简单。
+依靠[onload](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequestEventTarget/onload)事件的实现更简单。
 
 ### 带参请求
 
@@ -110,7 +110,7 @@ app.post("/server", (req, res) => {
 })
 ```
 
-我们再附上参数。注意要想参数是隐式的，就得将其写成send方法的参数，而不像get方式那样直接嵌在open方法的url参数后部。
+我们再附上参数。注意要想参数是隐式的，就得将其写成send方法的参数，而是接在路径名之后。
 
 ```js
 xhr.send("name=Van&age=22&gender=man")
@@ -124,7 +124,7 @@ xhr.send("name:Van&age:22&gender:man")
 
 在实际场景中，前一种靠等号连接的居多，另外json字符串也居多。
 
-虽然post请求既可携带请求字符串，也可携带请求体，但是post自身的优势在于安全的隐式参数，那么果真携带前者就无甚意义了。请求体独立于路径之外，便体现了安全性。
+虽然post请求既可携带请求字符串，也可携带请求体，但最好只用后者，因为它不见于地址栏，一定程度上更比前者安全。
 
 ### 设置请求头
 
@@ -162,9 +162,9 @@ app.all("/server", (req, res) => {
 
 ### 内容类型
 
-即content-type，下面引用一段解释：
+即content-type，引用一段解释：
 
-> Content-type是实体首部字段，用于说明请求或返回的消息是用什么格式进行编码的，在request header和response header里都有存在。 用来向服务器或者浏览器说明传输的文件格式，以便服务器和浏览器按照正确的格式进行解析。在最初的的http post请求只支持application/x-www-form-urlencoded,参数是通过浏览器的url进行传递，但此种方法不支持文件上传，所以后来Content-type 扩充了multipart/form-data类型以支持向服务器发送二进制数据，以及随着后面web应用的日益发展增加了application/json的类型。
+> Content-type是实体首部字段，用于说明请求或返回的消息是用什么格式进行编码的，在request header和response header里都有存在。 用来向服务器或者浏览器说明传输的文件格式，以便服务器和浏览器按照正确的格式进行解析。在最初的的http post请求只支持application/x-www-form-urlencoded，参数是通过浏览器的url进行传递，但此种方法不支持文件上传，所以后来Content-type 扩充了multipart/form-data类型以支持向服务器发送二进制数据，以及随着后面web应用的日益发展增加了application/json的类型。
 
 请求头的Content-Type取值主要有三种：
 
@@ -190,18 +190,18 @@ A的请求体如下：
 
 本节知识点的实践会在后面给出。
 
-参考[此文章](https://blog.csdn.net/weixin_42950079/article/details/106511064)了解响应内容类型，另有[官方介绍](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type)，尤注意里面的media-type（MIME type链接）。
+参考[此文章](https://blog.csdn.net/weixin_42950079/article/details/106511064)了解响应内容类型，另有[官方解读](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type)，尤注意其中的media-type指令。
 
 ### 响应json
 
-如今面对五花八门的客户端（浏览器、app等），服务端一般对异步请求响应json数据，且注意返回的json对象要以字符串为载体传输。
+如今面对五花八门的客户端（浏览器、APP等），服务端一般对异步请求响应json数据，且json对象要以字符串为载体进行传输。
 
 ```js
-// json对象转字符串（也叫序列化？）
+// json对象转字符串（也叫序列化）
 // res.send(JSON.stringify(data))
 // 貌似send方法会自动进行序列化？
 res.send(data) 
-// 有专门的方法将对象转为json字符串再发
+// 次方法将JS对象转为json格式字符串，然后发送
 res.json({name, "van", age: 18})
 ```
 
@@ -219,13 +219,13 @@ xhr.responseType = "json"
 
 IE浏览器会对同一种请求的上一次返回结果进行缓存，于是造成下一次请求结果被上一次结果覆盖，即没有刷新。
 
-我们可通过给请求附加时间参数以让每次请求都具有唯一性，从而解决这个问题。
+我们可通过给请求附加一个时间戳参数以让每次请求都具有唯一性，从而解决这个问题。
 
 ```js
 xhr.open("post", "http://localhost:8000/server?t=" + Date.now())
 ```
 
-在实际开发中我们不会自行处理此问题，因为使用的工具会帮我们完成，这里只是捎带脚提一句IE的毛病。
+在实际开发中我们不会自行处理此问题，第三方工具做得更好。
 
 ### 网络异常处理
 
@@ -352,24 +352,24 @@ B多用于文件上传，注意到`req.body`的结果是空对象`{}`，即文�
 
 自行查看文档[jQuery.ajax()](https://www.jquery123.com/jQuery.ajax/)。
 
-还是谈谈Content-Type的问题。jQuery将ContentType默认设为A，但data既能写成参数串也能写成对象，因为后者会自动被转为参数串。若我们把contentType值改成C，则相应地要显式将json对象转为json字符串：
+还是谈谈Content-Type的问题。jQuery将ContentType默认设为A，但data既能写成参数串也能写成对象，因为后者会自动被转为参数串。若我们把contentType值改成C，则相应地要手动将json对象转为json字符串：
 
 ```js
 // 联系前面的知识，改了默认的内容类型，post请求就会变成options请求，后端也要跟着变
-contentType: "application/json; charset=UTF-8",
+contentType: "application/json",
 data: JSON.stringify({
     vip: 10,
     level: 6
 }),
 ```
 
-附带讲，A也是post表单的默认格式，体现于form标签的enctype属性。
+注：A也是post表单的默认格式，体现于form标签的enctype属性。
 
 ### 利用fetch函数
 
 直接指路文档[使用 Fetch](https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API/Using_Fetch)。
 
-fetch函数用得少，这里例子就不给了。
+fetch函数用得少，这里就不给例子了。
 
 ## 跨域
 

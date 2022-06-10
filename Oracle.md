@@ -4,7 +4,7 @@
 
 ## 安装
 
-去Oracle官网下载安装包（我已经存到onedrive了），11g的安装包有两个，要把两个文件夹解压到一起。安装过程参考视频。最后验证一下，输入用户名和密码，登录数据库：
+去Oracle官网下载安装包（已存入onedrive），11g的安装包有两个，要把两个文件夹解压到一起。安装过程参考视频。最后验证一下，输入用户名和密码，登录数据库：
 
 ```sql
 sqlplus scott/tiger;
@@ -123,6 +123,8 @@ SQL> select trim('X' from 'XXhello worldXXXX'）from dual;
 SQL> select trim('  hello world      ') from dual; -- 默认去空字符              
 -- 替换子串为其他字符
 SQL> select replace('hello', 'll', '*') from dual;
+-- 拼接
+SQL> select concat(concat(concat('我', '爱'), '北京'), '天安门');
 ```
 
 数值函数：
@@ -228,7 +230,7 @@ select rownum, ename, sal, from (
 
 SQL语句的类型：
 
-- DML：数据操纵语言，包括insert、delete、update、select。民间将select单独分出来叫DQL，但Oracle官方没有DQL。
+- DML：数据操纵语言，包括insert、delete、update、select。民间将select单独分出来叫DQL，Oracle官方没有。
 - DDL：数据定义语言，有create、drop、truncate、alter。
 - DCL：数据控制语言，有grant、revoke。
 
@@ -245,7 +247,7 @@ SQL> insert into emp(empno, ename, job) values(&empno, &ename, &job);
 批量插入数据：
 
 ```sql
--- 将旧表中的所有数据复制到新表。连创建和插入一块搞定
+-- 将旧表中的所有数据复制到新表，连创建和插入一块搞定
 create table mytab as select * from emp;
 create table mytab as select empno, ename, job from emp;
 create table mytab as select empno, ename, job from emp where sal < 6000;
@@ -263,7 +265,7 @@ insert into mytab(myno, myname) select empno, ename from emp;
 
 注：插入海量数据的方式还有数据泵、SQL Loader、外部表等。
 
-关于删除，对于少量数据，delete的效率高，它是一行一行删除，对于海量数据，truncate效率高，它的执行过程等价于先drop整张表，再重新create一张表。
+关于删除。对于少量数据，delete的效率高，它是一行一行删除；对于海量数据，truncate效率高，它的执行过程等价于先drop整张表，再重新create一张表。
 
 ```sql
 truncate table emp;
@@ -271,7 +273,7 @@ truncate table emp;
 
 删除完如果后悔，可用后面接触到的事务中的[rollback](#rollback)命令。
 
-delete支持回退，truncate不支持，因为DML都能回退，而truncate属于DDL，不支持。
+delete支持回滚，truncate不支持，因为DML都能回滚，而truncate属于DDL，不支持。
 
 执行时间的打开和关闭：
 
@@ -284,7 +286,7 @@ delete支持闪回，truncate不支持。
 
 delete删除数据但不会释放空间，相当于把文件放进回收站，但没有完全删除，truncate会。
 
-delete会产生碎片，即删除一行记录后对应空间就空在那里，下一条插入的数据只能继续从最后插，truncate不会。如果我们经常进行增删操作，那么须整理碎片合并空间（仅插入则不用）：
+delete会产生碎片，即删除一行记录后原空间还在，下一条插入的记录只能从最后插，truncate则不会，毕竟把整张表连同碎片都清掉了。如果我们经常进行增+删操作，那么须整理碎片合并空间（仅插入则不用）：
 
 ```sql
 alter table move;
@@ -304,7 +306,7 @@ alter table move;
 
   - 长度为1-30个字符。
 
-  - 不能与数据库其他对象和关键字重名。
+  - 不能与当前数据库内的其他对象及关键字重名。
 
     ```sql
     -- 切换到超级管理员查看保留字
@@ -421,8 +423,8 @@ alter table 表名 modify 字段名 default null; -- 没设默认值的字段的
 oracle自带语句录制功能：
 
 ```sql
--- 所写全部sql语句被存入note.txt中
-spool d:\note.txt;
+-- 所写全部sql语句被存入note.sql中
+spool d:\note.sql;
 sql语句...
 spool off;
 ```
@@ -434,28 +436,28 @@ spool off;
 它具有四大特性-ACID：
 
 - atomicity：原子性，指事物是一个不可分割的工作单位，即让多条语句的执行要么都成功要么都不做，不能仅部分成功。
-- consistency：一致性，指事物让数据库从一个一致性状态变为另一个一致性状态。简而言之即数据值总和不变，如某次转账前后，两者金额总数不变。
-- isolation：隔离性，指一个事务的执行（具体指对数据的操作）不受其他并发的事务干扰。
+- consistency：一致性，指事物让数据库从一个状态变为另一个状态，但两状态在业务上是一致的。如对转账业务，转账前后两条记录的余额分量之和不变。
+- isolation：隔离性，指在并发执行过程中写事务对读事务的影响。数据库底层已经实现事务并发执行时互斥地写同一条记录。
 - durability：持久性，指一旦事务被提交，对数据库的改变就是永久性的。
 
 原子性是重中之重。
 
-事务生命周期：如下图所示，开始于第一条增删改语句，终结于提交或回滚。注：对MySQL，语句一执行完就自动提交。
+事务生命周期：如下图所示，开始于第一条增删改语句，终结于提交或回滚。
 
 ![事务生命周期](oracle.assets/事务生命周期.png)
 
 理解提交的机制。每一个客户端在访问数据库服务器时访问的是各自的缓存，若修改了数据，则只有在提交（commit）之后才能更新并共享给其他客户端。
 
-如下图所示。客户端1和客户端2各自进行着事务，原数据库中存在某数据1，客户端1现对其进行修改，改成2，那么对应服务器缓存中的该数据更新为2，而客户端2对应缓存中的该数据仍为1，接着执行commit指令之后，原数据库的该数据就变为2，那么客户端2下一次查询时该数据就是2。
+如下图所示。客户端1和客户端2各自进行着事务，数据库中存在某数据1，客户端1现对其进行修改，改成2，那么对应服务器缓存中的该数据更新为2，而客户端2对应缓存中的该数据仍为1，接着执行commit指令之后，原数据库的该数据就变为2，那么客户端2下一次查询时该数据就是2。
 
-![image-20201002192731569](Oracle.assets/image-20201002192731569.png)
+<img src="Oracle.assets/image-20201002192731569.png" alt="image-20201002192731569" style="zoom:80%;" />
 
 提交的实现方式：
 
 - 显式（手动）提交：输入commit命令。
 - 隐式（自动）提交：关闭连接，执行DCL、DDL等语句。
 
-理解回滚（回退）的机制，回滚就是撤销，只针对已执行而未提交的DML语句（针对缓存而非原库），实现方式有两种：
+理解回滚（回退）的机制，回滚就是撤销，只针对已执行而未提交的DML语句，即针对缓存而非原库，实现方式有两种：
 
 - 显式回滚：输入<span id="rollback">rollback命令</span>，默认回滚到当前事务开始之前。
 - 隐式回滚：异常退出，如宕机、断电等。
@@ -471,9 +473,9 @@ rollback to [savepoint] 保存点名;
 
 下面讨论事务的隔离级别，多个事务会产生一些并发问题，给定事务A和事务B：
 
-- 脏读：B读到A执行DML语句但未提交时的字段值。临时内容绝不可取。
-- 不可重复读：B在A提交DML语句前后对某记录的字段读到不一样的值。
-- 幻读（虚读）：B在A提交DML语句前后读到增多的记录数。
+- 脏读：B读到A执行DML语句但未提交的记录。
+- 不可重复读：基于同一条查询语句，B在A提交DML语句前后读到不一样的记录。
+- 幻读（虚读）：基于同一条查询语句，B在A提交DML语句前后读到不一致的记录数。
 
 SQL99标准定义了四种隔离级别来克服并发问题：
 
@@ -484,12 +486,9 @@ SQL99标准定义了四种隔离级别来克服并发问题：
 | repeatable read-可重复读  |      |            | 可   |
 | serializable-序列化       |      |            |      |
 
-理解这几个级别的工作：
+理解这几个级别的工作，参见下图：
 
-- 读未提交：使得A对原库乃至缓存的DML结果均响应给B。
-- 读已提交：只允许A对原库的DML结果响应给B。
-- 可重复读：只允许A对原库的insert结果响应给B。
-- 序列化：使得各事务互斥地对某张表进行访问。
+![隔离级别](oracle.assets/隔离级别.png)
 
 将并发变成串行化（即序列化），就能从根本上解决并发问题，但事实上我们需在高效率（高并发）和高稳定性之间做平衡考虑。
 
@@ -508,7 +507,7 @@ set transaction read only;
 
 ## 序列
 
-序列的作用是模拟自增，本质是内存中的数组，数组长度固定，里面的元素可以一直在变。
+序列的作用是手动实现列值自增，本质是内存中的数组，数组长度固定，里面的元素可以一直在变。
 
 ```sql
 -- 创建序列
@@ -518,13 +517,7 @@ start with 起始值
 maxvalue 最大值 | nonmaxvalue 最大值 -- 循环数组才用到
 minvalue 最小值 | nonminvalue 最小值 -- 循环数组才用到
 cycle | noncycle -- 循环与否（默认否）
-cache 缓存值 | no cache -- 缓存与否（默认否），用于为多张争夺id的表分配号码
--- 从数据字典查看序列
-select * from user_sequences;
--- 使用序列（这条例子不好）
-select myseq.nextval, myseq.currval, empno, ename from emp;
---  通过序列实现主键自增
-insert into person(myseq.nextval, 'Van');
+cache 缓存值 | no cache; -- 缓存与否（默认否），用于为多张争夺id的表分配号码
 ```
 
 显然使用非循环序列，不会归零。注意循环序列不能用于主键。
@@ -532,10 +525,25 @@ insert into person(myseq.nextval, 'Van');
 裂缝问题：比方说数组长度为20，当前拿到6，但下一次拿到的是21。列举一些情况：
 
 - 异常：比如排到6突然断电。
-- 回滚：比如撤销两条插入语句，回到排6之后的状态。
+- 回滚：比如撤销两条基于7与8的插入语句。
 - 多表使用：多表抢着用同一个序列。
 
+```sql
+-- 从数据字典查看序列
+select * from user_sequences;
+--  通过序列实现主键自增 每调用nextval，序列指针就后移（幅度就是序列步长），这里得到后移指向的值填入语句
+insert into person(myseq.nextval, 'Van');
+```
+
 想修改序列只需将语句中的create改为alter，后续设置同上。
+
+删除序列：
+
+```sql
+drop sequence 序列名;
+```
+
+
 
 ## 索引
 
@@ -1025,7 +1033,7 @@ create or replace package body mypackage as
 end mypackage; -- 结束时带上包名
 ```
 
-oracle sql developer无法直接验证包能不能完成相应sql效果，只可用`desc mypackage`测试其正确性。以后可通过java代码验证正确性。
+oracle sql developer无法直接验证包能不能完成相应sql效果，只可用`desc mypackage`测试其有效性。以后可通过java代码验证。
 
 ## 触发器
 
@@ -1101,7 +1109,7 @@ end;
 /
 ```
 
-由上例可知，我们系统的校验可以在前端、后端、数据库多处进行，当然越早拦截越好。
+由上例可知，系统完整的校验应当在前端、后端、数据库多处进行，当然越早拦截越好。
 
 ## 数据字典
 
@@ -1118,15 +1126,15 @@ end;
 
 这是oracle带的数据库配置工具，可点应用程序打开，也可在cmd输入`dbca`打开。示例操作看视频。
 
-顺带一提快速恢复区flash_recovery_area，用来实现commit之后的撤销，它容量越大，则可恢复的数据越多，但也会拖累性能，容量越小，恢复的数据也就越小。
+顺带一提快速恢复区flash_recovery_area，用来实现commit之后的撤销，它容量越大，则可恢复的数据越多，但也会拖累性能。
 
 ## 闪回
 
-在commit之前，可用rollback撤销；在commit之后，可用闪回撤销。
+在commit之前，可用rollback撤销；在commit之后，就只能用闪回撤销。
 
 闪回的作用：
 
-- 对错误的且已提交的DML进行撤销（撤销已提交的事务）。
+- 撤销已提交的事务。
 - 还原已经删除（drop）的表。
 - 获取表的历史版本。
 
@@ -1180,11 +1188,11 @@ flashback table 表名 to before drop rename to 新名;
 flashback table "xxxxxxxxxx" to before drop;
 ```
 
-需注意，普通用户删除表会经回收站，而管理员删除表不经回收站。
+注意，普通用户删除表会经回收站，而管理员删除表不经回收站。
 
 ### 闪回事务
 
-虽然记不得历次提交的时间，但知道历次提交的次号（commit一次就标个号），于是根据提交次号执行的闪回叫做闪回事务。显而易见，闪回dml+commit依赖的是时间点，闪回事务依赖的是提交次数。
+虽然记不得历次提交的时间，但知道历次提交的次号（commit一次就标个号），于是根据提交次号执行的闪回叫做闪回事务。显而易见，闪回DML+commit依赖的是时间点，闪回事务依赖的是提交次数。
 
 通过版本查询得到版本号，进而知晓次数，同一事务中的DML操作共享一个版本号，根本上仍是伪列的作用。示例如下：
 
@@ -1322,19 +1330,21 @@ sql优化的前提条件：数据量特别庞大。
 - 锁机制：排他锁、共享锁、读锁、写锁、行锁、页锁。视当前业务使用哪种锁。
 - 表的设计：权衡三大范式和效率。
 - 架构设计：读写分离。就是将读操作的数据和写操作的数据分别置于两个数据库，从而只需对写库进行加锁，防止并发冲突，而不对读库加锁，保证其运行效率。
-- 细节：相近的数据类型的选择。
+- 细节：相近数据类型的选择。
 
 具体到oracle来说：
 
-- 不要让oracle做得太多：譬如使用jdbc时，就应把一些负责操作交给java去做，让sql语句尽量简单，避免一些复杂查询。
-- 查询时避免使用星号：意在去除多余的字段及提高效率（用星号的话会多解析过程）。
+- 不要让oracle做得太多：譬如使用jdbc时，就应把一些复杂操作交给java去做，让sql语句尽量简单，避免一些复杂查询。
+- 查询时避免使用星号：意在去除多余的字段及提高效率，用星号的话会多出解析过程。
 - 避免使用一些消耗资源的操作：如不用关键字distinct（exists替代）、union、minus、intersect、order by等。
 - 避免索引失效：如不要在where子句中基于索引用函数、计算、not、is null、自动转换等，这些都会使索引失效。
-- 尽量减少访问次数：这与第一条相矛盾，我们需要根据实际、经验、压力（性能）测试来权衡。
+- 尽量减少访问次数：我们需要根据实际、经验、压力（性能）测试来权衡。
 
-## 附：课程练习
+## 注
 
-### 实验二
+### 课程练习
+
+#### 实验二
 
 ```sql 
 -- 创建课程表
@@ -1423,7 +1433,7 @@ maxvalue 1000000
 nocycle;
 ```
 
-### 实验三
+#### 实验三
 
 ```sql
 -- 1.
@@ -1510,7 +1520,7 @@ to
 	usera_exer;
 ```
 
-### 实验四
+#### 实验四
 
 ```plsql
 alter user scott indentified by 'tiger';

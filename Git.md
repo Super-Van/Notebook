@@ -712,7 +712,7 @@ $ git branch -v
 Van@LAPTOP-D74Q9RI2 MINGW64 /d/chaofan/demo (master)
 $ git checkout hot_fix
 Switched to branch 'hot_fix'
-# 从行末可以看出已经切换到hot_fix分支
+# 从行末可以看出已切换到hot_fix分支
 Van@LAPTOP-D74Q9RI2 MINGW64 /d/chaofan/demo (hot_fix)
 ```
 
@@ -746,7 +746,7 @@ Fast-forward
 ```bash
 $ git merge hot_fix
 Auto-merging good.txt
-# 冲突源只能是行的不一致
+# 冲突原因只能是行的不一致
 CONFLICT (content): Merge conflict in good.txt
 Automatic merge failed; fix conflicts and then commit the result.
 
@@ -798,8 +798,9 @@ Van@LAPTOP-D74Q9RI2 MINGW64 /d/chaofan/demo (master)
 附带看一下本地库的历史记录：
 
 ```bash
+# 从下往上看
 $ git reflog
-# 合并时才可能有冲突情况 合并冲突的解决也被记录了
+# 合并时才可能有冲突情况 合并与冲突解决被一起记录
 65e2a55 (HEAD -> master) HEAD@{0}: commit (merge): resolve conflict
 52c8c89 HEAD@{1}: checkout: moving from hot_fix to master
 # hot_fix分支也修改第二行，但这里并不报冲突，两分支各自拥有的good.txt相互独立
@@ -807,12 +808,13 @@ $ git reflog
 6bb63cf HEAD@{3}: checkout: moving from master to hot_fix
 # master分支修改第二行
 52c8c89 HEAD@{4}: commit: 修改苏轼
-# 合并另一分支到主干的操作也被记录了
+# 合并另一分支到主干的操作也被记录了，版本号是合并之后被修改方master的
 6bb63cf HEAD@{5}: merge hot_fix: Fast-forward
+# 版本号是切换后分支master的
 2bd37b7 HEAD@{6}: checkout: moving from hot_fix to master
 # 另一分支修改文件的操作也被记录了
 6bb63cf HEAD@{7}: commit: 添加孟浩然
-# 切换分支的操作也记录了，版本号理应不变
+# 切换分支的操作也记录了，版本号是切换后分支hot_fix的，因为没动，所以跟master的一样
 2bd37b7 HEAD@{8}: checkout: moving from master to hot_fix
 2bd37b7 HEAD@{9}: commit: 添加黄庭坚
 927519f HEAD@{10}: reset: moving to 927519f
@@ -851,10 +853,13 @@ $ git remote -v
 # 新建连接，origin是最常用的连接名（仓库别名），其后接仓库地址
 $ git remote add origin https://github.com/Super-Van/Notebook.git
 
+# 修改连接
+$ git remote set-url origin https://github.com/Super-Van/notebook.git
+
 # 再查看连接情况，就有了东西
 $ git remote -v
-origin  https://github.com/Super-Van/Notebook.git (fetch)
-origin  https://github.com/Super-Van/Notebook.git (push)
+origin  https://github.com/Super-Van/notebook.git (fetch)
+origin  https://github.com/Super-Van/notebook.git (push)
 
 # 提交之前最好先拉取一下，因为远程可能有改动
 $ git pull origin master
@@ -871,8 +876,8 @@ $ git remote rm origin
 ```bash
 # 克隆 将远程库项目复制到本地 不用自建本地库根目录及.git目录，会帮我们生成
 $ git clone 远程仓库地址 别名（可不设，默认是仓库名）
-$ git clone https://github.com/Super-Van/Notebook.git (fetch)
-$ git clone https://github.com/Super-Van/Notebook.git (fetch) origin
+$ git clone https://github.com/Super-Van/notebook.git (fetch)
+$ git clone https://github.com/Super-Van/notebook.git (fetch) origin
 
 # 拉取中央仓库的更新内容
 $ git pull 远程库地址别名 远程分支名
@@ -917,7 +922,7 @@ $ git checkout origin/master
 
 pull时可能产生文件冲突，如此则进入MERGING状态，解决办法跟分支冲突的解决方法一样。
 
-下面讲讲push命令。已提交条件下，push前git会先检查本地库是否与远程库保持一致，一致则直接推流，不一致则勒令我们先去pull，pull没问题则继续用push推流，有问题（文件冲突）则解决完冲突再用push推流。
+下面讲讲push命令。已提交条件下，push前git会先检查本地库是否与远程库保持一致，一致则直接推流，不一致则勒令我们先去pull，pull没问题则用push推流，有问题（文件冲突）则解决完冲突再用push推流。
 
 ![团队内部与远程库](git.assets/团队内部与远程库.png)
 
@@ -957,20 +962,23 @@ clone时用如下格式可跳过后续push时用户名密码的输入，且添�
 ```bash
 $ git clone https://邮箱:密码@仓库地址
 # 克隆并建立连接
-$ git clone https://xxxxxx%40google.com:123456@github.com/Super-Van/Notebook.git
+$ git clone https://xxxxxx%40google.com:123456@github.com/Super-Van/notebook.git
 ```
 
 2021年暑期，因为github推行更安全的令牌机制，取代以前的密码，所以上述写法有所改变：
 
 ```bash
-$ git clone https://xxxxxx%40google.com://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/Notebook.git
+$ git clone https://xxxxxx%40google.com://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/notebook.git
 ```
 
 或者不使用克隆，而是通过修改远程连接设置推送验证的跳过：
 
 ```bash
-# 前提是origin连接已被添加
-$ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/Notebook.git
+# origin连接尚不存在
+$ git remote add origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/notebook.git
+
+# origin连接已被添加
+$ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/notebook.git
 ```
 
 关于令牌机制的更多解读，可参见[github开发人员在七夕搞事情](https://blog.csdn.net/weixin_41010198/article/details/119698015)。

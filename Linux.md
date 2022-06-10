@@ -1,6 +1,6 @@
 # Linux
 
-
+参考视频：
 
 ## 概述
 
@@ -13,7 +13,7 @@ Linux系统特点：
 
 linux的分支有很多，有名的有：Ubuntu、Debian、CentOS、Redhat、SUSE等。
 
-关于linux的其他介绍，自行查找资料。
+关于linux的其他介绍，自行查资料。
 
 ## 虚拟机
 
@@ -36,7 +36,7 @@ linux的分支有很多，有名的有：Ubuntu、Debian、CentOS、Redhat、SUS
 
 关于安装OS的步骤也请参见视频。
 
-附带讲一下消除手贱的vmware备份功能，具体有两种备份方式：
+防手贱，vmware有备份功能，具体有两种实现方式：
 
 - 快照：又叫还原点，适用于短期频繁的恢复，做快照时虚拟机一般处开启状态。
 - 克隆：适用于长期备份，其实就是将当前虚拟机内容目录完整复制一份（这比新建一个状态一模一样的虚拟机要快很多），做克隆时虚拟机必须处关闭状态。
@@ -239,7 +239,7 @@ cp boot/duck.txt /home/van/duck.txt
 # 拷贝目录时要加-r选项 -r表示递归（recursion），穷尽目录里面的文档，其他一些命令也有此选项
 cp -r monkey root/monkey # 执行前无monkey，执行后有了
 cp -r monkey root/monkey # 执行前有了money，执行后就得到root/monkey/monkey
-# 也可不写粘贴的同名称
+# 同名称的话也可不写名称
 cp -r paper-master/* pre-training/ # 要求执行前有pre-training，复制文件不能帮我们创建新目录
 cp -r paper-master pre-training # 上一行的等价写法，执行前无pre-training，复制单级目录可顺带创建新目录，多级不行
 ```
@@ -282,7 +282,7 @@ rm -f ~/linux*
 
 vim是个指令，但又常作为一款文本编辑器，功能强大，这里只认识一下，后面会详细讲。
 
-打开一个可有可无的文件，有则打开，无则创建在打开。
+打开一个可有可无的文件，有则打开，无则自动创建再打开。
 
 ```shell
 # 对象不能是目录
@@ -291,7 +291,7 @@ vim install.log
 
 这样就进入了一个编辑界面，后续操作以后再说。
 
-#### 输出重定向
+#### 输出
 
 有时我们想把指令的执行结果保存到文件中，通过下列指令：
 
@@ -299,14 +299,14 @@ vim install.log
 - `>>`：追加输出，在文件末尾添加。
 
 ```shell
-# 文件可有可无，无则先创建
+# 文件可有可无，无则先自动创建
 ls -la > ls.txt
 ls -lh >> boot/animal/ls.txt
 ```
 
 #### cat
 
-即concatenate（合并）。
+即concatenate-合并。
 
 一个功能是打开文件，与vim不同，它并不弄出一个编辑界面，而是以只读的方式打开。
 
@@ -317,7 +317,7 @@ I am a dog.
 [van@localhost animal]$
 ```
 
-另一个功能是合并文件内容，往往输出重定向到一个新文件。
+另一个功能是合并文件内容，往往输出到一个新文件。
 
 ```shell
 [van@localhost animal]$ cat dog.txt  cat.txt > mix.txt

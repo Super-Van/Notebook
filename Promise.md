@@ -117,7 +117,7 @@ btn.addEventListener("click", () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     resolve(xhr.response)
                 } else {
-                    // 处理失败所回的响应也是有响应体的
+
                     reject(xhr.response)
                 }
             }
@@ -160,7 +160,7 @@ readFilePromise("poem.txt", "utf-8").then(value => {
 - 要么是从pending变为resolved。
 - 要么是从pending变为rejected。
 
-那么无论任务成功还是失败，最终都会产生一个结果数据，对应成功的一般叫作value，对应失败的一般叫作reason，只有resolve或reject函数才能以它为参数，对它进行操作。这个结果数据还保存于promise对象的PromiseResult属性。
+那么无论任务成功还是失败，最终都会产生一个结果数据，对应成功的一般叫作value，对应失败的一般叫作reason，只有resolve或reject函数才能以它为参数。这个结果数据还保存于promise对象的PromiseResult属性。
 
 ## API解读
 
@@ -370,7 +370,7 @@ p.then(value => {
 })
 ```
 
-特别注意老生常谈的话题，函数体的定义不等于函数体的执行。
+注意老生常谈的问题，函数体的定义不等于函数体的执行。
 
 ### then方法的返回值
 
@@ -383,6 +383,7 @@ p.then(value => {
 以上三条对成功的回调和失败的回调都适用。示例如下：
 
 ```js
+/* 反常的例子 */
 let p = new Promise((resolve, reject) => {
     reject("error")
 })
@@ -396,7 +397,7 @@ let result = p.then(value => {
     //     resolve("success")
     // })
 })
-// // [[PromiseState]]: "fulfilled" [[PromiseResult]]: 521
+// [[PromiseState]]: "fulfilled" [[PromiseResult]]: 521
 console.log(result);
 ```
 
@@ -415,7 +416,6 @@ p.then(value => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve("第二个定时器到点")
-            // 有意思：先执行这一行，再执行上一行resolve
             console.log("嘿嘿嘿");
         }, 2000);
     })
@@ -484,6 +484,7 @@ p.then(value => {
     // 返回的容器的状态为pending
     return new Promise((resolve, reject) => {
         console.log(4);
+        // resolve和reject都不写
     })
 }).then(value => {
     console.log(value);
@@ -856,7 +857,7 @@ MyPromise.prototype.then = function (onResolved, onRejected) {
 }
 ```
 
-而针对异步任务实现then方法的返回，具体我们要对callback所存放对象中的函数进行扩展，使得执行resolve或reject函数时不光要调用结果处理函数，还要像上面那样根据回调函数的返回值设定返回容器的状态和结果。
+而针对异步任务实现then方法的返回，具体我们要对callback数组中的函数进行扩展，使得容器状态改变后调用结果处理函数时，要像上面那样根据结果处理函数的返回值设定返回容器的状态和结果。
 
 ```js
 /**
@@ -1283,7 +1284,7 @@ function MyPromise(executor) {
 MyPromise.prototype.then = function (onResolved, onRejected) {
     // 可能未定义回调函数
     if (typeof onResolved !== "function") {
-        // 即 value => { return value}
+        // 即 value => { return value }
         onResolved = value => value
     }
     if (typeof onRejected !== "function") {
@@ -1494,9 +1495,9 @@ class MyPromise {
 
 这两个东西往往一起出场。关于它们的详细描述可参看[async函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function)与[await表达式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await)。
 
-async关键字以隐式promise对象的方式简化了对promise的使用，await表达式让多异步任务的串联更为直观清晰，我们看不到任何回调函数的影子。
+async关键字以隐式promise对象的方式简化了对promise的使用，await表达式让多异步任务的串联更为直观清晰。
 
-我们还是以读多文件，并连缀文件内容为例看看这两个东西的优势：
+我们还是以读多文件为例看看这两个东西的优势：
 
 ```js
 const util = require("util")
@@ -1528,7 +1529,6 @@ function getJokes(url) {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     resolve(xhr.response)
                 } else {
-                    // 处理失败所回的响应也是有响应体的
                     reject(xhr.response)
                 }
             }

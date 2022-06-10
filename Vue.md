@@ -56,7 +56,7 @@ vue有很多特点和在web常见的高级功能：
 
 后续学习到webpack和CLI的时候，再使用此方式。
 
-### 入门案例
+### 实例
 
 #### Hello World
 
@@ -1018,7 +1018,7 @@ Van Thomas
 - `.stop`：调用`event.stopPropagation()`。
 - `.prevent`：调用`event.preventDefault`。
 - `.{keyCode | keyAlias}`：特定按键触发回调函数。
-- `.native`：监听组件元素的原生事件（如touchend等）。注意原生事件本仅适用于普通元素。
+- `.native`：监听组件元素上的原生事件。注意原生事件本仅适用于普通元素。
 - `.once`：只触发一次回调函数。
 
 下面对上述修饰符举例。
@@ -1157,7 +1157,7 @@ v-model常用于数据和表单控件属性之间的双向绑定。
 <input type="text" v-model="message">{{message}}
 ```
 
-基于上片代码，在浏览器会看到输入框初始就有内容，为message的值，然后输入修改输入框内容，会发现输入框后面的文字会跟着变。
+基于上片代码，在浏览器会看到输入框初始就有内容，即message值，然后修改输入内容，会发现输入框后面的文字会跟着变。
 
 本质上说，v-model双向绑定就是两个单向绑定的融合，一个单向绑定是属性绑定，另一个是input事件触发。下面给出最简单的等价写法：
 
@@ -1493,7 +1493,7 @@ console.log(obj1 === obj2);
 
 ### 父子组件通信
 
-上一节我们说到，一般而言data在组件之间是不能共享的。但是在实际开发中，却常见根组件将从后台请求来的数据向子组件传递的现象（注意是传递，因为子组件不能直接使用父组件的数据），并且层层传递的现象也很常见。同时开发中还有一些场景是子组件向父组件传递数据（同样父组件也不能直接使用子组件的数据）。
+上一节我们说到，一般data在组件之间是不能共享的。但是在实际开发中，却常见根组件将从后台请求来的数据向子组件传递的现象（注意是传递，因为子组件不能直接使用父组件的数据），并且层层传递的现象也很常见。同时开发中还有一些场景是子组件向父组件传递数据（同样父组件也不能直接使用子组件的数据）。
 
 #### 父传子
 
@@ -1614,11 +1614,11 @@ app.component('my-component', {
 
 甚至可以设数据类型为自定义的类。
 
-提醒一点，由于html不区分大小写，所以父组件传递的数据名（属性名）若为驼峰名，则在绑定时要转写为横杠分隔名。
+提醒一点，由于HTML不区分大小写，所以子组件接收数据的属性名若为驼峰名，则在绑定时要转写为横杠分隔名。
 
 #### 子传父
 
-一般而言，子组件通过事件触发回调函数，从而传递数据给父组件。
+一般而言，子组件通过触发某事件使得回调函数执行，从而传递数据给父组件。
 
 上例子：
 
@@ -1626,7 +1626,7 @@ app.component('my-component', {
 <!-- 子组件 -->
 <template id="cpn">
     <div>
-        <!-- 通过点击事件触发回调函数，以传递数据 -->
+        <!-- 通过触发点击事件执行回调函数，以传递数据 -->
         <button v-for="category in categories" @click="btnClick(category)">{{category.name}}</button>
     </div>
 </template>
@@ -1634,7 +1634,7 @@ app.component('my-component', {
 <body>
     <!-- 父组件 -->
     <div id="app">
-        <!-- 父组件通过自定义事件的回调函数接收数据 被监听事件应写到子组件标签中 不带参数 -->
+        <!-- 父组件通过自定义事件的回调函数的参数接收数据 被监听事件应写到子组件标签中 不带参数 -->
         <cpn @cateclick="cpnClick"></cpn>
     </div>
 </body>
@@ -1655,8 +1655,8 @@ app.component('my-component', {
         },
         methods: {
             btnClick(category) {
-                // 通过执行注册给父组件的自定义事件的回调函数，发送数据 回想之前接触到的事件都是全小写，那么自定义的事件亦不例外
-                this.$emit("oncateclick", category)
+                // 触发父组件的自定义事件使得回调函数执行，以此发送数据 回想之前接触到的事件都是全小写，那么自定义的事件亦不例外
+                this.$emit("cateclick", category)
             }
         },
     };
@@ -1670,11 +1670,11 @@ app.component('my-component', {
         },
         methods: {
             /**
-             * @description: 自定义事件cateclick的回调 接收子组件发来的数据
+             * @description: 自定义事件cateclick的回调 参数接收子组件发来的数据
              * @param {object} cate 这里就不像之前那样是事件对象了
              * @return {*}
              */
-            cpnCateClick(cate) {
+            cpnClick(cate) {
                 console.log(cate);
             }
         }
@@ -1721,7 +1721,7 @@ app.component('my-component', {
 </script>
 ```
 
-出来的效果是不错的，但会报错，即vue不建议这样做，不建议用props里的数据进行双向绑定，建议用data里的数据。至于为什么不建议用props里的数据，我们可将props里的数据类比类的静态变量，它为同类多个实例共享，那么任何实例都能修改就带来脏数据的问题。下面就改写上述代码，且另立一个子组件实例：
+出来的效果是不错的，但会报错，即vue不建议这样做，不建议用props里的数据进行双向绑定，建议用data里的数据。至于为什么不建议用props里的数据，我们可将props里的数据理解为类的静态变量，它为同类多个实例共享，那么任何实例都能修改就带来脏数据的问题。下面就改写上述代码，且另立一个子组件实例：
 
 ```html
 <template id="son">
@@ -1775,7 +1775,7 @@ app.component('my-component', {
     <div>
         <h3>props: {{sonNum}}</h3>
         <h3>son data: {{num}}</h3>
-        <!-- 通过双向绑定的原始写法，加入子传父 -->
+        <!-- 采用双向绑定的原始写法，因为要额外加入子传父的逻辑 -->
         <input type="text" :value="num" @input="valueChange">
     </div>
 </template>
@@ -1784,7 +1784,7 @@ app.component('my-component', {
     <div id="app">
         <h1>father data: {{popNum}}</h1>
         <!-- 注册自定义事件 -->
-        <son :son-num="popNum" @onsonvaluechange="sonvalueChange"></son>
+        <son :son-num="popNum" @sonvaluechange="sonvalueChange"></son>
     </div>
 </body>
 <script src="http://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -1804,7 +1804,8 @@ app.component('my-component', {
             valueChange(event) {
                 // 从value到data
                 this.num = event.target.value
-                this.$emit("onsonvaluechange", this.num)
+                // 从value（data）到父组件的data
+                this.$emit("sonvaluechange", this.num)
             }
         }
     }
@@ -1826,11 +1827,11 @@ app.component('my-component', {
 </script>
 ```
 
-子传父会产生连锁反应，即让props数据也跟着变（props也只能由父传子来改变）。但注意不会再往后连锁了，看第27行，从props到data的传递有且仅有一次即首次。
+子传父后父组件的data变了，那么子组件的props也跟着变，但随后子组件各实例的data不会再被props影响了，看第27行，从props到data的传递有且仅有一次。
 
 #### watch属性
 
-可用组件的watch属性替换oninput事件及其回调函数，它本来的职能是监听data数据的变化。修改上例：
+如果不想采用原始双向绑定写法而采用v-model，那么v-model能将控件值的变化反映给data，oninput的回调函数valueChange没了，谁将此变化反映给父组件的data呢？可借助组件的watch属性，其作用正好是监听data的变化。修改上例：
 
 ```html
 <!-- 其他代码省略 -->
@@ -1850,6 +1851,7 @@ app.component('my-component', {
         },
         watch: {
             num() {
+                // num值一变，就触发父组件上注册的自定义事件
                 this.$emit("onsonvaluechange", this.num)
             }
         }
@@ -2196,7 +2198,7 @@ var myModule = (function () {
 
 面对如此多规范，我们主要学习最后一种。目前只需掌握导出和导入。
 
-导出依靠[export](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/export)关键字；导入依靠[import](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/import)关键字。具体使用就不记了。
+导出依靠[export](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/export)关键字，导入依靠[import](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/import)关键字。具体使用就不记了。
 
 不难想到，有了模块化的限定，使用var关键字就不会造成JS文件之间命名冲突问题。而且我们应不能让思维停留在全局作用域阶段，随意使用别人JS文件里的变量或函数。
 
@@ -2407,7 +2409,7 @@ module.exports = {
 
 对scripts里配置的命令，webpack优先从局部模块开始找而非全局模块，故上述build属性值可改为`webpack`。
 
-附带讲。package.json里的devDependencies存放的是开发期依赖，它们是生产的必要条件但不参与生产；而dependencies属性存放的是生产期依赖，它们在开发和生产期都不可或缺。
+注：package.json里的devDependencies存放的是开发期依赖，它们是生产的必要条件但不参与生产；而dependencies属性存放的是生产期依赖，它们在开发和生产期都不可或缺。
 
 #### loader
 
@@ -2695,7 +2697,7 @@ npm install vue-loader@13.0.0 vue-template-compiler@2.5.21 --save-dev
 
 那么以后任何组件都可以vue文件的形式存在，要使用某组件在main.js中导入或在另一个组件中嵌套注册皆可。
 
-附带讲，可在主配置文件中为导包作一些简化设置：
+可在主配置文件中为导包作一些简化设置：
 
 ```js
 // 在module.exports中追加
@@ -2785,11 +2787,11 @@ plugins: [
    new UglifyjsWebpackPlugin()
    ```
 
-成功了我们发现bundle.js的内容呈密密麻麻状。
+成功了我们发现bundle.js的内容密密麻麻、杂乱无章。
 
 #### 服务端
 
-webpack基于node环境和express框架提供了一个本机的服务端用于在开发期模拟服务器，它依赖于WebpackDevServer插件。
+webpack基于node环境和express框架提供了一个本机的服务端作为开发环境，它依赖于WebpackDevServer插件。
 
 使用步骤：
 
@@ -3126,7 +3128,9 @@ module.exports = {
 
 单页面复应用SPA（single page web application）日渐兴起，它必须由前端路由支持，vue-route的任务就是实现前端路由。
 
-从本章案例我们能看出组件着实让三大件的关系糅成一个整体。
+前端路由与异步请求相互配合。前端路由靠浏览器控制页面的跳转，便无需向服务器发同步请求，只用发异步请求，服务器就只需响应动态数据而不含页面的静态部分，如此，一来减轻了网络传输的压力，二来改善了用户的体验。
+
+从本章案例我们能看出组件着实将三大件糅成一个整体。
 
 ### hash与history
 
@@ -3170,7 +3174,7 @@ history.go(1)
 history.replaceState({}, "", "home")
 ```
 
-这些操作都不会导致向后端发送请求。
+一般地这些操作都不会导致向后端发送请求。
 
 ### vue-router概述
 
@@ -3263,11 +3267,11 @@ export default {
 </style>
 ```
 
-如此访问网站初始URL为`http://localhost:8080/#/`，点击首页链接就URL变为`http://localhost:8080/#/home`。
+如此访问网站初始URL为`http://localhost:8080/#/`，点击首页链接URL就变为`http://localhost:8080/#/home`。
 
 router-link和router-view都是全局组件。
 
-我们可让根路径重定向到某路由，即默认激活某路由：
+我们可从根路径（当前请求的初始路径）重定向到某路由，即默认激活某路由：
 
 ```js
 // 在映射表里添加
@@ -3492,7 +3496,7 @@ this.$route.push({
 });
 ```
 
-附带讲，我们发现怎么点来点去，地址栏怎么变，浏览器控制台的Network一栏都毫无波澜，这就印证了前端路由的有效性，无需后端插手。
+我们发现怎么点来点去，地址栏怎么变，浏览器控制台的Network一栏都毫无波澜，这就印证了前端路由的有效性，无需后端插手。
 
 ### router与route
 
@@ -3722,7 +3726,7 @@ import store from './store'
 
 Vue.config.productionTip = false
 
-// 将状态管理器置于Vue类原型 以供组件与实例取用
+// 将状态管理器置于Vue类原型中，以供组件与实例取用
 Vue.prototype.$store = store
 
 new Vue({
@@ -3831,9 +3835,9 @@ vuex官方明确说状态更新的唯一方式就是提交mutations。
 
 关于回调函数的自定义参数、对象风格的提交方式等，这些都不难，故请直接看[官方文档](https://vuex.vuejs.org/zh/guide/mutations.html)的解读与示例。
 
-提一下mutations响应规则，即只有初始state中的数据才被纳入响应式系统，后续添加进来的数据不具备响应式特性。回顾什么叫响应式：数据变化导致页面对应区域跟着变化。若想让追加数据也具备响应式特性，则需依靠Vue.set方法，它可应用于数组、对象，如`Vue.set(state.info, "address", "Huanggang")`。同时，也常用set响应式删除数据，如`Vue.set(state.info, "tel")`。
+提一下mutations响应规则，即只有初始state中的数据才被纳入响应式系统，后续添加进来的数据不具备响应式特性。回顾什么叫响应式：数据变化导致页面跟着变化。若想让追加数据也具备响应式特性，则需依靠Vue.set方法，它可应用于数组、对象，如`Vue.set(state.info, "address", "Huanggang")`。同时，也常用set响应式删除数据，如`Vue.set(state.info, "tel")`。
 
-另外官方推荐将事件名定义为常量，以避免字符串写错，这里不赘述。
+另外官方推荐将事件名定义为常量，以避免名称敲错，这里不赘述。
 
 ### Actions
 
@@ -3859,7 +3863,7 @@ actions: {
     addAsync(context, payload) {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                // context即store对象
+                // 状态更新语句
                 context.commit("addStep", payload.step)
                 resolve("refreshed ok!")
             }, payload.timeout);
@@ -3870,7 +3874,7 @@ actions: {
 
 ### Modules
 
-虽然vuex推荐store对象只有一个，但允许在其中划分出多组{states、mutations...}。
+虽然vuex推荐store对象只有一个，但允许在其中划分出多组`{states、mutations...}`。
 
 具体语法不难理解亦无甚重点，还请参考[官方文档](https://vuex.vuejs.org/zh/guide/modules.html)。最好联系项目学习本节，也可参照下一节。
 
