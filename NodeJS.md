@@ -1,6 +1,6 @@
 # Node.js
 
-参考视频：[Node.JS视频教程](https://www.bilibili.com/video/BV1Ns411N7HU)。
+参考视频：[Node.JS教程](https://www.bilibili.com/video/BV1Ns411N7HU)。
 
 关于node的调试，参考视频[代码快速演示devtools调试node](https://www.bilibili.com/video/BV1vf4y1m7sj?from=search&seid=6021563095627602754)。
 
@@ -929,14 +929,25 @@ npm uninstall --help
 
 为提高速度，可使用淘宝镜像作为下载源：
 
-```js
+```sh
 npm config set registry https://registry.npm.taobao.org
+# 有时候官网快
+npm config set registry http://www.npmjs.org
 ```
 
 查看npm的配置信息：
 
 ```shell
 npm config list
+```
+
+查看已安装情况：
+
+```sh
+# depth指依赖显示深度
+npm list --depth=0
+npm list --depth --global
+npm list element-ui
 ```
 
 ## Express
@@ -2129,3 +2140,4 @@ router.post("/login", (req, res, next) => {
 
 
 
+ge

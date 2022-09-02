@@ -2,7 +2,7 @@
 
 参考视频：
 
-- [Spring视频教程](https://www.bilibili.com/video/BV1ds411V7HZ)。
+- [Spring教程](https://www.bilibili.com/video/BV1ds411V7HZ)。
 - [SSM联讲](https://www.bilibili.com/video/BV1d4411g7tv)。
 
 ## 概述
@@ -50,14 +50,14 @@ Spring是分层（Spring SE/EE）的应用于全栈的轻量级开源框架。�
   SpEL: spring-expressions
   ```
 
-- 往往AOP+Ascpects：实现AOP；Instrumentation-设备整合与Messaging-消息服务都不用管。
+- 往往AOP+Ascpects：实现AOP。Instrumentation-设备整合与Messaging-消息服务都不用管。
 
   ```
   AOP: spring-aop
   Aspects: spring-aspects
   ```
 
-- Data Access/集成：数据访问，具体有四个jar包，OXM-object xml mapping，JMS-消息服务不用管，这两个跟集成有关。
+- Data Access/集成：<span id="dataAccess">数据访问</span>，具体有四个jar包。OXM-object xml mapping、JMS-消息服务不用管，这两个跟集成有关。
 
   ```
   JDBC: spring-jdbc
@@ -81,7 +81,7 @@ Spring是分层（Spring SE/EE）的应用于全栈的轻量级开源框架。�
 
 IOC-inversion of control-控制反转：控制指的是资源获取的方式，正向方式就是传统的用new手动创建，对象一复杂，手动创建起来就蛮麻烦；反转之后一个容器帮我们创建资源包括初始化，这个容器统一管理所有组件-带某种功能的类。
 
-DI-dependency injection-依赖注入：容器通过反射等为某组件对象的域赋值，尤指给自定义类型的域赋上依赖的组件对象，spring可检索出bean之间关联关系然后级联注入。
+DI-dependency injection-依赖注入：容器通过反射等为某组件对象的域赋值，尤指给组件类型的域赋上依赖（关联、聚合）的组件对象，spring可检索出bean之间关联关系然后级联注入。
 
 ### 容器
 
@@ -134,7 +134,7 @@ public class Person {
 
 ```java
 // 见名知义，由classpath下的某个xml文件生成IOC容器
-ApplicationContext ioc = new ClassPathXmlApplicationContext("container.xml");
+ApplicationContext ioc = new ClassPathXmlApplicationContext("context.xml");
 System.out.println("容器已创建");
 // 传入对象的id值
 Person van1 = (Person) ioc.getBean("van");
@@ -165,7 +165,7 @@ System.out.println(person);
 
 #### 概述
 
-详细来看向容器中注册组件对象时的花式注入。
+详细来看向注册组件之间的关联关系产生的花式注入。
 
 对于8大基本类型与String，基于value属性写实际值；对于对象类型，常基于ref属性写所依赖bean的id值。只有后者体现了DI中的依赖概念，即对象间的依赖关系。
 
@@ -205,7 +205,7 @@ System.out.println(person);
   </bean>
   <bean id="course" class="bean.Course">
       <property name="courseName" value="CS"></property>
-      <!-- 针对引用类型的域，不用value，用ref（引用） -->
+      <!-- 针对引用类型的域，不用value，用ref -->
       <property name="teacher" ref="teacher"></property>
       <property name="credit" value="2"></property>
   </bean>
@@ -468,7 +468,7 @@ xml预定义的实体引用同HTML的特殊字符，给一个[参考手册](http
 </bean>
 ```
 
-虽然XML已经实现了软编码，解耦了源码和配置，改XML不用对项目重新打包部署，但从用户使用的便利性角度考虑，可进一步解耦XML里的配置代码与相关数据，所以常把属性抽成外部文件。
+虽然XML已经实现了软编码，解耦了源码和配置，尽管改XML不用对项目重新打包部署，但从用户使用的便利性角度考虑，可进一步解耦XML里的配置代码与相关数据，所以常把属性抽成外部文件。
 
 ```properties
 # there is prefix available such as jdbc.user
@@ -499,7 +499,7 @@ driverClass=com.mysql.cj.jdbc.Driver
 
 #### 自动装配
 
-自动装配是指在为某个bean的自定义类型域做注入（装配）时，无需显式指定，可基于名称等自动引用其他bean。可想而知我们无法为基本类型与内置类定义bean，更别说被引用了。
+自动装配是指在为某个bean的组件类型域做注入（装配）时，无需显式指定bean，可基于类型、名称自动引用。
 
 ```xml
 <bean id="teacher" class="bean.Teacher">
@@ -557,13 +557,13 @@ autowire的值还可取以下这几个：
 
 这个名字不好，感觉作用域和单例不是一个意思啊。这里主要谈两种作用域：
 
-- singleton（默认）：单例，每个bean或id值只对应一个对象，所有bean随容器创建而生成。
-- prototype：原型或叫多实例，与上一种相反，所有bean跟容器不同生，即要获取某个bean时才创建一个且每获取一次就创建一次，故一个bean可对应多个对象。
+- singleton（默认）：单例，每个bean标签的id值只对应一个对象，所有bean随容器创建而生成。
+- prototype：原型或叫多实例，与上一种相反，所有bean跟容器不同生，即要获取某个bean时才创建一个且每获取一次就创建一个，故一个id值可对应多个对象。
 
 第一种已经见识过了，验证一下第二种：
 
 ```xml
-<!-- 我们通过scope属性修改默认作用域 -->
+<!-- 通过scope属性修改默认作用域 -->
 <bean class="bean.Person" id="person" scope="prototype"></bean>
 ```
 
@@ -595,7 +595,7 @@ System.out.println(teacher1 == teacher2);
 
 ### 工厂方法
 
-bean默认是由Spring利用反射创建出来的，不适合复杂的组件，这时可通过静态工厂、实力工厂的方法创建bean，联系工厂模式，专门封装实例化对象的细节，外部无需过多了解。
+bean默认是由spring利用反射创建出来的，不适合复杂的组件，这时可通过静态工厂、实力工厂的方法创建bean，联系工厂模式，专门封装实例化对象的细节，外部无需过多了解。
 
 - 静态工厂：工厂类自身无需实例化，调用静态方法创建对象。
 - 实例工厂：工厂类自身要实例化，调用实例方法创建对象。
@@ -709,7 +709,7 @@ public void destroyPersonBean() {
 // 随容器启动创建bean，触发init回调
 ConfigurableApplicationContext ioc = new ClassPathXmlApplicationContext("lifeCycle.xml");
 // 随容器关闭销毁bean，触发destroy回调
-ioc.close();
+ioc.close(); // 关闭方法由ConfigurableApplicationContext接口定义
 ```
 
 结合bean的作用域，讨论这两个回调的调用情况：
@@ -717,9 +717,7 @@ ioc.close();
 - singleton：如上所述，两个都仅调用一次。
 - prototype：初始化回调在首次获取时才被触发，且每次获取都触发，且容器关闭不触发销毁回调。
 
-### 后置处理器
-
-spring提供PostProcessor接口，其中定义了bean初始化前后的回调方法。
+此外spring提供后置处理器BeanPostProcessor接口，其中定义了bean初始化前后的回调方法。
 
 ```java
 public class PersonBeanPostProcessor implements BeanPostProcessor {
@@ -746,7 +744,6 @@ public class PersonBeanPostProcessor implements BeanPostProcessor {
 ```xml
 <!-- 注册bean的后置处理器 -->
 <bean id="personBeanProcessor" class="postProcessor.PersonBeanPostProcessor"></bean>
-<bean id="person" class="bean.Person" init-method="initPersonBean" destroy-method="destroyPersonBean"></bean>
 ```
 
 由测试结果可看出针对单实例bean一些方法的调用顺序：
@@ -783,18 +780,18 @@ graph LR;
 - @Service：推荐作用于service层组件。
 - @Contoller：推荐作用于controller层组件。
 
-spring底层不会验证注解所做用的组件是不是相应层的，所以推荐做法是做给程序员看的，不要自找麻烦。
+spring底层不会验证注解所做用的组件是不是相应层的，所以推荐做法是为了给程序员看的，不要自找麻烦。
 
 准备好Core的4+1个jar包外加AOP包。注册步骤：
 
-1. 给组件打注解。
+1. 给组件打注册注解。
 
 2. 告诉spring去哪个包（含子包）下面扫描。
 
 来看个例子：
 
 ```java
-// bean的id值默认是首字母小写的组件名
+// 对照bean标签，id值是首字母小写的组件名
 @Component
 public class Book {}
 ```
@@ -806,7 +803,7 @@ public class Book {}
 	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
-	<!-- 开启对包的扫描，只要组件带有上述4中注解之一，就纳入IOC容器 此标签依赖context命名空间 -->
+	<!-- 开启对指定包的扫描，只要组件带有上述4中注解之一，就纳入IOC容器 此标签依赖context命名空间 -->
 	<context:component-scan base-package="com.van"></context:component-scan>
 </beans>
 ```
@@ -826,7 +823,7 @@ public class Book {}
 <context:component-scan base-package="com.van">
     <!-- 只要组件带指定注解，就被容器排除在外 -->
     <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
-    <!-- 指定的组件被容器排除在外 -->
+    <!-- 指定的组件（包括子类）被容器排除在外 -->
     <context:exclude-filter type="assignable" expression="com.van.controller.BookController"/>
 </context:component-scan>
 ```
@@ -834,7 +831,7 @@ public class Book {}
 ```xml
 <!-- 禁用默认过滤规则 -->
 <context:component-scan base-package="com.van" use-default-filters="false">
-    <!-- 只纳入指定组件以及带指定注解的组件 -->
+    <!-- 只纳入指定组件（包括子类）以及带指定注解的组件 -->
     <context:exclude-filter type="assignable" expression="com.van.controller.BookController"/>
     <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
 </context:component-scan>
@@ -871,21 +868,21 @@ public class BookController {
 - 没找到：抛异常。
 
 - 找到一个：赋值。
-- 找到多个：按属性名继续检索，即用属性名匹配这些BookDao的bean的id值，又分两种情况：
+- 找到多个：按属性名继续检索，即用属性名匹配这些BookDao的bean的id值（姑且叫id值，本质上是键），又分两种情况：
   - 找到且仅找到一个：赋值。
-  - 没找到：抛异常。我们可以给属性打上Qualifier注解，为属性名取别名去跟诸id值匹配。
+  - 没找到：抛异常。我们可以给属性打上Qualifier注解，一开始就用属性名的别名去跟诸id值匹配。
 
 如此BookDao的bean就注入BookService的bean，后者注入BookController的bean同理，便不赘述了。
 
-由上可知@Autowired要求最终一定要检索成功，不然抛异常，可以放松一点，找不到装配null：
+由上可知@Autowired要求最终一定要检索成功，不然抛异常，可以改为非强制装配，找不到拉倒，装配null：
 
 ```java
-@Autowire(required=false)
+@Autowire(required = false)
 ```
 
 注：按类型检索时会检索到子类的bean；一个容器中id值不可能重复；类型是由全限定类名体现的。
 
-@Autowired还可以打给方法、构造器，为参数自动装配，那么要求所有参数都是自定义类型。例如：
+@Autowired还可以打给方法、构造器、参数，对参数进行自动装配。例如：
 
 ```java
 @Autowired
@@ -894,9 +891,7 @@ public void autoFun(BookDao bookDao, @Qualifier("service") BookService bookServi
 }
 ```
 
-注入原理同属性的，先按参数类型检索，再按参数名检索。
-
-J2EE提供了Resource注解，也能实现自动装配，与@Autowired比，功能没它强，但扩展性更好，因为J2EE比Spring更通用。
+注入原理同属性注入，先按参数类型检索，再按参数名检索。
 
 ### 单元测试
 
@@ -989,11 +984,11 @@ System.out.println(bookService.getClass().getGenericSuperclass());
 
 已知IOC容器启动时创建所有注册组件的单实例对象，我们可以从容器中获取这些对象。那么要问IOC启动时主要都干了些什么，如何创建单实例bean的，如何管理它们的？
 
-执行ClassPathXmlApplicationContext构造器，关键是执行refresh方法，这个方法体加了锁，保证多线程情况下容器仅创建一次。refresh方法体内解析XML中的所有定义，保存在BeanFactory对象中，然后注意finishBeanFactoryInitialization方法，它负责初始化所有非懒加载单实例bean，接着关注其方法体内的preInstantiateSingletons方法，再接着关注此方法体内的getBean方法，这个方法又去调用doGetBean方法，doGetBean方法体内关注getSingleton方法，它就是最终直接创建或获取bean的，其所属类下的Map属性singletonObjects就存放着注册组件的bean，id值作键，bean作值。
+执行ClassPathXmlApplicationContext构造器，关键是执行refresh方法，这个方法体加了锁，保证多线程情况下容器仅创建一次。refresh方法体内解析XML中的所有定义，保存在BeanFactory对象中，然后注意finishBeanFactoryInitialization方法，它负责初始化所有非懒加载单实例bean，接着关注其方法体内的preInstantiateSingletons方法，再接着关注此方法体内的getBean方法，这个方法又去调用doGetBean方法，doGetBean方法体内关注getSingleton方法，它创建或获取bean的，其所属类下的Map属性singletonObjects就存放着自己注册的组件的bean，id值作键，bean作值。更多细节可参见[后面](#容器创建过程)一节。
 
 IOC容器本质上是一个映射集合，每个映射保存一部分bean。spring中最宏观的设计模式是工厂模式，让专门的类负责对象的创建。
 
-BeanFactory接口负责底层创建对象并加入映射，ApplicationContext是BeanFactory的子接口，负责容器的管理，包括对象依赖注入的准备工作、AOP等。我们统计上述重要方法与这俩接口的关系：
+BeanFactory接口负责底层创建对象并加入映射，ApplicationContext是BeanFactory的子接口，负责容器的管理，包括对象依赖注入的准备工作、AOP等。我们统计上述重要方法与俩接口的关系：
 
 | 方法                            | 直属类与所属接口                                    |
 | ------------------------------- | --------------------------------------------------- |
@@ -1186,7 +1181,7 @@ public void testDynamicProxy() {
 
 注：可以给接口打注册注解，但一般不用，它的作用仅是告诉spring容器中有此接口实现类的bean。
 
-业务类可以不实现接口，代理类就也可以不实现，那么底层转而采用cglib代理模式，可参考[设计模式](设计模式.md)里的cglib代理。
+业务类可以不实现接口，那么代理类也不用实现，底层转而采用cglib代理模式，可参考[设计模式](设计模式.md)里的cglib代理。
 
 ```java
 // 另一种使用spring单元测试模块的测试就不给了，注意把自动装配属性的类型从接口改为业务类
@@ -1205,9 +1200,9 @@ public void testCglibProxy() {
 
 ```java
 @Pointcut("execution(* com.van.service.*.*(..))")
-public void multiplePointcut() {
+public void commonPointcut() {
 };
-// 使用起来就是以multiplePointcut()替换通知注解的值
+// 关于其使用参考全注解开发一章AOP一节，可供本类或外类使用
 ```
 
 ### 基于XML
@@ -1387,7 +1382,7 @@ public class ConfigAdvice {
 - 若目标方法无异常：前置通知->方法执行->后置通知->返回通知。
 - 若目标方法抛异常：前置通知->方法执行->异常通知->后置通知。
 
-环绕通知就是是个动态代理，让我们自定制了通知切入顺序，故它造成的通知执行顺序不唯一，得看自己是怎么写的。环绕通知与普通通知切的顺序暂且不谈，从spring4到spring5有变化。
+环绕通知就是个动态代理，让我们自定制了通知切入顺序，故它造成的通知执行顺序不唯一，得看自己是怎么写的。环绕通知与普通通知切的顺序暂且不谈，从spring4到spring5有变化。
 
 当多个切面类作用于同一个目标方法，则按切面类名首字母顺序安排嵌套，也可使用Order注解定制嵌套顺序。
 
@@ -1408,13 +1403,15 @@ public class ConfigAdvice {
 
 事务根据实现方式分为两种：
 
-- 编程式事务：就是获取连接、执行、提交、回滚、释放连接这一完整的显式的逻辑，也可以说是声明式事务的基础。
+- 编程式事务：就是获取连接、执行、提交、回滚、释放连接这一完整的直观的逻辑，也是声明式事务的基础。
 
 - 声明式事务：spring利用AOP分离执行逻辑与其他逻辑，即将后者封装为切面类，将提交、回滚等变成通知方法。
 
 spring已经为我们准备好了一个完善的事务切面类，叫事务管理器-PlatformTransactionManager接口，其下有多个实现类。
 
 事务依赖了AOP，那么在IOC容器中事务管理器管理的业务类的bean就是个代理对象。
+
+关于导包，准备基本的4+1、AOP包、[数据访问](#dataAccess)模块里的3个包、数据源及驱动。
 
 ### 基于注解
 
@@ -1458,7 +1455,7 @@ spring已经为我们准备好了一个完善的事务切面类，叫事务管�
 @Repository
 public class BookDao {
 	@Autowired
-	JdbcTemplate jdbcTemplate; // JdbcTemplate做的工作与BaseDao的相同，不过使用JdbcTemplate时基于聚合，使用BaseDao时基于继承
+	JdbcTemplate jdbcTemplate; // JdbcTemplate做的工作与BaseDao的相同，不过使用JdbcTemplate基于聚合，使用BaseDao基于继承
 
 	public int getPrice(String isbn) {
 		String sql = "SELECT price FROM book WHERE isbn = ?";
@@ -1579,7 +1576,7 @@ multiTx() { // 1
 
 事务管理器其实就是环绕通知，用try-catch处理异常并在catch里继续往上抛。
 
-若某业务方法沿用上层方法的连接，则注解的所有属性均会失效，因为此连接受上层方法控制，而这些属性只能作用于另起的连接。
+若某业务方法沿用上层方法的连接，则注解的所有属性均会失效，因为此连接受上层方法控制，而这些属性只能生效于另起的连接。
 
 ```java
 // 使用Propagation.REQUIRED尤为小心，不要被嵌套 
@@ -1660,7 +1657,7 @@ public void multiTx() {
 
 ```
 
-对于重要的业务方法比如结账，推荐采用基于XML的方式。
+对于相当重要的业务方法比如结账，推荐采用基于XML的方式。
 
 ## 整合Web
 
@@ -1695,7 +1692,7 @@ private BookService bookService = WebUtils.getBean(BookService.class); // 业务
 监听器需要我们自己配置：
 
 ```xml
-<!-- 此监听器实现了ServletContextListener接口，实现两个方法，分别做容器的初始化和销毁工作 -->
+<!-- 此监听器实现了ServletContextListener接口，实现两个方法，分别在容器初始化后和销毁前工作 -->
 <listener>
    <description>启动spring容器</description>
    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -1708,132 +1705,6 @@ private BookService bookService = WebUtils.getBean(BookService.class); // 业务
 ```
 
 具体重构请参考bookstore-spring项目。
-
-## 纯注解开发
-
-spring的IOC容器以两种形式存在：
-
-- xml配置文件：aplicationContext.xml（文件名不固定）。
-- 配置类：带有Configuration注解的类。
-
-对ioc容器的操作就两种-存bean和取bean，反映在上述第一种形式上的bean的存取前面已经讨论过了，下面着重看后者-完全用注解搭建IOC容器，不再依靠xml配置文件（就可删掉）。
-
-注意两种形式生成的IOC容器是相互独立的，即可以共存且互不影响。我们可以分别用这两种形式得到两个不同的ioc容器。
-
-### 案例
-
-存bean操作体现于配置类，那么我们就在config包下创建一个配置类：
-
-```java
-package com.van.config;
-
-import com.van.entity.User;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-/**
- * 加上@Configuration注解，则本类相当于xml配置文件
- */
-@Configuration
-public class ApplicationContextConfig {
-    /**
-     * 加上@Bean注解，则本方法相当于配置文件里的bean标签，方法名即id值
-     */
-    @Bean
-    public User getUser() {
-        return new User("van");
-    }
-}
-```
-
-此配置类搭建IOC容器，然后取bean：
-
-```java
-ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContextConfig.class);
-// getBean方法重载，也可传入User类的反射
-User user = (User) context.getBean("getUser");
-System.out.println(user);
-```
-
-我们注意对比两种形式下获取IOC容器的写法：
-
-```java
-// 根据xml搭建
-ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-// 根据Java类搭建
-ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContextConfig.class);
-```
-
-### 用注解存储bean
-
-我们从前面的小例子中看出以Bean注解的方式存放bean，下面宏观地组件类型分两种情况讨论存放过程。
-
-#### 三层组件
-
-给三层组件对应的类添加相应注解。
-
-开启IOC扫描器。又分两种方法，具体还是配置文件与注解。
-
-第一种前面练习过，就不用此方法了，回顾一下开启扫描器的代码：
-
-```xml
-<context:component-scan base-package="com.van"></context:component-scan>
-```
-
-本来就是要探究脱离xml配置文件条件下构建并使用ioc容器的实现，故最好不用xml。
-
-第二种的实现就是对配置类添加ComponentScan注解：
-
-```java
-// 值即被扫描的包名，等价于上述标签的base-packages值
-@ComponentScan(value = "com.van")
-```
-
-测试那些加了三层组件注解的类是否作为bean被存入ioc容器：
-
-```java
-ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationContextConfig.class);
-// 所有bean的id值
-String[] beanDefinitionNames = context.getBeanDefinitionNames();
-for (String beanId : beanDefinitionNames) {
-    System.out.println(beanId);
-}
-
-// 除日志外的打印结果
-applicationContextConfig // 可见配置类自己也作为bean（我纳我自己）
-userController
-userDao
-userService
-getUser
-```
-
-为了有选择地将某些类纳入容器，可给组件扫描器制定规则。详细语法可参考[spring文档](https://docs.spring.io/spring-framework/docs/4.3.22.RELEASE/spring-framework-reference/htmlsingle/)，此处只给出几个实例：
-
-```java
-// 排除service组件
-@ComponentScan(value = "com.van", excludeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = Service.class)})
-// 只纳入dao组件
-@ComponentScan(value = "com.van", includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = Repository.class)}, useDefaultFilters = false)
-// 值纳入某一个controller组件
-@ComponentScan(value = "com.van", includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = UserController.class)}, useDefaultFilters = false)
-```
-
-#### 非三层组件
-
-上述组件扫描器只能扫描到Component一族的组件，就不适用于三层架构之外的组件。
-
-##### Bean注解
-
-针对这些组件（类），开头例子中的Bean注解就是一个常用方法。
-
-其中，bean的id不光可以默认由方法名限定，也可自指定：
-
-```java
-@Bean(value = "getUserBean")
-@Bean("getUserBean")
-```
-
-##### Import注解
 
 ## SSM整合
 
@@ -1854,16 +1725,929 @@ getUser
     <property name="mapperLocations" value="classpath:mappers/*.xml"></property>
     <!-- 其他配置一般不在这里弄 -->
 </bean>
-<!-- dao层接口的自动注入，自动创建SqlSession对象再创建代理对象再赋给service层组件属性 -->
+<!-- 自动注入dao层接口（对象），自动创建SqlSession对象再创建代理对象再赋给service层组件属性 -->
 <!-- <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
     <property name="basePackage" value="com.van.dao"></property>
 </bean> -->
 <mybatis-spring:scan base-package="com.van.dao"/>
 ```
 
+## 全注解开发
 
+### 概述
 
+本章有的东西极少用，但有助于springboot的源码理解。
 
+### 容器
+
+#### 组件注册
+
+##### Configuration
+
+IOC容器可以两种形式存在：
+
+- xml配置文件。
+- 配置类：标有Configuration注解的类。
+
+两种形式的IOC容器是相互独立的，即共存且互不影响。我们可以分别用这两种形式得到两个不同的IOC容器。
+
+尝试一下第二种：
+
+```java
+/**
+ * IOC容器配置类
+ * 
+ * @author Van
+ *
+ */
+@Configuration // 被Component注解标注，意味着配置类也是容器组件
+public class ContextConfig {
+	@Bean
+	public Person person() {
+		return new Person("钱锺书", 22);
+	}
+    
+    @Bean("book")
+	public Book getBook() {
+		return new Book();
+	}
+}
+
+// 测试：根据配置类启动IOC容器，然后获取bean
+AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class); // 这一行在后续测试中就省略了
+System.out.println(context.getBean("person"));
+```
+
+四个注册注解适合自定义组件，Bean注解适合非自定义组件。
+
+@Bean所标方法被回调的时候，从容器中取对象作实参。
+
+##### ComponentScan
+
+之前的组件注册是通过四种注册注解外加`context:component-scan`标签实现的，现在可用ComponentScan注解取代此标签。此标签依附于容器配置文件，同理此注解依附于容器配置类。
+
+```java
+@ComponentScan("com.van") // 注解值等价于标签的base-packages值
+@Configuration
+public class ContextConfig
+```
+
+测试那些加了注册注解的类是否被纳入容器：
+
+```java
+// 所有bean的id值
+String[] beanDefinitionNames = context.getBeanDefinitionNames();
+for (String beanId : beanDefinitionNames) {
+    System.out.println(beanId);
+}
+// 印证配置类也是容器里的一个bean，打印出来有contextConfig
+```
+
+此注解也可制定排除规则，给几个例子：
+
+```java
+// 排除一些service、dao层组件
+@ComponentScan(value = "com.van", excludeFilters = {@Filter(type = FilterType.ANNOTATION, classes = { Service.class, Repository.class }) })
+// 只纳入某个controller组件
+@ComponentScan(value = "com.van", includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = BookController.class) }, useDefaultFilters = false)
+```
+
+此注解又被Repeatable注解标注，意即可重复使用。
+
+现有规则依据（注解、类名、正则等）不够灵活的话，还可以实现TypeFilter接口定制排除规则：
+
+```java
+/**
+ * 围绕类详细信息定制排除规则
+ * 
+ * @author Van
+ *
+ */
+public class MyTypeFilter implements TypeFilter {
+
+	/**
+	 * metadataReader：正在扫描的类的信息；metadataReaderFactory：用于获取其他类的信息 返回true表示纳入
+	 */
+	@Override
+	public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory)
+			throws IOException {
+		// 注解信息
+		AnnotationMetadata annotationMetadata = metadataReader.getAnnotationMetadata();
+		// 类信息
+		ClassMetadata classMetadata = metadataReader.getClassMetadata();
+		// 类路径
+		Resource resource = metadataReader.getResource();
+		// 全限定类名
+		String className = classMetadata.getClassName();
+		// 随便弄些规则
+		if (className.endsWith("er")) {
+			return true;
+		}
+		return false;
+	}
+}
+```
+
+```java
+// 针对上例的特定规则，这里只能用includeFilters
+@ComponentScan(value = "com.van", includeFilters = { @Filter(type = FilterType.CUSTOM, classes = MyTypeFilter.class) })
+```
+
+##### Scope
+
+这个注解用于设定组件的作用范围，即是单实例还是多实例，相当于bean标签的scope属性。点开它就知道能取哪些值，不过后两个不会用到。
+
+```java
+@Bean
+@Scope("prototype") // 作用域-多实例
+public Person person() {}
+```
+
+前面讨论过默认单实例对应饿加载，多实例对应懒加载，我们想单例+懒加载就依靠lazy-init属性，对应地就有Lazy注解。
+
+##### Lazy
+
+单实例+懒加载：
+
+```java
+@Bean
+@Scope("singleton")
+@Lazy // 懒加载
+public Person person() {}
+```
+
+##### Conditional
+
+此注解为springboot底层大量采用，意思是根据一定的条件决定是否纳入某组件。前面@ComponentScan的规则也是条件，但@Conditional的条件范围更广。
+
+我们应实现Condition接口并构造条件。来看一个根据当前系统类型注册Book组件的例子：
+
+```java
+public class WindowsCondition implements Condition {
+	/**
+	 * 基于根据当前上下文信息判断注册条件是否满足
+	 */
+	@Override
+	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+		ClassLoader classLoader = context.getClassLoader();
+		BeanDefinitionRegistry beanDefinitionRegistry = context.getRegistry();
+		Environment environment = context.getEnvironment();
+		if (environment.getProperty("os.name").contains("Windows")
+				&& beanDefinitionRegistry.containsBeanDefinition("person")) {
+			return true;
+		}
+		return false;
+	}
+}
+
+public class LinuxCondition implements Condition {
+	@Override
+	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+		ClassLoader classLoader = context.getClassLoader();
+		BeanDefinitionRegistry beanDefinitionRegistry = context.getRegistry();
+		Environment environment = context.getEnvironment();
+		if (environment.getProperty("os.name").contains("Linux")) {
+			return true;
+		}
+		return false;
+	}
+}
+```
+
+```java
+@Bean("windowsBook")
+@Conditional({ WindowsCondition.class }) // 调用WindowsCondition对象的match方法判断
+public Book getWindowsBook() {
+    return new Book(1, "windows用户手册");
+}
+
+@Bean("linuxBook")
+@Conditional(LinuxCondition.class) // 调用LinuxCondition对象的match方法判断
+public Book getLinuxBook() {
+    return new Book(2, "Linux用户手册");
+}
+
+// 测试
+System.out.println(context.getBean(Book.class)); // 只能由类型获取，底层用哪个@Bean值作键是不确定的
+```
+
+也可以打给配置类，意思是条件满足时，本类下的所有注册方法都生效，不满足则所有注册方法均失效且本配置类也不进容器。延伸注解ConditionalOnMissing等同理。
+
+##### Import
+
+快速地向容器中注册组件，相当于@Bean加一个返回某组件无参构造器的注册方法。
+
+```java
+@Import({ Cat.class, MyImportSelector.class, MyImportBeanDefinitionRegistrar.class }) // 从左往右注册
+```
+
+点开可知，除了传入组件Class实例，还可传入ImportSelector或ImportBeanDefineationRegister接口实现类的Class实例，通过实现方法指定待注册组件。
+
+```java
+public class MyImportSelector implements ImportSelector {
+    /**
+	 * importingClassMetadata：@Import所标类关于注解的详细信息
+	 */
+	@Override
+	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+        // 根据全类名找到组件，调用空参构造器创建bean
+		return new String[] { "com.van.bean.Dog" };
+	}
+}
+```
+
+```java
+public class MyImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+	/**
+	 * 手动注册
+	 */
+	@Override
+	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+		if (registry.containsBeanDefinition("com.van.bean.Cat")
+				&& registry.containsBeanDefinition("com.van.bean.Dog")) {
+			// 这里beanName就可任意了，因为第二个参数指明了类型
+			registry.registerBeanDefinition("PigPage", new RootBeanDefinition(Pig.class));
+		}
+	}
+}
+```
+
+```java
+/* 测试 */
+System.out.println(context.containsBean("com.van.bean.Dog"));
+System.out.println(context.containsBean("PigPage"));
+// 底层映射的键是组件全类名
+System.out.println(context.containsBean("com.van.bean.Cat"));
+```
+
+##### FactoryBean
+
+不要和根本的BeanFactory搞混了。实现FactoryBean接口，用实现方法注册组件、创建组件对象、指定作用范围。
+
+```java
+/**
+ * 注册时确定泛型-Sheep
+ * 
+ * @author Van
+ *
+ */
+public class SheepFactoryBean implements FactoryBean<Sheep> {
+	/**
+	 * 创建Sheep组件实例，置于容器中
+	 */
+	@Override
+	public Sheep getObject() throws Exception {
+		return new Sheep();
+	}
+
+	/**
+	 * 注册组件的类型
+	 */
+	@Override
+	public Class<?> getObjectType() {
+		return Sheep.class;
+	}
+
+	/**
+	 * 注册组件的作用范围 true：单实例；false：多实例
+	 */
+	@Override
+	public boolean isSingleton() {
+		return true;
+	}
+}
+```
+
+还得在配置类中先把这个实现类给注册了，实现类才能注册Sheep，即先由配置类对象调用注册方法实例化实现类，再调用实现类对象的getObject方法实例化目标组件。
+
+```java
+@Bean
+public SheepFactoryBean sheepFactoryBean() {
+    return new SheepFactoryBean();
+}
+```
+
+不难想出若isSingleton方法返回的是false，则测试时每调用一次getBean方法，底层就调用一次getObject方法。
+
+测试时我们发现这样的现象：
+
+```java
+// com.van.bean.Sheep@1e81f160，打印的却是Sheep对象的虚拟地址
+System.out.println(context.getBean("sheepFactoryBean"));
+```
+
+原因是BeanFactory接口有个字符串属性FACTORY_BEAN_PREFIX，默认值为&，作用是在将FactoryBean对象加入bean映射时拼上原键作新键，验证如下：
+
+```java
+// com.van.bean.SheepFactoryBean@1acaf3d
+System.out.println(context.getBean("&sheepFactoryBean"));
+```
+
+#### 生命周期
+
+用一些回调方法监控bean的生命周期，有好几波，注解接口一起上。
+
+可以在Bean注解中指定它们。
+
+```java
+@Bean(initMethod = "initPerson", destroyMethod = "destroyPerson")
+```
+
+顺便想想这里的销毁不是对象的销毁，而是bean从底层映射中被移除，我们又知道映射里的值存放的是bean的引用，就算移除了，这个对象还在，来验证一下：
+
+```java
+AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class);
+Person person = context.getBean("person", Person.class);
+context.close();
+// Person [name=钱锺书, age=22] 等着由GC销毁
+System.out.println(person);
+```
+
+销毁的回调方法是容器调用的，是在移除bean之前调用的。对于多实例，映射就没存在的必要了，也就没有移除的行为了，也就不会调用销毁回调方法了。
+
+可以让组件实现InitializingBean与DisposableBean接口，实现的方法就是初始化与销毁的回调：
+
+```java
+// 其他省略
+public class Person implements InitializingBean, DisposableBean {
+	@Override
+	public void destroy() throws Exception {
+		System.out.println("destroy");
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		System.out.println("afterPropertiesSet");
+	}
+}
+```
+
+可以用JSR250定义的@PostConstruct-bean属性赋值之后执行与@PreDestroy-容器移除bean之前执行：
+
+```java
+// 其他省略 既然是JSR，这两个注解位于javax.annotation下
+public class Person implements InitializingBean, DisposableBean {
+	@PostConstruct
+	public void postConstruct() {
+		System.out.println("postConstruct");
+	}
+
+	@PreDestroy
+	public void preDestroy() {
+		System.out.println("preDestroy");
+	}
+}
+```
+
+最后回顾[bean的生命周期](#bean的生命周期)一节里的BeanPostProcessor接口，追本溯源，打开AbstractAutowireCapableBeanFactory类，下面有个configureBean方法，体内调用的populateBean方法就是给bean填充属性值的，而后调用<span id="postProcessor">initializeBean方法</span>。此方法体内，invokeInitMethods方法的执行底层就是初始化后诸回调方法的执行，且发现它执行之前有applyBeanPostProcessorsBeforeInitialization的执行，执行之后又有applyBeanPostProcessorsAfterInitialization的执行。在<span id="invokeInitMethods">invokeInitMethods</span>体内，先是调用当前bean的afterPropertiesSet方法，而后调用invokeCustomInitMethod方法即调用@Bean的initMethod属性对应的方法。综上得出对单实例bean的诸回调方法连同构造方法的执行顺序：
+
+```mermaid
+graph LR;
+	构造方法-->postProcessBeforeInitialization;
+	postProcessBeforeInitialization-->PostConstruct注解所标方法;
+	PostConstruct注解所标方法-->afterPropertiesSet;
+	afterPropertiesSet-->initMethod属性对应方法;
+	initMethod属性对应方法-->postProcessAfterInitialization;
+	postProcessAfterInitialization-->PreDestroy注解所标方法;
+	PreDestroy注解所标方法-->destroy;
+	destroy-->destroyMethod属性对应方法
+```
+
+手动装配、自动装配、生命周期相关注解等等功能都是基于BeanPostProcessor接口丰富的实现类生效的。
+
+#### 注入
+
+##### Value
+
+等价于XML配置中property标签的value属性。
+
+```java
+@PropertySource({ "classpath:person.properties" }) // 等价于context:property-placeholder标签
+public class ContextConfig {}
+```
+
+```java
+// 其他省略
+public class Person {
+	@Value("1")
+	private Integer id;
+	@Value("${person.name}") // $符检索外部properties文件
+	private String name;
+	@Value("#{2 * 9}") // SpEL
+	private Integer age;
+}
+```
+
+在注册方法体内，不管调用组件的有参构造器还是无参构造器，@Value携带的值都会覆盖现有属性值。
+
+@Value还能标给组件方法的参数，例子见[Profile](#Profile)一节。
+
+##### Autowired
+
+@Autowired与@Qualifier前面讲过了，这里补充一些东西。
+
+当@Autowired遇到@Lazy，懒加载就跟非懒加载等价了，因为容器一创建就得自动注入，就得创建组件对象。
+
+当配置类方法带有组件类型的参数时，默认省略@Autowired，也就是说实参会是容器中的某个bean。
+
+```java
+/**
+ * 参数的自动装配+bean的手动装配
+ * 
+ * @param bookDao 省略了@Autowired
+ * @return
+ */
+@Bean
+public BookService bookService(BookDao bookDao) {
+    return new BookService(bookDao);
+}
+```
+
+##### Primary
+
+将Primay注解打给注册方法使得重复注册同类组件情况下优先装配指定的对象。例如：
+
+```java
+@Bean()
+public Person person() {
+    return new Person("钱锺书", 22); // 有了@Value，构造器参数形同虚设
+}
+
+@Bean("Luis")
+@Primary
+public Person getPerson() {
+    return new Person();
+}
+```
+
+@Qualifier一上来就按属性名别名检索，@Primary的基于类型的检索就失效了。
+
+##### Resource与Inject
+
+JSR250定义的Resource注解，也能实现自动装配，默认按属性名检索bean，同样可按别名检索，不能配合@Primary，强制装配。
+
+```java
+@Resource(name = "tom") // 按属性别名检索bean
+private Cat cat
+```
+
+JSR330定义的Inject注解，也能实现自动装配，检索套路同@Autowired，能配合@Primary，不含属性，即强制装配。
+
+@Autowired是spring定义的，@Resource与@Inject是Java规范定义，到底用谁见仁见智，它们仨的生效原理见于AutowiredAnnotationBeanPostProcessor类。
+
+##### Aware
+
+实现Aware的子接口，实现方法的参数自动被注入内置组件。虽然用@Autowired也能获取内置组件，但方法支持添加额外逻辑。
+
+我们随便定义个类，实现一些Aware子接口：
+
+```java
+/**
+ * 通过实现方法的回调，拿到实参-内置组件bean及其他
+ * 
+ * @author Van
+ *
+ */
+@Component
+public class InnerComponent implements ApplicationContextAware, BeanNameAware, EmbeddedValueResolverAware {
+	// 持有容器对象
+	private ApplicationContext applicationContext;
+
+	/**
+	 * 拿到本组件bean存入映射时设定的键
+	 */
+	@Override
+	public void setBeanName(String name) {
+		System.out.println(name);
+	}
+
+	/**
+	 * 拿到容器对象
+	 */
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		System.out.println(applicationContext);
+		// 虽说容器是一组存放内置、自定义组件的bean的映射，但也可实体化为BeanFactory、ApplicationContext的实例
+		this.applicationContext = applicationContext;
+	}
+
+	/**
+	 * 拿到$、SpEL的解析器
+	 */
+	@Override
+	public void setEmbeddedValueResolver(StringValueResolver resolver) {
+		String value = resolver.resolveStringValue("${os.name} #{100 * 100}");
+		System.out.println(value);
+	}
+}
+```
+
+参数注入同样是在创建单实例的时候由BeanPostProcessor的实现类完成。以这里对应ApplicationContextAware的ApplicationContextAwareProcessor为例，关注其实现的postProcessBeforeInitialization方法，体内调用了<span id="aware">invokeAwareInterfaces方法</span>。这个方法体内，用一大串if语句与instanceof关键字判断当前bean是否为一波ApplicationContextAware相关接口的实例，是则调用对应setter，如本例中的bean是ApplicationContextAware的实例，就调用setApplicationContext方法，传入ConfigurableApplicationContext类型的applicationContext属性，即容器对象。
+
+##### Profile
+
+本节的知识点属组件注册，但例子糅合了组件注册与刚学的注入，故姑且归到注入一节。
+
+Profile注解可以动态激活、切换容器内的成套组件，很适合实际开发中的环境切换-开发环境、测试环境、生产环境的切换。
+
+以数据源的切换为例：
+
+```java
+@Profile("dev") // 标识激活，其对应的所有组件才会注册，值为default或不打此注解则不受约束
+@Bean("devDataSource")
+public DataSource getDevDataSource(@Value("${dev.url}") String url, @Value("${dev.driver}") String driver, @Value("${dev.user}") String user, @Value("${dev.password}") String password) throws PropertyVetoException {
+    ComboPooledDataSource dataSource = new ComboPooledDataSource();
+    dataSource.setJdbcUrl(url);
+    dataSource.setDriverClass(driver);
+    dataSource.setUser(user);
+    dataSource.setPassword(password);
+    return dataSource;
+}
+
+// 持有内置组件，用于解析$符
+private StringValueResolver stringValueResolver;
+
+@Override
+public void setEmbeddedValueResolver(StringValueResolver resolver) {
+    this.stringValueResolver = resolver;
+}
+
+@Profile("prod")
+@Bean("prodDataSource")
+public DataSource getProdDataSource() throws PropertyVetoException {
+    ComboPooledDataSource dataSource = new ComboPooledDataSource();
+    dataSource.setJdbcUrl(this.stringValueResolver.resolveStringValue("${prod.url}"));
+    dataSource.setDriverClass(this.stringValueResolver.resolveStringValue("${prod.driver}"));
+    dataSource.setUser(this.stringValueResolver.resolveStringValue("${prod.user}"));
+    dataSource.setPassword(this.stringValueResolver.resolveStringValue("${prod.password}"));
+    return dataSource;
+}
+
+@Value("${test.url}")
+private String url;
+@Value("${test.driver}")
+private String driver;
+@Value("${test.user}")
+private String user;
+@Value("${test.password}")
+private String password;
+
+@Profile("test")
+@Bean("testDataSource")
+public DataSource getTestDataSource() throws PropertyVetoException {
+    ComboPooledDataSource dataSource = new ComboPooledDataSource();
+    dataSource.setJdbcUrl(this.url);
+    dataSource.setDriverClass(this.driver);
+    dataSource.setUser(this.user);
+    dataSource.setPassword(this.password);
+    return dataSource;
+}
+```
+
+如何指定标识，对web应用有两种办法：
+
+- 命令行参数。如eclipse打开Run Configurations->Arguments->VM arguments，填入`-Dspring.profiles.active=test`。
+
+- 源代码：
+
+  ```java
+  // 参见AnnotationConfigApplicationContext的有参构造器，等价完成里面的三步
+  // 第一步：调用无参构造器，创建容器对象
+  AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+  // 第二步：调用register方法，传入配置类，注册组件，那么应在此之前激活标识
+  context.getEnvironment().setActiveProfiles("dev", "test");
+  context.register(ContextConfig.class);
+  // 第三步：调用refresh方法
+  context.refresh();
+  Map<String, DataSource> beanMap = context.getBeansOfType(DataSource.class);
+  System.out.println(beanMap.keySet());
+  ```
+
+@Profile也可标给配置类，只有类级标识激活，所含全部同标识配置才生效，没激活，即使体内的@Profile标识是激活的，也会被屏蔽掉。
+
+对单元测试，也有两种办法：
+
+- 给测试类标上`@AcvtiveProfiles("标识")`。
+- 命令行参数。如IDEA打开Edit Configurations->VM options，补上`-Dspring.profiles.active=dev`。
+
+### AOP
+
+还是计算器的例子：
+
+```java
+@Aspect
+public class LogAspects {
+	@Pointcut("execution(public * com.van.aop.MathCalculator.*(..))")
+	public void commonPointcut() {
+	}
+
+	@Before("commonPointcut()")
+	public void logBefore(JoinPoint joinPoint) {
+		System.out.println("before advice");
+	}
+
+	@AfterReturning(pointcut = "com.van.aop.LogAspects.commonPointcut()", returning = "returningValue")
+	public void logAfterReturning(Object returningValue) {
+		System.out.println("after returning advice, returning value: " + returningValue);
+	}
+
+	@AfterThrowing(pointcut = "com.van.aop.LogAspects.commonPointcut()", throwing = "exception")
+	public void logAfterThrowing(Exception exception) {
+		System.out.println("after throwing advice, exception: " + exception);
+	}
+
+	@After("com.van.aop.LogAspects.commonPointcut()")
+	public void logAfter() {
+		System.out.println("after advice");
+	}
+
+	@Around("com.van.aop.LogAspects.commonPointcut()")
+	public Object logAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+		System.out.println("around before advice");
+		Object returningValue = null;
+		try {
+			returningValue = proceedingJoinPoint.proceed();
+			System.out.println("around after returning advice");
+			return returningValue;
+		} catch (Exception e) {
+			System.out.println("around after throwing advice");
+		} finally {
+			System.out.println("around after advice");
+		}
+		return Double.NaN;
+	}
+}
+
+@Configuration
+@EnableAspectJAutoProxy // 开启基于注解的AOP模式
+public class AOPConfig {
+	/**
+	 * 注册切面类
+	 * 
+	 * @return
+	 */
+	@Bean
+	public LogAspects logAspect() {
+		return new LogAspects();
+	}
+
+	/**
+	 * 注册业务类，采用cglib代理
+	 * 
+	 * @return
+	 */
+	@Bean
+	public MathCalculator calculator() {
+		return new MathCalculator();
+	}
+}
+```
+
+点进@EnableAspectJAutoProxy，发现@Import注册了AspectJAutoProxyRegistrar类。关注该类下的registerBeanDefinitions方法体，AopConfigUtils类调用静态方法registerAspectJAnnotationAutoProxyCreatorIfNecessary方法，而后层层深入到registerOrEscalateApcAsRequired方法。此调用栈旨在注册AnnotationAwareAspectJAutoProxyCreator类，我们重点看它的作用，它间接实现了SmartInstantiationAwareBeanPostProcessor接口与BeanFactoryAware接口。
+
+由于实现了BeanFactoryAware，观察一个父类AbstractAdvisorAutoProxyCreator重写的setBeanFactory方法。回顾容器的创建过程，进入refresh方法体，调用到registerBeanPostProcessors方法来注册内置的后置处理器，传入ConfigurableListableBeanFactory对象，后者又调用PostProcessorRegistrationDelegate类的registerBeanPostProcessors方法，继续传入ConfigurableListableBeanFactory对象赋给beanFactory。此方法体内，beanFactory调用getBeanNamesForType方法传入BeanPostProcessor的Class实例返回字符串数组，意即得到自己实现的诸后置处理器的全类名，接着beanFactory调用addBeanPostProcessor方法记录这些全类名以及内置实现类的全类名，然后依次注册实现PriorityOrdered接口、Ordered接口、常规、内置的后置处理器，留心beanFactory调用的getBean方法。下面看注册AnnotationAwareAspectJAutoProxyCreator的细节，回顾容器的创建过程，关注doGetBean方法体内没提过的createBean方法（AbstractAutowireCapableBeanFactory类体内），后者调用doCreateBean方法。此方法体内，调用createBeanInstance方法创建目标对象，后调用populateBean方法给对象的属性赋值，后调用initializeBean方法进行其他初始化工作。initializeBean体内逻辑与生命周期[一处](#postProcessor)及Aware[一处](#aware)相呼应，注意调用的invokeAwareMethods调用了setBeanFactory方法，刚好呼应段首。这个重写的setBeanFactory方法体内，调用initBeanFactory方法， 而它又被子类AnnotationAwareAspectJAutoProxyCreator重写。最终该对象会进入某个映射。
+
+上面梳理了AnnotationAwareAspectJAutoProxyCreator是怎么进容器的，下面就看它是如何发挥AOP作用的。回顾容器的创建过程，finishBeanFactoryInitialization方法体现了其他组件是怎么进容器的，包括业务类和切面类，创建其对象的调用栈上进入createBean方法，调用到resolveBeforeInstantiation方法，返回的就是代理对象，若代理对象非null就直接返回出去，否则调用doCreateBean方法得到原始对象。体内调用applyBeanPostProcessorsBeforeInstantiation与applyBeanPostProcessorsAfterInitialization方法。着重关注后者，体内，从容器中找到<span id="InstantiationAwareBeanPostProcessor">InstantiationAwareBeanPostProcessor</span>接口的对象，然后用它调用postProcessAfterInitialization方法对当前组件进行AOP操作，而恰好此方法被AbstractAutoProxyCreator实现。进入实现方法体，调用了wrapIfNecessary方法对当前组件（尤指业务类）进行包装。这个方法体内，调用getAdvicesAndAdvisorsForBean方法得到一组增强器对象-封装了针对业务类的通知方法，返回的是对象数组，接着调用createProxy方法，创建并返回业务类的代理对象。体内，ProxyFactory对象保存了刚得到的增强器们，看最后一行，ProxyFactory对象调用getProxy方法作返回，往下进几层就发现JDK动态代理与cglib代理的迹象，根据业务类是否实现接口选择何种代理。这个代理对象就一路往上返回。
+
+来看业务方法具体是如何被通知方法切的以及它们的执行顺序，通过调试有选择地查看代理对象的结构如下：
+
+```java
+CglibAopProxy$DynamicAdvisedInterceptor
+	ProxyFactory
+    	// 一组增强器元素
+    	ADVISOR[6]
+    		// 自带增强器
+    		ExposeInvocationInterceptor$1
+    		// 自制增强器，包装了通知方法
+    		InstantiationModelAwarePointcutAdvisorImpl
+    			AspectJAfterThrowingAdvice
+    		InstantiationModelAwarePointcutAdvisorImpl
+    			AspectJAfterReturningAdvice
+    		InstantiationModelAwarePointcutAdvisorImpl
+    			AspectJAfterAdvice
+    		(InstantiationModelAwarePointcutAdvisorImpl // 解读源码时暂不加入环绕通知
+    			AspectJAroundAdvice)
+    		InstantiationModelAwarePointcutAdvisorImpl
+    			AspectJMethodBeforeAdvice
+CglibAopProxy$StaticUnadvisedInterceptor
+	MathCalculator
+```
+
+调试到目标方法，实质会仅到CglibAopProxy类的intercept方法，ProxyFactory属性调用getInterceptorsAndDynamicInterceptionAdvice方法得到一个MethodInterceptor列表（元素即由增强器对象转换而来），接着创建CglibMethodInvocation对象并用其调用proceed方法，返回业务方法的返回值。进入此方法体，从MethodInterceptor列表中取元素的invoke属性调用其invoke方法，第一个的是ExposeInvocationInterceptor对象，它实现的逻辑中又调用proceed方法，形成了类递归。体内取第二个的invoke属性AspectJAfterThrowingAdvice对象，实现invoke同理调proceed方法。以此类推，第三个AfterReturningAdviceInterceptor对象，第四个AspectJAfterAdvice对象，直到取出MethodBeforeAdviceInterceptor对象，调invoke方法，注意实现逻辑里出现了before方法的调用，即前置通知的执行，然后才调用proceed方法-执行目标方法。最后就是proceed方法的层层向上返回了，那么我们自下而上观察这几个对象重写的invoke逻辑，发现有invokeAdviceMethod方法的调用-后置通知执行、afterReturning方法的调用-返回通知执行（因捕捉到异常可能不执行）、invokeAdviceMethod-异常通知执行（因未捕获到异常可能不执行）。由此我们理解了为什么诸通知是前置->目标->后置->返回（异常）这样的顺序。
+
+### 声明式事务
+
+```java
+@Configuration
+@ComponentScan("com.van")
+// 开启基于注解的事务功能
+@EnableTransactionManagement
+public class TxConfig {
+	@Bean
+	public DataSource dataSource(@Value("${tx.url}") String url, @Value("${tx.driver}") String driver,
+			@Value("${tx.user}") String user, @Value("${tx.password}") String password) throws PropertyVetoException {
+		ComboPooledDataSource dataSource = new ComboPooledDataSource();
+		dataSource.setJdbcUrl(url);
+		dataSource.setDriverClass(driver);
+		dataSource.setUser(user);
+		dataSource.setPassword(password);
+		return dataSource;
+	}
+
+	@Bean
+	public JdbcTemplate jdbcTemplate() throws PropertyVetoException {
+		return new JdbcTemplate(dataSource(null, null, null, null));
+	}
+
+	/**
+	 * 事务管理器
+	 * 
+	 * @return
+	 * @throws PropertyVetoException
+	 */
+	@Bean
+	public PlatformTransactionManager dataSourceTransactionManager() throws PropertyVetoException {
+		return new DataSourceTransactionManager(dataSource(null, null, null, null));
+	}
+}
+
+@Service
+public class UserService {
+	@Autowired
+	private UserDao userDao;
+
+	@Transactional
+	public void insert() {
+		userDao.insert();
+		System.out.println(10 / 0);
+	}
+}
+```
+
+点进@EnableTransactionManagement，发现用@Import导入了TransactionManagementConfigurationSelector类。点进去，它实现了ImportSelector接口于是重写了selectImports方法，逻辑是注册事务管理相关的一些组件，根据本例可知注册的是AutoProxyRegistrar类与ProxyTransactionManagementConfiguration类。进入前者的registerBeanDefinitions方法，再层层往下调发现会注册InfrastructureAdvisorAutoProxyCreator类，正如AOP中分析得那样，它也是一个后置处理器，在对象实例化后将其包装成代理对象，后面通过拦截器插入通知逻辑，故事务管理本质上也是基于动态代理。进入后者的transactionAdvisor方法，调用了transactionAttributeSource方法，后者又创建AnnotationTransactionAttributeSource对象。进入其构造方法体，发现有SpringTransactionAnnotationParser对象的创建，它就负责@Transactional的解析，其下parseTransactionAnnotation方法含对propagation等属性的解析。回到transactionAdvisor方法体，另调用了transactionInterceptor方法。体内创建了TransactionInterceptor对象，它保存了我们注册的事务管理器对象，它实现了MethodInterceptor接口，实现的invoke逻辑内调用到invokeWithinTransaction方法并作返回。此方法体内，获取@Transactional的系列属性及事务管理器对象，proceedWithInvocation方法的调用即目标方法的执行，然后点进catch语句块中的completeTransactionAfterThrowing方法，就能发现事务管理器对象调用rollback方法进行回滚，然后点进commitTransactionAfterReturning方法，就能发现事务管理器对象调用commit方法进行提交。
+
+### 扩展原理
+
+#### BeanFactoryPostProcessor
+
+前面接触过在bean初始化前后扩展逻辑的BeanPostProcessor，现在来看和它名字相近的BeanFactoryPostProcessor，其下仅一个方法postProcessBeanFactory，引述其注释：
+
+> Modify the application context's internal bean factory after its standard initialization. All bean definitions will have been loaded, but no beans will have been instantiated yet.
+
+```java
+public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+	@Override
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		System.out.println("beanDefinitionCount: " + beanFactory.getBeanDefinitionCount());
+		String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
+		System.out.println(Arrays.toString(beanDefinitionNames));
+	}
+}
+
+@Configuration
+@Import(MyBeanFactoryPostProcessor.class)
+public class ExtConfig {
+	@Bean
+	public Cat cat() {
+		return new Cat();
+	}
+}
+```
+
+来到refresh方法体，见到<span id="invokeBeanFactoryPostProcessors">invokeBeanFactoryPostProcessors</span>方法的调用。体内使用PostProcessorRegistrationDelegate类调用invokeBeanFactoryPostProcessors方法。此方法体内，先从容器中按BeanFactoryPostProcessor类型获取这些bean的名称，再按名称及类型获取bean，并且根据其实现PriorityOrdered、Ordered接口的情况分门别类塞进不同的BeanFactoryPostProcessor列表，最后调用重载的invokeBeanFactoryPostProcessors方法。体内遍历列表，执行元素的postProcessBeanFactory方法。
+
+refresh体内自定义单实例bean的创建体现于finishBeanFactoryInitialization方法，它在invokeBeanFactoryPostProcessors后面，故验证了BeanFactoryPostProcessor的活动时机。
+
+#### BeanDefinitionRegistryPostProcessor
+
+这是上一节BeanFactoryPostProcessor的子接口，也只定义一个方法postProcessBeanDefinitionRegistry，引述其注释：
+
+> Modify the application context's internal bean definition registry after its standard initialization. All regular bean definitions will have been loaded, but no beans will have been instantiated yet.
+
+对比父子，父在自定义bean的定义被加载之后插入逻辑，而子在之前。
+
+```java
+public class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+	/**
+	 * 保存自定义bean的定义信息之后，继承自父接口
+	 */
+	@Override
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        System.out.println("beanDefinitionCount: " + beanFactory.getBeanDefinitionCount());
+		System.out.println("after the loading of beans");
+	}
+
+	/**
+	 * 保存自定义bean的定义信息之前，BeanDefinitionRegistry对象就是定义信息的保存中心，BeanFactory就由它获取bean定义，然后创建bean
+	 */
+	@Override
+	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+		System.out.println("before the loading of beans");
+		// RootBeanDefinition beanDefinition = new RootBeanDefinition(Cat.class);
+		AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.rootBeanDefinition(Cat.class).getBeanDefinition();
+		// 甚至可以自行在此处注册组件的定义
+		registry.registerBeanDefinition("hiddenBean", beanDefinition);
+	}
+}
+
+@Configuration
+@Import(MyBeanDefinitionRegistryPostProcessor.class)
+public class ExtConfig {
+}
+```
+
+探究原理，仍去往上一节中第二个invokeBeanFactoryPostProcessors方法体内，关注invokeBeanDefinitionRegistryPostProcessors方法，其逻辑就是逐BeanDefinitionRegistryPostProcessor对象调用postProcessBeanDefinitionRegistry方法，我们发现它的调用在invokeBeanFactoryPostProcessors的调用之前。
+
+#### ApplicationListener
+
+此接口归属事件驱动模型。
+
+```java
+public class MyApplicationListener implements ApplicationListener<ApplicationEvent> {
+	/**
+	 * 当容器相关事件（容器刷新、关闭等）发生，此方法执行
+	 */
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		System.out.println(event + " happened");
+	}
+}
+
+@Configuration
+@Import(MyApplicationListener.class)
+public class ExtConfig {
+}
+
+@Test
+public void testApplicationListener() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ExtConfig.class);
+    // 抽象类的匿名非抽象子类的匿名对象，实参传入子类构造器
+    context.publishEvent(new ApplicationEvent(new String("customized event")) {
+        private static final long serialVersionUID = 6048754290119436434L;
+    }); // 自发布事件
+    context.close();
+}
+
+// 打印结果
+// org.springframework.context.event.ContextRefreshedEvent...
+// com.van.ExtTest$1[source=customized event] happened
+// org.springframework.context.event.ContextClosedEvent...
+```
+
+进入refresh方法体末端的finishRefresh方法，就发现publishEvent的调用，传入的是ContextRefreshedEvent对象。体内调用重载的publishEvent方法。点进去，发现链式调用getApplicationEventMulticaster、multicastEvent方法，前者返回一个事件多播器（或叫派发器）对象，调用后者意即通知各监听器对象。具体来看，后者体内，遍历容器中的所有ApplicationListener对象，它们逐一作参数连同ApplicationEvent参数来调用invokeListener方法。这个方法又调用doInvokeListener方法。后者体内就有了用ApplicationListener对象调用onApplicationEvent方法。
+
+进入close方法体，调用到doClose方法。体内调用到publishEvent方法，传入的是ContextClosedEvent对象。
+
+这个<span id="multicaster">多播器</span>哪儿来的呢？再见到refresh方法体，有一个initApplicationEventMulticaster方法。在它体内，按bean名称获取ApplicationEventMulticaster组件的bean，没有的话创建SimpleApplicationEventMulticaster对象，要赋给applicationEventMulticaster属性供后续使用。
+
+各<span id="listener">监听器</span>对象又是哪儿来的呢？refresh体内有一个registerListeners方法，在initApplicationEventMulticaster方法之后调用。体内，按ApplicationListener类型从容器中获取诸bean名称保存到多播器对象中，待到这些bean被创建多播器对象也就持有这些bean。
+
+#### EventListener
+
+此注解是事件驱动模型的另一种表达。
+
+```java
+public class MyEventListener {
+	/**
+	 * 发布指定类型的事件时就调用此方法
+	 */
+	@EventListener(classes = { ApplicationEvent.class }) // 多事件类型
+	public void listenEvent(ApplicationEvent event) {
+		System.out.println("listening the event: " + event);
+	}
+}
+
+@Configuration
+@Import(MyEventListener.class)
+public class ExtConfig {
+}
+```
+
+我们点进去，它发挥作用主要靠EventListenerMethodProcessor类，又是一个后置处理器，它实现了SmartInitializingSingleton接口。这个接口只有一个方法afterSingletonsInstantiated，引用注释如下：
+
+> Invoked right at the end of the singleton pre-instantiation phase, with a guarantee that all regular singleton beans have been created already.
+
+进入refresh体内调用的finishBeanFactoryInitialization方法，末端用容器对象调用preInstantiateSingletons方法。此方法体内，先得到所有自定义（外部、非懒加载单实例）bean，再遍历它们，判断当前bean是否实现SmartInitializingSingleton接口，是则发现调用其afterSingletonsInstantiated方法的迹象，但不是此刻调用，而是等到指定事件发生。故可知@EventListener标注的方法所属的类间接实现了SmartInitializingSingleton接口，这也体现了注解的一大妙用。
+
+#### 容器创建过程
+
+梳理较基于注解配置的IOC容器的较具体创建流程。
+
+进入AnnotationConfigApplicationContext构造器，this与register方法做了预处理与解析的工作。重点看refresh方法-容器的创建（或刷新），开头就是==加锁==，保证线程安全-项目一启动容器创建且仅创建一次，接着是==prepareRefresh==方法，一些预处理工作。点进去，用一些属性标识容器未关闭、已激活，调用initPropertySources方法初始化上下文中的配置源，一般由所属类AbstractApplicationContext的子类定制配置，链式调用getEnvironment、validateRequiredProperties方法，校验环境中的这些配置，最后用LinkedHashSet承载ApplicationEvent对象赋给earlyApplicationEvents属性作早期事件。接着是==obtainFreshBeanFactory==方法，体内调用refreshBeanFactory方法给子类GenericApplicationContext的beanFactory属性设置序列版本号，调用子类实现的getBeanFactory方法返回其beanFactory属性，并继续作返回，赋给beanFactory变量。接着是==prepareBeanFactory==方法，传入beanFactory变量，体内设置它的类加载器、表达式解析器，注册一些后置处理器，忽略一些接口的自动注入，注册一些可解析接口的自动注入，最后是一些与环境相关的内置组件的注册。接着是==postProcessBeanFactory==方法，一般由子类重写来定制beanFactory变量创建之后的工作，不然走空方法。以上refresh体内这一段即bean工厂的创建及预处理工作。
+
+接着是==invokeBeanFactoryPostProcessors==方法，传入beanFactory变量，让bean工厂的后置处理器完成标准初始化（即上一段）之后的一些工作，体内调用invokeBeanFactoryPostProcessors方法，其逻辑[前面](#invokeBeanFactoryPostProcessors)提到过。接着是==registerBeanPostProcessors==方法，体内调用PostProcessorRegistrationDelegate类的registerBeanPostProcessors方法，体内按实现PriorityOrdered、Ordered接口、为MergedBeanDefinitionPostProcessor的子接口等情况将所有后置处理器对象分门别类地装进诸BeanPostProcessor列表中，但最终都会存入bean工厂的beanPostProcessors属性，注意注册的顺序影响后续bean创建过程中不同后置处理器对象发挥作用的顺序。接着是==initMessageSource==方法-国际化相关的功能，因此讨论得不多，主要涉及到MessageSource组件的注册。接着是initApplicationEventMulticaster方法，注册事件多播器，[前面](#multicaster)讨论过了。接着是onRefresh方法，一般供子类重写来扩充额外逻辑。接着是registerListeners方法，注册监听器，[前面](#listener)讨论过。
+
+接着是==finishBeanFactoryInitialization==方法，重中之重，初始化（广义）剩下的自指定的非懒加载单实例bean，传入beanFactory变量，体内关注bean工厂调用preInstantiateSingletons方法。此方法体内，从beanDefinitionNames属性获取所有bean定义的名称（id），通过调用getBean方法、传入名称逐一创建它们，注意到有所属组件非抽象类、为单实例、非懒加载的要求。getBean又调deGetBean方法，传入名称，后者又调getSingleton方法，再后者又调重载的getSingleton方法，点开，开头是从singletonObjects映射属性（注释为单实例bean的缓存）中获取bean，获取不到便回到doGetBean方法体，往下面看，markBeanAsCreated方法的目的是保持bean的单例性，若当前bean对应注解配有DependsOn注解，则先行创建依赖的bean，随后调用getSingleton方法创建当前bean，传入名称及OjbectFactory接口的匿名实现类的匿名对象，它就调用这个对象重写的getObject方法，后者又调用createBean方法。体内，注意到先调用resolveBeforeInstantiation方法（可作返回），底层执行诸InstantiationAwareBeanPostProcessor对象（联系[AOP](#InstantiationAwareBeanPostProcessor)一节）的postProcessBeforeInstantiation方法（故须知各后置处理器都有特定的活动时机），最后调用doCreateBean方法作非代理对象返回。此方法体内，调用createBeanInstance方法，底层利用[工厂方法](#工厂方法)或组件的构造器创建实例，调用applyMergedBeanDefinitionPostProcessors方法，即让诸MergedBeanDefinitionPostProcessor对象调用postProcessMergedBeanDefinition方法，接着看注释-初始化bean实例，首先是populateBean方法填充属性值。体内先调用诸InstantiationAwareBeanPostProcessor对象的postProcessAfterInstantiation方法，还能见到自动注入的影子-通过名称、通过类型，最后调用applyPropertyValues方法做具体的赋值。紧接着是initializeBean方法。体内调用invokeAwareMethods方法执行bean所属组件实现几个Aware子接口实现的方法，调用applyBeanPostProcessorsBeforeInitialization方法，即执行诸BeanPostProcessor对象的postProcessBeforeInitialization方法（分清instantiation与initialization），调用invokeInitMethods，逻辑在[前面](#invokeInitMethods)讨论过，调用applyBeanPostProcessorsAfterInitialization方法，即执行诸BeanPostProcessor对象的postProcessAfterInitialization方法，调用registerDisposableBeanIfNecessary方法注册bean销毁的回调。回到最后那个getSingleton方法体，往下看到调用addSingleton方法，即将创建出来的bean同步地保存进singletonObjects属性，避免二次创建。回到preInstantiateSingletons方法体，所有bean都获取（创建）完毕，于是后面的逻辑便是[前置](#EventListener)知识。
+
+回到refresh方法体，下面是finishRefresh方法。体内调用initLifecycleProcessor方法，初始化LifecycleProcessor组件对象，自实现此接口中的onRefresh、onDestroy方法，作容器刷新及销毁的回调，不实现也有默认的实现。接着是链式调用getLifecycleProcessor、onRefresh方法，便是执行刚才谈到的一个回调方法，而后调用publishEvent方法发布容器刷新完成事件，最后LiveBeansView类调用registerApplicationContext方法，暂不多言。
+
+### Web
+
+#### Servlet 3.0
+
+#### 异步请求
 
 
 

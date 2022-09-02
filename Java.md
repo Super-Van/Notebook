@@ -1,8 +1,6 @@
 # Java
 
-参考视频：[Java入门视频教程](https://www.bilibili.com/video/BV1Kb411W75N?spm_id_from=333.999.0.0)。
-
-由于此前上课学过一些知识，有些东西此处就不记了，可参考[菜鸟教程](https://www.runoob.com/java/java-tutorial.html)等。
+参考视频：[Java入门教程](https://www.bilibili.com/video/BV1Kb411W75N?spm_id_from=333.999.0.0)。
 
 ## 概述
 
@@ -19,7 +17,7 @@ JRE=JVM+Java SE标准类库。JVM实现“一次编译，到处运行”。
 - 可读性：避免复杂的逻辑，一看就好懂。
 
 - 健壮性：面对复杂条件甚至极端条件，能规避异常，达到预期目标。
-- 高效率、底存储：首先关注时间复杂度，其次关注空间复杂度。
+- 高效率、低存储：首先关注时间复杂度，其次关注空间复杂度。
 
 ## 配置
 
@@ -32,11 +30,11 @@ JRE=JVM+Java SE标准类库。JVM实现“一次编译，到处运行”。
 
 不替换当然也可以。这个变量名要固定为JAVA_HOME，因为后面做web的时候tomcat服务器要找这个名字。
 
-不要走入误区，配CLASSPATH。
+不要走入误区-配CLASSPATH。
 
 ## 初探
 
-javac编译得到的class文件名就是类名，每修改一次文件就得重新编译并重新运行。
+javac编译得到的class文件名就是类名，每修改一次文件就得重新编译及运行。
 
 由于windows不区分大小写，又javac命令的作用对象是源文件，故javac对大小写不敏感。如：
 
@@ -1204,7 +1202,7 @@ System.out.println(new Person());
 
 #### 重载
 
-重载（overload）是指在同一个类中，存在多个同名方法，但它们的参数列表不同，具体可以是参数个数不同、参数类型不同及个数类型都不同。比如下例囊括了这三种情况：两个加法方法参数个数不同；两个减法方法参数类型不同；两个乘法方法个数类型都不同；最后两个除法方法就比较阴间了，本来没有体现重载的意义（方法体改一下可能就有了），但仍属于第二种范畴。
+重载（overload）是指在同一个类中，存在多个同名方法，但它们的参数列表不同，具体可以是参数个数不同、参数类型（按序）不同及个数类型都不同。比如下例囊括了这三种情况：两个加法方法参数个数不同；两个减法方法参数类型不同；两个乘法方法个数类型都不同；最后两个除法方法就比较阴间了，本来没有发挥重载的意义（方法体改一下可能就有了），但仍属于第二种范畴。
 
 ```java
 public int add(int a, int b) {
@@ -1247,7 +1245,7 @@ System.out.println(calculator.divide(1., 2));
 
 这种机制归根结底是Java的强类型特点造成的。
 
-不同类的同名方法和同类不同名方法当然构不成重载。返回值和方法体无所谓。我们大可无视参数名，因为相对类型来说参数名意义甚小。
+不同类的同名方法和同类不同名方法当然构不成重载。返回值和方法体一不一样无所谓。我们大可无视参数名，因为相对类型来说参数名意义甚小。
 
 那么我们调用重载方法的时候，系统能根据实参情况选定对应的方法来执行，所以参数列表的唯一性很重要。通过对象调用其方法，方法名可能不唯一，方法的签名一定是唯一的。
 
@@ -1262,7 +1260,7 @@ char[] charArr = new char[] { '1', '2', '3' };
 System.out.println(charArr);
 ```
 
-究其原因，是源码中println方法是重载的，上面那个形参类型是Object，而下面这个是`char[]`（开小灶，专门为字符数组重载一个）。
+究其原因，是源码中println方法是重载的，上面那个形参类型是Object，而下面这个是`char[]`（开小灶，专门为字符数组重载）。
 
 #### 可变个数形参
 
@@ -1327,7 +1325,7 @@ varargs.showName("bob");
 
 以上就是值传递的两种情况，不管保存的是什么，赋出去的都是存的东西。所谓址传递，可自行复习C++里的引用传递，就是赋另一个变量以自身的地址而非存的东西。
 
-使用一个变量，不管它是基本类型还是引用类型，访问到的都是最终端的数据，只不过前者是直接拿到，后者是透过地址间接拿到。
+使用一个变量，不管它是基本类型还是引用类型，访问到的都是最终端的数据，只不过前者是直接拿到，后者是透过地址拿到。
 
 Java中方法的参数传递机制是值传递。
 
@@ -1380,7 +1378,7 @@ public void swap(Person p1, Person p2) {
 - 如果参数是基本数据类型，那么实参赋给形参的是实参保存的数据值。
 - 如果参数是引用数据类型，那么实参赋给形参的是实参保存的数据的地址。
 
-应注意String型变量或参数存放的也是位于常量池中的字符串实例（其实是字符数组），而非简单的“字符串值”。
+应注意String型变量或参数存放的也是地址-或是常量池中的字符数组地址或是堆中的对象地址，而非简单的“字符串值”。
 
 #### 递归
 
@@ -1388,7 +1386,7 @@ public void swap(Person p1, Person p2) {
 
 递归表达出一种隐式的循环，即亦重复执行一段代码，我们常用判断语句控制递归不要变成等价于死循环的无穷递归。
 
-由于内存溢出的隐患，递归并不常用，我们也很少写，看懂现有递归的逻辑即可。
+由于内存溢出隐患，递归并不常用，看懂现有递归的逻辑即可。
 
 ### 封装
 
@@ -2881,7 +2879,7 @@ public IRun getIRun() {
 关于局部内部类有个规定要理解：
 
 ```java
-/* Individual的一个方法，其他省略 */
+/* Individual的一个方法 */
 public void display() {
     // 局部变量 JDK 8及以后final可省略
     int num = 1;
@@ -4695,7 +4693,7 @@ public enum SeasonEnum {
     // 其他省略
 }
 
-/* 测试  */
+/* 测试 */
 // SUMMER
 System.out.println(SeasonEnum.SUMMER);
 // class java.lang.Enum
@@ -4771,7 +4769,7 @@ interface Show {
 }
 
 // 测试
-Show[] seasons = SeasonEnum.values(); // 套上数组的向上转型哦
+Show[] seasons = SeasonEnum.values(); // 结合数组的向上转型哦
 for (Show season : seasons) {
     season.showCommon();
     season.show();
@@ -4838,19 +4836,12 @@ JDK 5.0提供了4个标准的元注解（meta-annotation），用于修饰其他
 - Inherited：让所修饰的注解拥有继承性，即父类被某注解修饰，子类也会被它修饰。
 
 ```java
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.*;
-
 // 后两个很少用
 @Target({TYPE, FIELD, METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MyAnnotation {
     String value() default "pig";
 }
-
 // 其他省略
 
 /* 测试 */
@@ -5127,7 +5118,7 @@ public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) return false;
     Person person = (Person) o;
     if (age != person.age) return false;
-    // 跳入工具类java.util.Objects的equals方法发现 return (a == b) || (a != null && a.equals(b)); 很巧妙哦
+
     return Objects.equals(name, person.name);
 }
 
@@ -5191,7 +5182,6 @@ System.out.println(set);
 注意TreeSet底层判重用的不是equals而是compareTo（返回0即重复了），所以我们重写compareTo时要进行多级排序，单级的话部分属性重复的元素会被误判为完全重复。
 
 ```java
-// 其他省略
 @Override
 public int compareTo(Person person) {
     int compare = name.compareTo(person.name);
@@ -5258,7 +5248,7 @@ Map接口：存放映射，有三个实现类。
 
 关于HashMap底层使用到的数据结构，JDK 7及以下有数组+链表，JDK 8及以上有数组+链表+红黑树。
 
-浅析源码：以JDK 7为例，实例化时初始化长度为16的Entry数组域table。某次添加Entry对象时，调用新键对象的hashCode方法计算其哈希值，然后通过某种算法（table长度掩码）得到数组里的存放位置，接着也分情况讨论：
+浅析源码：以JDK 7为例，实例化时初始化长度为16的Entry数组域table。某次添加Entry对象时，调用新键对象的hashCode方法计算其哈希值，然后通过某种压缩算法（table长度掩码）得到数组里的存放位置，接着也分情况讨论：
 
 - 若此位置无元素，则存进去。
 - 若此位置有以链表形式存在的元素，则依次先比哈希值：
@@ -5538,7 +5528,7 @@ public <E> void showDesc(E desc) {
 larson.showDesc(521);
 ```
 
-泛型方法可以是静态的。由于类的泛型在实例化时才确定，而类加载又在前，故仅含类泛型的方法不能是静态的；由于方法的泛型在调用时确定，故泛型方法可以是静态的。
+由于类的泛型在实例化时才确定，而类加载又在前，故仅含类泛型的方法不能是静态的。由于方法的泛型在调用时确定，故泛型方法可以是静态的。
 
 ### 通配符
 
@@ -5688,7 +5678,7 @@ boolean made2 = mk2.mkdir();
 
 ### 节点流
 
-这里谈四个节点流-FileInputStream、FileOutputStream、FileReader、FileWriter作为样板，它们又叫文件流。
+这里以四个节点流-FileInputStream、FileOutputStream、FileReader、FileWriter作为样板，它们又叫文件流。
 
 ```java
 @Test
@@ -5755,7 +5745,7 @@ try {
     File file = new File("temp\\log.txt");
     System.out.println(file.getAbsoluteFile());
     fileReader = new FileReader(file);
-    // 借助字符数组成批的读入
+    // 借助字符数组成批地读入
     char[] cbuf = new char[5];
     // 用len记录每次读入的字符个数
     int len;
@@ -5874,7 +5864,7 @@ try {
 
 我们把第1行与第3行都改成图片是没有效果的，文件打不开（已损坏），证明字符流不适用于非文本。
 
-于是转而看字节流。照猫画虎，把上面出现字符流的地方都改成字节流，相关地方也都改一下：
+于是转而看字节流。照猫画虎，把上面出现字符流的地方都改成字节流，有影响的地方也都改一下：
 
 ```java
 File src = new File("temp\\coalball.png");
@@ -5918,7 +5908,7 @@ try {
 
 缓冲流是处理流的一种，能提升流读入、写出的速度。
 
-符合装饰器模式，处理流封装已有的流，不一定是节点流。
+符合装饰器模式，处理流封装已有的流（不一定是节点流）。
 
 先看缓冲字节流BufferedInputStream、BufferedOutputStream的例子：
 
@@ -6021,7 +6011,7 @@ while ((data = bufferedReader.readLine()) != null) {
 - 输入转换流InputStreamReader将字节输入流转为字符输入流，继承Reader。
 - 输出转换流OutputStreamWriter将字符输出流转为字节输出流，继承Writer。
 
-感性理解：联系解码，字符是看得懂的东西，是输入的落脚点；联系编码，字节是看不懂的东西，是输出的落脚点。
+感性理解：关于解码，字符是看得懂的东西，是输入的落脚点；关于编码，字节是看不懂的东西，是输出的落脚点。
 
 字节流转字符流：
 
@@ -6560,7 +6550,7 @@ public void testSimple() throws IllegalAccessException, InvocationTargetExceptio
     System.out.println(getGender.invoke(stu));
     // 由于重载，只传入方法名无法唯一确定方法，要辅以参数列表
     Method showNation = cls.getDeclaredMethod("showNation", String.class);
-    // setAccessible作用是关闭安全检查（同时临时解除私有性），以提升执行速度，不会改变原本的可见性
+    // setAccessible作用是关闭安全检查同时临时解除私有性，以提升执行速度，不会改变原本的可见性
     showNation.setAccessible(true);
     showNation.invoke(stu, "China");
 }
@@ -6591,7 +6581,7 @@ public void testGetClass() throws ClassNotFoundException {
     Class cls3 = Class.forName("reflect.Student");
     // class reflect.Student
     System.out.println(cls3);
-    // true 这几种方式得到的Class对象实体都是同一个，也体现了某类的唯一性
+    // true 这几种方式得到的Class对象实体都是同一个
     System.out.println(cls1 == cls2);
     // 方式四：使用系统类加载器
     ClassLoader classLoader = ReflectTest.class.getClassLoader();
@@ -6601,7 +6591,7 @@ public void testGetClass() throws ClassNotFoundException {
 
 比较这些方式。最后一种用得很少；第二种没能表现反射的意义，因为对象都出来了，我们就是要通过反射隐式地造对象；第一种是不适合动态场景，受编译器检查；第三种用得最多，类名更自由，编译期不知道要造什么类的对象，运行期才知道，所以会抛类找不到的异常，体现了动态性。
 
-其他元素都算Class实例，包括接口、成员、数组、枚举、基本数据类型、void、注解。具体地如数组Class实例的唯一性由类型和维数决定。
+其他元素都算Class实例，包括接口、成员、数组、枚举、基本数据类型、void、注解。如数组Class实例的唯一性由类型和维数决定。
 
 ### 类的加载
 
@@ -6683,7 +6673,7 @@ System.out.println(comparator2.compare(80, 60));
 
 它的本质是接口的匿名实现类的匿名实例，没有接口它就没意义了。
 
-它要求接口只能含一个抽象方法。这个能理解，是唯一性的问题，假定可存在两个抽象方法，它们参数列表、返回值类型都相同，就名字不同，那都转成lambda表达式名字都省略了，编译器就分不清了。
+它要求接口只能含一个抽象方法。这个能理解，是唯一性问题，假定可存在两个抽象方法，它们参数列表完全都相同，就名字不同，那都转成lambda表达式名字都省略了，编译器就分不清了。
 
 格式：
 
@@ -6877,7 +6867,7 @@ employees.stream().limit(2).forEach(System.out::println);
 employees.stream().skip(3).forEach(System.out::println);
 
 /* distinct方法：去除重复元素，这个重复性依赖hashCode与equals方法 */
-// 元素所属类别忘了重写俩方法，不然按默认的地址值去比了
+// 元素所属类忘了重写俩方法，不然按默认的地址值去比了
 employees.add(new Employee(10, "元稹", 24, 3200));
 employees.add(new Employee(10, "元稹", 24, 3200));
 employees.add(new Employee(10, "元稹", 24, 3200));
@@ -6913,7 +6903,7 @@ employees.stream().sorted((employee1, employee2) -> {
 
 #### 终止操作
 
-Stream对象是不可重用的，即一旦调用终止操作就不可再调用中间操作，只能重新获取一个Stream对象。
+Stream对象是不可重用的，即一旦调用终止操作就不可再调用中间、终止操作，只能重新获取一个Stream对象。
 
 匹配与查找：
 
@@ -6938,7 +6928,7 @@ employees.forEach(System.out::println);
 
 ```java
 List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);
-// reduce参数类型是BiFunction接口，重写的是apply方法，此方法有两个参数，想做累加就要保证俩参数、返回值三者类型一致
+// reduce的累加器参数类型是BiFunction接口，重写的是apply方法，此方法有两个参数，想做累加就要保证俩参数、返回值三者类型一致
 Optional<Integer> sum = nums.stream().reduce(Integer::sum);
 Optional<Double> totalSalary = employees.stream().map(Employee::getSalary).reduce(Double::sum);
 ```

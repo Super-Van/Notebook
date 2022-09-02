@@ -1,6 +1,6 @@
 # Ajax
 
-参考视频：[3小时Ajax入门到精通](https://www.bilibili.com/video/BV1WC4y1b78y)。
+参考视频：[3小时Ajax](https://www.bilibili.com/video/BV1WC4y1b78y)。
 
 ## 概述
 
@@ -91,7 +91,7 @@ xhr.open("get", "http://localhost:8000/server?name=Van&age=22&gender=man")
 
 <img src="Ajax.assets\image-20210830115041918.png" alt="image-20210830115041918" style="zoom:80%;" />
 
-这个参数串如上所见叫查询字符串，注意和下面接触到的隐式参数-请求体区分开，它是显式参数，可用于post、put等多种方法。
+这个参数串如上所见叫查询字符串（query string parameters），注意和下面接触到的隐式参数-请求体区分开，它是显式参数，可用于post、put等多种方法。
 
 ### post
 
@@ -172,7 +172,7 @@ app.all("/server", (req, res) => {
 - multipart/form-data：规定参数写法同上，记为B。
 - application/json：规定参数形如`{ "vip" : "10", "level" : "6" }`，记为C。
 
-任何get请求的请求头中都没有Content-Type，get请求的参数只能是查询字符串（query string parameters）。
+任何get请求的请求头中都没有Content-Type，get请求的参数只能是查询字符串。
 
 内容类型只与请求体相关，故服务于post等请求，且有请求体才会有内容类型。比如浏览器展示的post类型、C的请求头长这样：
 

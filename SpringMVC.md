@@ -2,14 +2,14 @@
 
 参考视频：
 
-- [SpringMVC视频教程](https://www.bilibili.com/video/BV1MW411A7Kn)。
+- [SpringMVC教程](https://www.bilibili.com/video/BV1MW411A7Kn)。
 - [SSM联讲](https://www.bilibili.com/video/BV1d4411g7tv?p=120)。
 
 ## 概述
 
 SpringMVC是spring的子框架，是spring专为视图层提供的web框架。3.0之后全面超越Struts。
 
-它通过一套注解让POJO（plain old java object）成为处理请求的控制器。
+它提供一套注解让POJO（plain old java object）成为处理请求的控制器。
 
 它支持REST风格的URL。
 
@@ -118,22 +118,22 @@ public class Father{
 它的诸多属性定义了灵活的映射条件。举一些例子来理解：
 
 ```java
-@requestMapping(value="login")
+@requestMapping(value="/login")
 // 请求方法的要求 如这里仅映射POST方法
-@requestMapping(value="login", method=requestMethod.POST)
+@requestMapping(value="/login", method=requestMethod.POST)
 // 请求参数的要求，如须携带、不准携带、值的要求
 // 附带讲像xxx?name=&age=22，name值是空串；像xxx?name=bob，age值是null；像weight值是null也满足下面的weight!=55
 @requestMapping(value="login", params={"name", "age=22", "weight!=55", "!height"}) // 且的关系
 // 请求头的要求 如这里仅映射谷歌浏览器
-@requestMapping(value="login", headers={"User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36"})
+@requestMapping(value="/login", headers={"User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36"})
 // 请求头、响应头中Content-Type，这俩看以后有没有机会用到
-@requestMapping(value="login", consumes={"application/json")
-@requestMapping(value="login", produces={"application/json", "charset=UTF-8"})
+@requestMapping(value="/login", consumes={"application/json")
+@requestMapping(value="/login", produces={"application/json", "charset=UTF-8"})
 ```
 
-value值支持Ant风格的路径模板，就是模糊匹配，具体指三个通配符：
+value值支持Ant风格，即模糊匹配，具体指三个通配符：
 
-- `?`：匹配单个字符。注意匹配不了特殊字符如`/`、`?`。
+- `?`：匹配单个字符。匹配不了特殊字符如`/`、`?`。
 - `*`：匹配任意个字符。
 - `**`：匹配任意级路径。如`/user/**/login`、`/**`。
 
@@ -141,13 +141,13 @@ value值支持Ant风格的路径模板，就是模糊匹配，具体指三个通
 
 ```java
 // 访问/handle1时不会冲突，优先找非模糊的handle1方法
-@RequestMapping("handle1")
+@RequestMapping("/handle1")
 public String handle1() {
     // ...
 }
 
 // 如访问/handle2就找此方法
-@RequestMapping("handle?")
+@RequestMapping("/handle?")
 public String handleN() {
     // ...
 }
@@ -157,7 +157,7 @@ public String handleN() {
 
 ### RequestParam
 
-此注解一个作用是给请求参数与方法参数做映射，默认不打注解就行，让方法参数与请求参数同名，打了的话就要求注解值同请求参数名，那么方法参数名就自由了，匹配不上就给方法参数赋null。
+此注解一个作用是给URL内的请求参数与方法参数做映射，默认不打注解就行，让方法参数与请求参数同名，打了的话就要求注解值同请求参数名，那么方法参数名就随意了，匹配不上就给方法参数赋null。
 
 ```java
 @RequestMapping("/getParam")
@@ -175,7 +175,9 @@ public String getParam(@RequestParam("user") String username) {
 
 上例尽管要求此请求参数必备，但只要有了默认值，那相当于不必备了，而如果不指定默认值，就必须带了，否则报错。当我们的URL形如`/getParam?user`、`/getParam?user=`，都意味着参数值是空串，只有user不出现才给方法参数赋默认值。
 
-当required值为false，不设默认值，不带时赋null，设了默认值就赋默认值。
+当required值为false，不设默认值，不带某请求参数则对其赋null，设了默认值则赋默认值。
+
+不带此注解，当请求匹配到处理方法，但此参数缺失，若属普通基本类型，则报405 Mehtod Not Allowed错，若属普通引用类型，则给默认值null。
 
 ### RequestHeader
 
@@ -208,28 +210,28 @@ public String getCookie(@CookieValue("JSESSIONID") String sessionId) {
 
 ### PathVariable
 
-此注解作用是等价于请求参数的路径变量。
+此注解作用是获取URL末项的路径变量，这个路径变量常见于[REST](#REST)，作用同请求参数。
 
 ```java
 // 比如发送的URL是/welcome/Thomas
-@requestMapping("welcome/{name}") // 占位符
+@requestMapping("/welcome/{name}") // 占位符
 public String handlePlaceholder(@PathVariable("name") String name){ 
-    // 动态获取尾项，这里即Thomas
+    // 动态获取末项，这里即Thomas
     System.out.println(name);
     return "/success.jsp";
 }
 ```
 
-填入占位符的值不能带`/`，也就是说只能动态获取到最后一项而不是多项，但确实能做到动态获取多项，通过多个占位符。
+通过多个占位符动态获取多个路径变量：
 
 ```java
-@requestMapping("welcome/{name}/{age}")
+@requestMapping("/welcome/{name}/{age}")
 public String handlePlaceholder(@PathVariable("name") String name, @PathVariable("age") int age){
     // ...
 }
 ```
 
-可惜它不像RequestParam，没有require属性，找不到路径变量就报错。
+它不像RequestParam，没有require属性，找不到路径变量就报错。
 
 ### POJO封装
 
@@ -267,11 +269,11 @@ public String useNative(HttpServletRequest request, HttpSession session) {
 }
 ```
 
-如上所示，一些原生API可充当方法的参数，执行方法时，这些对象已经自动获取，可直接拿来用。
+如上所示，一些原生API可充当方法的参数，执行方法时，这些对象已经自动产生并被获取。
 
 来梳理一下都有哪些API能自动获取并作参数：
 
-```java
+```
 ServletRequest对象-请求对象
 ServletResponse对象-响应对象
 HttpSession对象 即请求对象.getSession()的返回值
@@ -319,9 +321,9 @@ REST提倡项目URL架构的基本单元，像：
 </filter-mapping>
 ```
 
-我们点开源码看doFilter方法干了什么。过滤器定义了一个methodParam属性，默认值是`_method`，对应一个同名请求参数，doFilter方法体内获取此参数值并判断是不是POST，不是就新创建一个请求对象，指定请求方法（PUT或DELETE），针对新对象做后续处理。即通过偷换请求对象偷换请求方法。
+我们点开源码看doFilter方法干了什么。过滤器定义了一个methodParam属性，默认值是`_method`，对应一个同名请求参数，doFilter方法体内获取此参数值，接着调用请求对象的getMethod方法得到请求方法并判断是不是POST，否则放行，是则新创建一个HttpMethodRequestWrapper类型的请求对象，构造器传入原请求对象及PUT或DELETE参数值，这个类有个method属性，在构造器内将参数值赋给method，还重写了getMethod方法，返回的就是method，那么后续请求对象getMethod方法被调用得到的就是PUT或DELETE。
 
-如果通过表单提交，输入框必须形如：
+由上可知如果通过表单提交，输入框必须形如：
 
 ```jsp
 <!-- 隐藏的控件 -->
@@ -385,8 +387,6 @@ data: {
 data: $('#editBookForm').serialize() + '&_method=PUT'
 ```
 
-又如超链接：`<a href="book/1?_method=PUT"></a>`。
-
 参考restful-crud项目，里面涉及springmvc增强表单等额外知识。
 
 ## 乱码
@@ -425,7 +425,7 @@ springmvc提供了一些API，使得数据（主要是模型数据）更快捷�
 先看Model（接口）、Map（接口）、ModelMap这三个类型的参数：
 
 ```java
-@RequestMapping("map")
+@RequestMapping("/map")
 public String useMap(Map<String, Object> map) {
     map.put("data", "齐白石");
     // class org.springframework.validation.support.BindingAwareModelMap
@@ -433,15 +433,17 @@ public String useMap(Map<String, Object> map) {
     return "/model.jsp";
 }
 
-@RequestMapping("model")
+@RequestMapping("/model")
 public String useModel(Model model) {
     model.addAttribute("data", "齐白石");
     // class org.springframework.validation.support.BindingAwareModelMap
     System.out.println(model.getClass());
+    // null 证明了Model对象等调用addAttribute方法时底层并没有立即将数据绑定给请求域对象
+	System.out.println(request.getAttribute("data"));
     return "/model.jsp";
 }
 
-@RequestMapping("modelMap")
+@RequestMapping("/modelMap")
 public String useModelMap(ModelMap modelMap) {
     modelMap.addAttribute("data", "齐白石");
     // class org.springframework.validation.support.BindingAwareModelMap
@@ -450,12 +452,12 @@ public String useModelMap(ModelMap modelMap) {
 }
 ```
 
-它们底层将数据保存在request域对象中。由上可见这些参数虽声明类型不同，但所引对象类型一样，BindingAwareModelMap类继承了ModelMap，同时实现了Model，ModelMap又继承了LinkedHashMap，即实现了Map。
+保存的数据最终会转存到request域对象中。由上可见这些参数虽声明类型不同，但所引对象类型一样，BindingAwareModelMap类继承了ModelMap，同时实现了Model，ModelMap又继承了LinkedHashMap，即实现了Map。
 
 再看ModelAndView类，它一并封装了视图（servlet资源或jsp资源）路径与数据，不过它的对象不作参数，作局部变量用。
 
 ```java
-@RequestMapping("modelAndView")
+@RequestMapping("/modelAndView")
 public ModelAndView useModelAndView() {
     ModelAndView modelAndView = new ModelAndView("/model.jsp");
     modelAndView.addObject("data", "齐白石");
@@ -465,7 +467,7 @@ public ModelAndView useModelAndView() {
 }
 ```
 
-它也是将数据保存在请求域对象中。
+它也是最终将数据转存到请求域对象中，至于什么时候参考[后续内容](#merge)。
 
 ### 注解
 
@@ -483,14 +485,14 @@ springmvc提供SessionAtrributes注解来向session域对象中保存数据，�
 
 往session中放数据推荐还是用原生写法，这个可能抛出异常。
 
-另有一个注解叫ModelAttribute，学这个费力不讨好，因为主要是配合hibernate使用，当hibernate流行的时候它当然很常用，现在mybatis流行了，它就该归隐了。
+另提供ModelAttribute注解，学这个费力不讨好，因为主要是配合hibernate使用，当hibernate流行的时候它当然很常用，现在mybatis流行了，它就该归隐了。
 
 问题描述：前面我们见识到了springmvc将请求参数封装成POJO的威力，原理是基于反射调用空参构造器创建对象，属性值就都是默认值，然后调用setter传入请求参数给它们赋值，这就可能带来问题了，有的请求参数可能是null，对应属性值就会为null，而后若全属性去更新数据库里的对应记录的话，就不对了，字段值碰到null应当保持原状。
 
 mybatis提供的动态SQL能很好地对null进行处理，但在以前，只能想别的法子，一个办法是先从数据库查出对应记录封装成对象，然后用请求参数更新对象属性，且遇到null就不更新，最后用更新后的对象再去更新数据库。
 
 ```java
-@RequestMapping("modelAttribute")
+@RequestMapping("/modelAttribute")
 public String useModelAttribute(@ModelAttribute("student") Student student) {
     // 自动用请求参数更新属性，并帮我们检查新属性值是否为null，是则保持旧值
     System.out.println("preprocess方法查询得到的student再经过请求参数更新：" + student);
@@ -509,8 +511,8 @@ public void preprocess(Model model) {
 我们扩充了一些逻辑，观察打印结果：
 
 ```java
-@RequestMapping("modelAttribute")
-public String useModelAttribute(@ModelAttribute("student") Student student, ModelMap modelMap, Model model, Map<String, Object> map) { // @ModelAttribute的value属性的默认值是参数类型首字母小写
+@RequestMapping("/modelAttribute")
+public String useModelAttribute(@ModelAttribute("student") Student student, ModelMap modelMap, Model model, Map<String, Object> map) { // @ModelAttribute的value属性的默认值是首字母小写的参数类型
     // 全是true
     System.out.println((model == modelMap) + "," + (model == map));
     // 全是true 可惜model参数取不到这个数据
@@ -520,7 +522,7 @@ public String useModelAttribute(@ModelAttribute("student") Student student, Mode
 }
 ```
 
-可见@RequestMapping所修饰方法的Model、Map、ModelMap类型的参数全部引用同一个对象，对象直属类型就是上一节发现的BindingAwareModelMap，它还有个专有名称叫隐含模型。它保存的数据将由目标方法的Student参数引用。
+可见@RequestMapping所修饰方法的Model、Map、ModelMap类型的参数全部引用同一个对象，对象直属类型就是上一节发现的BindingAwareModelMap，它还有个专有名称叫隐含模型，它保存的数据将由目标方法的Student参数引用。
 
 ## 源码解读
 
@@ -530,7 +532,7 @@ DispatcherServlet继承FrameworkServlet，后者继承HttpServletBean，后者�
 
 doDispatch就是处理请求的大头，梳理方法体的逻辑：调用checkMultipart方法处理文件上传，得到请求对象；调用getHandler方法传入请求对象找到对应的处理器对象；调用getHandlerAdapter方法获取此处理器相配的适配器对象；适配器对象调用handle方法返回ModelAndView对象，handle底层调用此控制器的目标方法；将得到的ModelAndView对象传入processDispatchResult方法，跳转到目标资源或报错页面。
 
-具体看getHandler方法的执行，如何找到目标处理器：它返回的是目标处理器的执行链（HandlerExecutionChain对象），传入的请求对象就是原生的，值得关注的就是请求地址了，看方法体，遍历HandlerMapping列表类型的handlerMappings属性，着重看DefaultAnnotationHandlerMapping类型的元素，它下面又有一个LinkedHashMap类型的属性叫handlerMap，即一组路径模板与处理器键值对（这也印证了处理器方法头上路径模板不可重复），接着用此元素调用getHandler方法来匹配路径模板与请求路径后将找出的处理器对象作执行链的handler属性然后返回执行链，最后这个执行链作getHandler的返回值。
+具体看getHandler方法的执行，如何找到目标处理器：它返回的是目标处理器的执行链（HandlerExecutionChain）对象，传入的请求对象就是原生的，值得关注的就是请求地址了，看方法体，遍历HandlerMapping列表类型的handlerMappings属性，着重看DefaultAnnotationHandlerMapping类型的元素，它下面又有一个LinkedHashMap类型的属性叫handlerMap，即路径模板与处理器的映射（这也印证了处理器方法头上路径模板不可重复），接着用此元素调用getHandler方法来匹配路径模板与请求路径后将找出的处理器对象作执行链对象的handler属性然后返回执行链，最后这个执行链对象作getHandler的返回值。
 
 具体看getHandlerAdapter方法的执行，如何到找目标适配器：返回的是AnnotationMethodHandlerAdapter对象，传入的是目标处理器对象，方法体内，遍历HandlerAdapter列表类型的handlerAdapters属性，着重看AnnotationMethodHandlerAdapter类型的元素，用此元素调用supports方法传入目标处理器对象，用于判断它是否有@RequestMapping修饰的方法，有则返回此元素。
 
@@ -548,18 +550,18 @@ doDispatch就是处理请求的大头，梳理方法体的逻辑：调用checkMu
 | flashMapManager:FlashMapManager                           | 重定向携带数据         |
 | viewResolvers:List\<ViewResolver>                         | 视图解析器             |
 
-九大组件的类型全是接口，方便框架的扩展更新。
+九大组件的类型全是接口，方便框架的扩展。
 
-tomcat一启动会实例化前端控制器，并调用它的onRefresh方法，体内调用initStrategies方法。体内执行九个方法以初始化九大组件，以initHandlerMappings方法为例，大意是若自己在配置文件中配置了此组件对应的bean标签，则据此初始化，否则采用默认策略初始化，一般采用默认策略。其他方法同理，不过有的组件是按id值找的，有的是按类型找的。
+tomcat一启动会实例化前端控制器，并调用它的onRefresh方法，体内调用initStrategies方法。体内执行九个方法以初始化九大组件，以initHandlerMappings方法为例，大意是若自己在配置文件中配置了此组件对应的bean标签，则据此初始化，否则采用默认策略初始化。这些方法找这九个组件对象有的是按id值找，有的是按类型找。
 
-具体看handle方法的执行，如何找到目标方法并执行。适配器相当于一个反射工具，给此方法传入的有请求对象、响应对象、目标处理器对象，看方法体，先对sessionAttribute注解进行处理，然后调用invokeHandlerMethod方法，传入请求对象、响应对象、目标处理器对象。在这个方法体内，获取处理器对象的方法解析器对象，方法解析器对象再根据请求地址找出Method类型的目标方法对象，接着根据方法解析器对象创建方法调用器对象，接着将请求对象、响应对象封装进一个ServletWebRequest对象，然后实例化BindingAwareModelMap得到隐含模型，然后用方法调用器对象调用invokeHandlerMethod方法，传入目标方法对象、目标处理器对象、ServletWebRequest对象、隐含模型。在这个方法体内，注意到遍历了所有ModelAttribute注解修饰的方法，循环体内先调用findBridgedMethod方法获取当前遍历到的前置通知对象，接着调用resolveHandlerArguments方法解析前置通知的参数，传入前置通知对象、目标处理器对象、ServletWebRequest对象、隐含模型，注意到此方法体内将隐含模型赋给Model、ModelMap、Map类型的参数，接着用前置通知对象调用invoke方法以执行前置通知，循环结束再次调用resolveHandlerArguments方法解析目标方法的参数，传入目标方法对象、目标处理器对象、ServletWebRequest对象、隐含模型，最后用目标方法对象调用invoke方法传入目标处理器对象与解析得到的参数以执行目标方法，返回的执行结果作invokeHandlerMethod方法的返回值。回到上一级invokeHandlerMethod方法，最后返回ModelAndView对象，它封装了数据和视图路径。再回到上一级，这个ModelAndView对象继续作handle的返回值。
+具体看handle方法的执行，如何找到目标方法并执行。适配器相当于一个反射工具，给此方法传入的有请求对象、响应对象、目标处理器对象，看方法体，先对sessionAttribute注解进行处理，然后调用invokeHandlerMethod方法，传入请求对象、响应对象、目标处理器对象。在这个方法体内，调用getMethodResolver方法传入处理器对象获取ServletHandlerMethodResolver类型的方法解析器对象，此对象再调用resolveHandlerMethod方法根据请求对象（下的地址）找出Method类型的目标方法对象，接着根据方法解析器对象创建ServletHandlerMethodInvoker类型的方法调用器对象，接着将请求对象、响应对象封装进一个ServletWebRequest对象，然后实例化BindingAwareModelMap得到隐含模型，然后用方法调用器对象调用invokeHandlerMethod方法，传入目标方法对象、目标处理器对象、ServletWebRequest对象、隐含模型。在这个方法体内，注意到遍历了所有ModelAttribute注解修饰的方法，循环体内先调用findBridgedMethod方法获取当前遍历到的前置通知对象，接着调用resolveHandlerArguments方法解析前置通知的参数返回实参数组，传入前置通知对象、目标处理器对象、ServletWebRequest对象、隐含模型，底层将隐含模型赋给Model、ModelMap、Map类型的参数，接着用前置通知对象调用invoke方法传入实参数组以执行前置通知，循环结束再次调用resolveHandlerArguments方法解析目标方法的参数返回实参数组，传入目标方法对象、目标处理器对象、ServletWebRequest对象、隐含模型，最后用目标方法对象调用invoke方法传入目标处理器对象与解析得到的实参数组以执行目标方法，返回的执行结果作返回值。回到上一级invokeHandlerMethod方法，方法调用器对象调用<span id="httpEntity">getModelAndView方法</span>得到一个ModelAndView对象，底层根据<span id="returnValue">目标方法返回值类型</span>决定是将其作为数据还是作为视图路径存入ModelAndView对象还是作ModelAndView对象本身等等，后者就封装了隐含模型里的数据和视图路径，并作返回值。再回到上一级，这个ModelAndView对象继续作handle的返回值。
 
-另外关注resolveHandlerArguments调用的resolveModelAttribute方法，里面分情况处理自定义类型参数，是POJO封装的原理：
+根据HandlerMethodInvoker类的resolveHandlerArguments方法调用的resolveModelAttribute方法、doBind方法，概述自定义类型参数（<span id="binder">POJO）解析的原理</span>：
 
-1. 此参数打了ModelAttribute注解，那么去隐含模型中找键与注解值吻合的数据，找到了则取此数据赋值。没打注解，那么去隐含模型中找键与首字母小写的参数类型吻合的数据，找到了则取此数据赋值。反正先要去隐含模型中找数据。
-2. 隐含模型中找不到匹配数据就来到这一步。当处理器打了sessionAttributes注解，若此注解绑定了匹配（按名称或类型）的数据，则取此数据赋值，否则抛异常，这不太合理，所以不提倡使用这个注解。
-3. 处理器没打sessionAttributes注解就来到这一步。那么基于反射，调用参数类型的空参构造器实例化，再赋值。
-3. 从NativeWebRequest实现类（即传进来的ServletWebRequest对象）中逐一获取请求参数，若非null则按名称给参数对象下的相应属性赋值，否则保持原值。
+1. 此参数打了ModelAttribute注解，那么去隐含模型中找键与注解值吻合的数据，找到了则取此数据赋值。没打注解，那么去隐含模型中找键与首字母小写的参数类型吻合的数据。反正先去隐含模型中找数据。
+2. 隐含模型中找不到匹配数据就来到这一步。当处理器打了sessionAttributes注解，若此注解按名称或类型绑定了数据，则找此数据，找不到就抛异常，抛异常不太合理，所以不提倡使用这个注解。
+3. 处理器没打sessionAttributes注解就来到这一步。那么基于反射，调用参数类型的空参构造器实例化。
+3. 从NativeWebRequest对象中逐一获取请求参数，若非null则按名称给参数对象下的相应属性赋值，否则保持原值。
 
 ## 视图解析器与视图
 
@@ -585,7 +587,7 @@ tomcat一启动会实例化前端控制器，并调用它的onRefresh方法，�
 /* 去往jsp */
 // 绝对路径起始于项目根路径
 return "forward:/pages/index.jsp";
-// 回想原生的重定向绝对路径起始于服务器根路径，但这里springmvc帮忙了，自动补上项目名了
+// 回想原生的重定向绝对路径起始于服务器根路径，但这里springmvc帮忙补上项目名
 return "redirect:/pages/success.jsp";
 /* 去往servlet */
 return "forward:/toIndex";
@@ -602,7 +604,7 @@ return "redirect:/toSuccess";
 
 基于源码梳理视图解析的流程。
 
-聚焦于上一章第三段的processDispatchResult方法，传入请求对象、响应对象、目标处理器的执行链对象、handle方法返回的ModelAndView对象及一个异常对象，方法体的主要工作就是将数据渲染到视图中，体内调用render方法，传入ModelAndView对象、请求对象、响应对象。方法体内，调用resolveViewName方法根据视图路径得到View对象。进这个方法体，for循环遍历九大组件之一的viewResolvers-全体视图解析器对象，来轮着解析，一旦有一个解析得到View对象了就返回，比如我们在XML中配了类型为InternalResourceViewResolver的视图解析器，故只检索到这一个，用我们配的视图解析器对象调用viewResolver方法，传入区域信息与视图路径。体内调用createView方法，也是传入区域信息与视图路径。此方法体内，依据视图路径的前缀做相应处理，若以`redirect:`起始，则创建RedirectView对象，若以`forward:`起始，则创建InternalResourceView对象，它们均为view接口的实现类，否则调用父类的createView方法创建View对象，底层就做了拼接所配的前后缀的操作。往上每一层都是将这个视图对象返回，直到回到render方法体，之后用此视图对象调用render方法，传入Map对象-ModelAndView对象封装的数据、请求对象、响应对象。体内先执行createMergedOutputModel方法，传入Map对象、请求对象、响应对象，得到Map对象-隐含模型与request域对象合并的数据，后执行InternalResourceView覆盖的renderMergedOutputModel方法，传入合并数据、请求对象、响应对象，此方法做了最终的渲染工作，即将合并数据全部暴露给请求域对象并转发或者重定向到下一个资源，注意此处的渲染还没到将数据填充进页面的阶段，回顾JavaWeb，填充工作反映在对应jsp翻译出的类对象的_jspService方法中。
+聚焦于上一章第三段的processDispatchResult方法，传入请求对象、响应对象、目标处理器的执行链对象、handle方法返回的ModelAndView对象及一个异常对象，方法体的主要工作就是将数据渲染到视图中，体内调用render方法，传入ModelAndView对象、请求对象、响应对象。方法体内，调用resolveViewName方法根据视图路径得到View对象。进这个方法体，for循环遍历九大组件之一的viewResolvers-全体视图解析器对象，来轮着调用resolveViewName方法解析视图路径，另传入Locale对象，一旦有一个解析得到View对象就返回，比如我们在XML中配了类型为InternalResourceViewResolver的视图解析器，故只检索到这一个。体内调用createView方法，继续传入区域信息与视图路径。此方法体内，依据视图路径的前缀做相应处理，若以`redirect:`起始，则创建RedirectView对象，若以`forward:`起始，则创建InternalResourceView对象，它们均为view接口的实现类，否则调用父类的createView方法创建View对象，底层就做了拼接所配的前后缀的操作。往上每一层都是将这个视图对象返回，直到回到render方法体，之后用此视图对象调用render方法，传入Map对象-ModelAndView对象封装的数据、请求对象、响应对象。体内先执行createMergedOutputModel方法，传入Map对象、请求对象、响应对象，<span id="merge">得到Map对象-隐含模型与request域对象绑定数据合并的数据</span>，后执行InternalResourceView覆盖的renderMergedOutputModel方法，传入合并数据、请求对象、响应对象。此方法做了最终的渲染工作-将合并数据全部暴露给请求域对象并转发或者重定向到下一个资源，体现于exposeModelAsRequestAttributes方法（传入合并数据与请求对象）、getRequestDispatcher方法、forward方法，注意此处的渲染还没到将数据填充进页面的阶段，还得经过JspServlet翻译jsp得到的servlet的_jspService方法，以及后面要讨论的HttpMessageConverter某实现类对象的写出到响应体的过程。
 
 宏观理解。不管目标方法返回值类型是String、ModelAndView还是别的，底层都是要以ModelAndView对象为核心，因为视图名（视图路径）与数据都由它封装着。而后视图解析器对象才能根据它实例化视图对象，接着视图对象才能渲染-暴露数据并跳转。
 
@@ -618,7 +620,7 @@ View接口的实现类有很多，用来应对JSP文档、含JSTL的JSP文档、
 
 ### JstlView
 
-承接上一节，我们实践一下，通过配置让InternalResourceViewResolver对象创建JstlView对象，默认创建的是InternalResourceView对象，前者是后者的子类。
+承接上一节，我们实践一下，配置XML让InternalResourceViewResolver对象创建JstlView对象，默认创建的是InternalResourceView对象，前者是后者的子类。
 
 ```xml
 <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -630,7 +632,7 @@ View接口的实现类有很多，用来应对JSP文档、含JSTL的JSP文档、
 
 其实只要导了包，第三个property可以不配，底层会自动奔着JstlView类型创建视图对象。
 
-其实默认的视图解析器就是InternalResourceViewResolver，没有前后缀补全需求的话，这个bean都不用配。
+其实InternalResourceViewResolver默认被注册，条件是自己没配视图解析器。故没有前后缀补全需求的话，这个bean可不配。
 
 ### 方法简化
 
@@ -662,18 +664,19 @@ View接口的实现类有很多，用来应对JSP文档、含JSTL的JSP文档、
 
 1. 自定义识图与视图解析器。
 2. 配置视图解析器，使其对象由spring生成并置于IOC容器中。
-3. 发送请求，解析渲染。
+3. 测试：发送请求，解析渲染。
 
-要明白默认的视图解析器InternalResourceViewResolver理论上可处理任何视图路径，因为前面见识到了createView方法，它不管何种前缀，继续拼个前后缀就完了，同样能生成一个视图对象，只是访问结果一定是404。故我们有必要定制解析顺序，通过实现Order接口，让我们的视图解析器对象先一步解析。
+要明白默认的视图解析器InternalResourceViewResolver理论上可处理任何视图路径，因为前面见识到了createView方法，它不管何种前缀，继续拼个前后缀就完了，同样能生成一个视图对象，只是访问结果一定是404。故我们有必要定制解析顺序-实现Order接口，让我们的视图解析器对象先一步解析，本质上是先一步添加进九大组件之一的viewResolvers列表。
 
 ```java
 public class MiyukiView implements View {
 	@Override
 	public String getContentType() {
-		// 响应体的内容类型，这可不是设置，设置在render里面
+		// 对外声明能生成何种内容类型的响应体，精准满足客户端对内容类型的要求
 		return "text/html;charset=utf-8";
 	}
 
+    // 对应前面原理中的下层render方法
 	@Override
 	public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
@@ -692,7 +695,7 @@ public class MiyukiViewResolver implements ViewResolver, Ordered {
 			// 此处实例化自定义的视图对象，那么容器中可不必配置视图，但试图解析器要配
 			return new MiyukiView();
 		} else {
-			// 回想for循环遍历全体视图解析器对象，对当前视图路径有的解析不了就是返回null
+			// 回想for循环遍历全体视图解析器对象，对当前视图路径解析不了就返回null
 			return null;
 		}
 	}
@@ -739,27 +742,28 @@ public String AtMiyuki(ModelMap modelMap) {
 
 ### 概述
 
-回顾旧源码，在resolveHandlerArguments方法体内，针对自定义类型的参数即POJO或JavaBean，关注doBind方法，它具体地做了请求参数与POJO的绑定工作。
+承接[此处](#binder)，展开类型转换与校验来谈POJO的解析。
 
 我们知道浏览器传来的所有参数都是字符串，那么牵涉到如下操作：
 
-- 数据类型转换-解析与格式化。
-- 数据校验。
+- 数据绑定-请求参数赋给POJO的属性。
+- 数据类型转换-请求参数值由字符串转为其他类型，可能遵从一定格式才能转化。
+- 数据校验-属性值的检查。
 
-这些工作均由doBind方法的调用者-WebDataBinder对象完成，具体关注此对象从父类DataBinder继承得到的三个属性-ConversionService类型的conversionService、AbstractPropertyBindingResult类型的bindingResult、List\<Validator>类型的validators。
+这些工作主要由doBind方法的第一个参数-WebDataBinder对象完成，重点关注此对象从父类DataBinder继承得到的三个属性-ConversionService类型的conversionService、AbstractPropertyBindingResult类型的bindingResult、List\<Validator>类型的validators。
 
-基于源码（ModelAttributeMethodProcessor类的resolveArgument方法）梳理数据绑定流程：
+配了注解驱动标签，梳理数据绑定流程，见于ModelAttributeMethodProcessor类的resolveArgument方法，体内开头一部分即POJO的获取工作。
 
-1. 调用WebDataBinderFactory对象的createBinder方法，传入请求对象与目标方法的自定义类型参数（POJO），生成WebDataBinder对象。
-2. WebDataBinder对象调用bindRequestParameters方法，将请求参数赋给POJO的属性，期间使用IOC容器中的ConversionService组件实例（它的属性）进行数据的解析与格式化。
-3. WebDataBinder对象调用validateIfApplicable方法即使用IOC容器中的Validator组件实例（它的属性），对已经绑定了请求参数的POJO进行数据合法性校验。
-4. 将BindingResult组件实例（它的属性）保存的POJO与校验错误信息转存到隐含模型（ModelAndViewContainer对象）中，后续隐含模型里的这两个东西会赋给处理方法的参数。
+1. 调用WebDataBinderFactory对象的createBinder方法，传入NativeWebRequest对象、此前从隐含模型中取出的实体类对象或实体类空参构造器产生的对象、POPO参数名或@ModelAttribute注解值，生成WebDataBinder对象。
+2. 调用bindRequestParameters方法将请求参数赋给POJO的属性，传入WebDataBinder对象与NativeWebRequest对象，底层使用前者的conversionService属性进行数据的类型转换。
+3. 调用validateIfApplicable方法，传入WebDataBinder对象与MethodParameter对象-POJO形参信息，底层使用前者的validators属性对带Valid注解的已绑定的POJO属性值进行合法性校验。
+4. WebDataBinder对象调用getBindingResult方法得到其属性BindingResult对象，后者调用getModel方法得到一个Map对象-保存着POJO与BindingResult对象（封装了校验错误信息-FieldError列表），再用ModelAndViewContainer对象调用removeAttributes与addAllAttributes方法，先清空隐含模型里的上一波POJO与BindingResult对象，后将这一波转存进来，后续隐含模型里的BindingResult对象会转给处理器方法的BindingResult参数，校验错误信息也就跟着转移进去。
 
 ### 类型转换
 
 #### 转换器
 
-spring自带许多类型转换器，譬如StringToBooleanConverter、StringToNumberConverterFactory等。
+spring自带许多类型转换器，譬如StringToNumberConverterFactory、StringToJavaTimeConverter等。
 
 可自定义类型转换器。步骤：
 
@@ -791,7 +795,7 @@ spring自带许多类型转换器，譬如StringToBooleanConverter、StringToNum
    }
    ```
    
-2. 借助ConversionServiceFactoryBean组件，让自定义类型转换器实例存入WebDataBinder对象的conversionService属性。tomcat（IOC容器）启动时，会将转换器实例存入此组件的Set<?>类型的属性converters中，后将converters保存的转换器实例（包括内置的）注册进另一个GenericConversionService类型的属性conversionService（里面有个Converter类型的列表converters），再调getObject方法将此属性赋给WebDataBinder对象的ConversionService属性。
+2. ConversionServiceFactoryBean组件让自定义类型转换器实例存入WebDataBinder对象的conversionService属性。tomcat（IOC容器）启动时，会将转换器实例存入此组件的Set<?>类型的属性converters中，后将converters保存的转换器实例（包括内置的）注册进另一个GenericConversionService类型的属性conversionService（里面又有个Converter类型的列表属性converters），再调getObject方法将此属性赋给WebDataBinder对象的conversionService属性。
 
    ```xml
    <!-- 将自定义类型转换器注册进IOC容器 -->
@@ -812,11 +816,9 @@ spring自带许多类型转换器，譬如StringToBooleanConverter、StringToNum
    <mvc:annotation-driven conversion-service="conversionServiceFactoryBean"></mvc:annotation-driven>
    ```
 
-若不注册类型转换器工厂，WebDataBinder对象的conversionService属性引用的是默认的类型转换器工厂对象即DefaultFormattingConversionService对象。
-
 #### 格式化注解
 
-除了类型转换器，springMVC还为提供了一系列也可做类型转换的格式化注解。注解值表示指定的格式，打在实体类的属性头上，就意味着将来所赋的值会照此格式解析，故方便定制解析（格式不对就报错）。
+除了类型转换器，springMVC还为提供了一系列也可做类型转换的格式化注解。注解值表示指定的格式，打在实体类的属性头上，就意味着将来请求参数会照此格式解析，格式不对就报错。
 
 数据格式化注解有：
 
@@ -849,7 +851,7 @@ spring自带许多类型转换器，譬如StringToBooleanConverter、StringToNum
 
 ### 校验
 
-安全起见，不仅需要前端校验，也需要后端校验。任何浏览器都能关闭JS。
+安全起见，不仅需要前端校验，也需要后端校验。JS校验防君子不防小人，JS能禁用、能篡改。
 
 我们引入JSR303（Java Specification Requests 303-Java规范提案第303条），它为JavaBean的数据合法性校验指定了规范，具体是一系列标准注解。与JDBC类似，既然是规范，就需要有第三方来实现，时下通行的是Hibernate Validator，它除支持标准注解，还扩展出了一些注解。
 
@@ -871,7 +873,7 @@ spring自带许多类型转换器，譬如StringToBooleanConverter、StringToNum
    <mvc:annotation-driven></mvc:annotation-driven>
    ```
 
-3. 在处理方法的被校验参数前打上@Valid，并在对应实体类的实例域头上打注解。
+3. 在校验方法的被校验参数前打上@Valid，并在对应实体类的实例域头上打注解。
 
    ```java
    /**
@@ -931,51 +933,51 @@ spring自带许多类型转换器，譬如StringToBooleanConverter、StringToNum
 
 容器配置文件中的各个bean标签对应BeanDefinitionParser接口的各个实现类，那么注解驱动标签便是由AnnotationDrivenBeanDefinitionParser类支配。
 
-理解为何处理器方法无法成功处理jsp资源、静态资源的请求或转发。当我们将其@RequestMapping值写成`/*`，它会取代JspServlet处理jsp请求或转发，那么势必返回一个以jsp结尾的字符串，或是本方法体内返回或是链式调用多个处理方法返回，若没有匹配此字符串的@RequestMapping值，则报错，本质原因就是前面源码解读中提到的handlerMappings列表下DefaultAnnotationHandlerMapping类型的元素的handlerMap属性不含对应键值对，若有，对应方法提也写不出获取并返回jsp资源的逻辑，可能造成死循环。对静态资源同理。
+理解为何处理器方法无法成功处理jsp资源、静态资源的请求或转发。当我们将其@RequestMapping值写成`/*`，它会取代JspServlet处理jsp请求或转发，那么势必返回一个以jsp结尾的字符串，或是本方法体内返回或是链式调用多个处理方法返回，若没有匹配此字符串的@RequestMapping值，则报错，本质原因就是前面源码解读中提到的handlerMappings列表下DefaultAnnotationHandlerMapping类型的元素的handlerMap属性不含对应键值对，若有，对应方法也写不出获取并返回jsp资源的逻辑，可能造成死循环。对静态资源同理。
 
-回想什么都没配的时候，不能成功访问静态资源，原因如上。而一旦加了`<mvc:default-servlet-handler></mvc:default-servlet-handler>`，就让DefaultServlet接管了，本质上体现于handlerMappings列表下DefaultAnnotationHandlerMapping类型的元素没了，而多了个SimpleUrlHandlerMapping类型的元素，其handlerMap属性仅含一个键值对，描述为`/**=org.springframework.web.servlet.resource.DefaultServlet`，意即所有请求转发均交给DefaultServlet处理，对动态资源当然就无效了。附带地handlerAdapters列表也有变化，不细说了。
+回想什么都没配的时候，不能成功访问静态资源，原因如上。而一旦加了`<mvc:default-servlet-handler></mvc:default-servlet-handler>`，就让DefaultServlet接管了，本质上体现于handlerMappings列表下DefaultAnnotationHandlerMapping类型的元素没了，而多了个SimpleUrlHandlerMapping类型的元素，其handlerMap属性仅含一个键值对，描述为`/**=org.springframework.web.servlet.resource.DefaultServlet`，意即所有请求转发均交给DefaultServlet处理，对动态资源当然就404了。附带地handlerAdapters列表也有变化，不细说了。
 
-接着我们再加`<mvc:annotation-driven></mvc:annotation-driven>`观察变化。还是看handlerMappings列表，发现多了个针对动态资源的RequestMappingHandlerMapping类型的元素，且排在SimpleUrlHandlerMapping类型的元素之前，关注其下LinkedHashMap类型的handlerMethods属性，即一组路径模板与方法详细处理规则的键值对。
+接着我们再加`<mvc:annotation-driven></mvc:annotation-driven>`观察变化。还是看handlerMappings列表，发现多了个针对动态资源的RequestMappingHandlerMapping类型的元素，且排在SimpleUrlHandlerMapping类型的元素之前，关注其下LinkedHashMap类型的handlerMethods属性，即请求信息（路径模板、请求方法等）与处理方法的映射。
 
-对于适配器，之前的AnnotationMethodHandlerAdapter演变成了RequestMappingHandlerAdapter，后者实例调用handle方法，具体逻辑大不一样了，但基本思路不变。一大改进是将方法参数解析的逻辑封装成一个个解析器，它们均实现HandlerMethodArgumentResolver接口。
+对于适配器，之前的AnnotationMethodHandlerAdapter元素演变成了AbstractHandlerMethodAdapter元素，调用handle方法。体内又调用子类RequestMappingHandlerAdapter的handleInternal方法，底层逻辑大不一样了，但基本思路不变，一大改进是将目标方法参数与返回值的处理逻辑分门别类地封装进处理器-HandlerMethodArgumentResolver接口与HandlerMethodReturnValueHandler接口的各个实现类，详见于springboot笔记。
 
 ## 异步请求
 
 ### 概述
 
-控制器方法处理请求，但返回不再是视图名，而是JSON格式的字符串。步骤：
+控制器方法处理请求，但返回不再是视图名，而是JSON格式的字符串。
 
-1. 导包：
+准备好这几个包：
 
-   ```
-   jackson-annotations
-   jackson-core
-   jackson-databin
-   ```
+```
+jackson-annotations
+jackson-core
+jackson-databin
+```
 
-2. 使用
+使用：
 
-   ```java
-   /**
-    * 有了jackson系列jar包，能便捷地将任何类型的数据转换为JSON格式字符串
-    * 
-    * @return
-    */
-   @RequestMapping("/getAjaxStudents")
-   @ResponseBody
-   public List<Student> testAjaxJson() {
-       Student stu1 = new Student(1, "元帝", new Teacher(13, "脱脱"));
-       Student stu2 = new Student(2, "光绪", new Teacher(12, "翁同龢"));
-       Student stu3 = new Student(3, "太宗", new Teacher(11, "虞世南"));
-       List<Student> students = new ArrayList<>();
-       students.add(stu1);
-       students.add(stu2);
-       students.add(stu3);
-       return students;
-   }
-   ```
+```java
+/**
+ * 有了jackson系列jar包，能便捷地将任何类型的数据转换为JSON格式字符串
+ * 
+ * @return
+ */
+@RequestMapping("/getAjaxStudents")
+@ResponseBody
+public List<Student> testAjaxJson() {
+    Student stu1 = new Student(1, "元帝", new Teacher(13, "脱脱"));
+    Student stu2 = new Student(2, "光绪", new Teacher(12, "翁同龢"));
+    Student stu3 = new Student(3, "太宗", new Teacher(11, "虞世南"));
+    List<Student> students = new ArrayList<>();
+    students.add(stu1);
+    students.add(stu2);
+    students.add(stu3);
+    return students;
+}
+```
 
-ResponseBody注解使得方法返回的是就是普通对象，后续不会让视图解析器、视图对象及其他处理方法来干预，既适合异步请求也适合同步请求，不过一般针对异步请求。配合以上述三个jar包，字符串以外的任何对象都自动转为JSON格式字符串。
+理解ResponseBody注解的意义。处理方法可以返回任何对象，无此注解，联系[源码](#returnValue)，返回字符串、Model等以外类型（如int、Integer、void、Studnet、null）的对象则会继续转发到原路径成死循环，返回字符串则以此为转发的视图路径，有此注解则后续与视图解析器无缘，而找合适的[HTTP信息转换器](#HttpMessageConverter)将返回值转为适合内容类型的响应体，体现在getModelAndView方法体内调用的handleResponseBody方法及其所处<span id="if">if语句</span>。比方当浏览器指定的内容类型`application/json`，上述三个jar包所含对应的信息处理器对象让返回值转为JSON格式字符串。
 
 jackson-annotation包下可见许多注解，如：
 
@@ -984,7 +986,7 @@ jackson-annotation包下可见许多注解，如：
 
 ### RequestBody
 
-RequestBody注解用于获取请求体。
+既然有@ResponseBody，那么有相对的@RequestBody，用于获取请求体并转化为目标类型，欲由相应方法匹配，则请求体不能为空，否则报400 Bad Request错误。
 
 ```java
 /**
@@ -1032,7 +1034,7 @@ public String useRequestBody(@RequestBody String requestBody) {
 
 附带讲enctype属性没有C。
 
-可利用此注解接收JSON数据，打印出来形如`{"username":"凡","age":18}`，就不是查询字符串的形式了。
+联系异步请求，利用此注解接收JSON数据，打印出来形如`{"username":"凡","age":18}`，就不是查询字符串的形式了。联系POJO解析，若此注解标注的是自定义类型参数，则不会有前述[POJO解析](#binder)及[数据绑定](#数据绑定)过程，而是合适的HttpMessageConverter实现类对象直接将JSON数据转为POJO，参见resolveHandlerArguments方法体内关于@RequestBody的一处判断及一处resolveRequestBody方法的调用，由于分支的特点调用发生就不会有POJO解析了，其体内调用readWithMessageConverters方法并作返回。
 
 ### HttpEntity
 
@@ -1054,26 +1056,40 @@ public String useHttpEntity(HttpEntity<String> httpEntity) {
 
 ### ResponseEntity
 
-ResponseEntity注解用于定制完整的响应报文。
+ResponseEntity类型对象作返回值，封装响应头与响应体的内容，用于定制响应报文。
 
 ```java
 @RequestMapping("/useResponseEntity")
-public ResponseEntity<String> usResponseEntity() {
+public ResponseEntity<String> useResponseEntity() {
+    // 响应体的内容
     String body = "<h2>定制响应报文</h2>";
     // new的时候会设好固有的响应头信息
     MultiValueMap<String, String> headers = new HttpHeaders();
     headers.add("Content-Type", "text/html;charset=utf-8");
-    return new ResponseEntity<String>(body, headers, HttpStatus.OK);
+    // 第三个参数对应响应首行中的状态码
+    return new ResponseEntity<>(body, headers, HttpStatus.OK);
 }
 ```
 
-附带讲没导入那三个jar包就可以加ResponseBody注解，加不加等价，但导了包，返回的对象会被转成字符串，就构不成定制了。
+以前面提到的[源码](#httpEntity)为背景并结合本例探究原理，getModelAndView方法体内判断目标方法返回值类型是否为HttpEntity，本例中的返回值类型ResponseEntity就是其子类，是则调用handleHttpEntityResponse方法，底层由下一节HTTP信息转换器的某实现类对象将返回的定制的ResponseEntity对象转为响应报文。
+
+假定我们给方法标了@Responsebody，也不用担心返回值最后被转成JSON字符串拿去响应了，因为ResponseEntity类型的判断在[@Responsebody判断](#if)之前。
+
+### HttpMessageConverter
+
+HttpMessageConverter\<T>是spirng3.0新增的接口，负责将请求体转换成一个Java对象，或将Java对象转换为响应体，泛型即Java对象类型。工作流程涉及另外两个承载响应体响应头、请求体请求头的接口HttpInputMessage与HttpOutputMessage（像阉割版的HttpServletRequest与HttpServletResponse），大致工作流程如下：
+
+![HttpMessageConverter](springmvc.assets/HttpMessageConverter.png)
+
+关注HttpInputMessage与HttpOutputMessage下面的getBody方法，相当于请求对象的getInputStream与响应对象的getOutputStream方法，以流的形式拿到请求体与响应体。
+
+源码中RequestMappingHandlerAdapter有个HttpMessageConverter列表属性messageConverters，包含一些实现类对象，handleInternal方法底层就选出其中合适的对象去处理目标方法返回值。如导入了jackson系列jar包，就会有MappingJackson2HttpMessageConverter类型的元素，负责将返回的Java对象转为JSON字符串并写出到响应体，又如[下载](#下载)一节示例方法返回的ResponseEntity对象，会由ByteArrayHttpMessageConverter（本质由于泛型确定为`byte[]`）对象写出到响应体。以上是输出过程中的转换，输入过程中的转换如[RequestBody](#RequestBody)一节示例方法的字符串参数，是由StringHttpMessageConverter对象转换请求体得到的。
+
+关注这些实现类指定的泛型以及supports、readInternal、writeInternal、read、write、getSupportedMediaTypes方法。
 
 ## 文件相关
 
 ### 下载
-
-springmvc支持的下载比较烂，还没原生的好。
 
 ```java
 @RequestMapping("/download")
@@ -1081,7 +1097,7 @@ public ResponseEntity<byte[]> download(HttpServletRequest request) throws IOExce
     String fileName = "凡.jpg";
     // 得到目标文件的流
     FileInputStream fis = new FileInputStream(request.getServletContext().getRealPath("/upload/" + fileName));
-    // 这里没有借助commons-io，整个把文件流装进字节数组，没搞一段段地装了
+    // 这里没有借助commons-io，整个把文件流装进字节数组，没搞一段段地装
     byte[] bytes = new byte[fis.available()];
     // 读入内存
     fis.read(bytes);
@@ -1089,26 +1105,10 @@ public ResponseEntity<byte[]> download(HttpServletRequest request) throws IOExce
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", request.getServletContext().getMimeType("/upload/" + fileName));
     headers.set("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("gbk"), "ISO-8859-1"));
-    // 这个数组作请求体
-    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+    // 这个数组作响应体，直接写出到响应报文中
+    return new ResponseEntity<>(bytes, headers, HttpStatus.OK); // 响应体、响应头、状态码
 }
 ```
-
-眼见得并没有多好用。
-
-### HttpMessageConverter
-
-HttpMessageConverter\<T>是spirng3.0新增的接口，适用于那些特殊的请求体或响应体类型，负责将请求信息转换成一个对象，或将对象输出为响应信息。工作流程涉及另外两个接口HttpInputMessage与HttpOutputMessage，大致工作流程如下：
-
-![HttpMessageConverter](springmvc.assets/HttpMessageConverter.png)
-
-HttpInputMessage与HttpOutputMessage相当于请求对象调用getInputStream与响应对象调用getOutputStream的结果，关注它们下面的getBody方法。
-
-前面源码解读里提到的RequestMappingHandlerAdapter元素下面有个messageConverters属性，是个列表，元素类型皆为HttpMessageConverter的实现类，一旦导入jackson系列的jar包，就会多出一个MappingJackson2HttpMessageConverter类型的元素，负责对象与JSON字符串的转换。
-
-HttpMessageConverter接口诸实现类的supports方法体指明了它们各自负责转换（与流相互转换）的数据类型，这也体现于它们指定的泛型。
-
-像[RequestBody](#RequestBody)一节示例方法参数的类型可任意，那么会由相应的HttpMessageConverter对象负责转换。
 
 ### 上传
 
@@ -1137,23 +1137,21 @@ springMVC实现文件上传的本质上和servlet的是一样的，但是简化�
    ```java
    /**
     * @param username 普通表单域
-    * @param file     文件项
+    * @param file     文件域-此对象除有name等属性外，含有的关键的文件流属性其实是从磁盘中加载的，即已经上传为服务器的本地临时文件，只不过是转存为非临时文件，置于本服务器下或远程OSS服务器下
     * @param request
     * @param model
     * @return
     */
    @RequestMapping("/upload")
-   public String upload(@RequestParam("username") String username, @RequestParam("avatar") MultipartFile file,
-           HttpServletRequest request, Model model) {
+   public String upload(@RequestParam("username") String username, @RequestParam("avatar") MultipartFile file, HttpServletRequest request, Model model) {
        System.out.println(username);
-       // 表单域的name值
+       // 文件域的name值
        System.out.println(file.getName());
        // 文件名
-	    System.out.println(file.getOriginalFilename());
-       try {
-	        // 输入并输出
-           file.transferTo(new File(request.getServletContext()
-                   .getRealPath("/upload/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename())));
+       System.out.println(file.getOriginalFilename());
+	    try {
+           // 输入并输出
+	        file.transferTo(new File(request.getServletContext().getRealPath("/upload/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename())));
            model.addAttribute("msg", "upload success");
        } catch (IllegalStateException | IOException e) {
            model.addAttribute("msg", "upload fail: " + e.getMessage());
@@ -1301,7 +1299,7 @@ afterCompletion toNext的目标资源-next转发完成之后
 
 看打印结果：
 
-```
+```shell
 preHandle A
 preHandle B
 continue
@@ -1314,6 +1312,7 @@ postHandle B
 postHandle A
 afterCompletion B
 afterCompletion A
+
 afterCompletion B
 afterCompletion A
 ```
@@ -1324,9 +1323,9 @@ afterCompletion A
 
 ### 源码解读
 
-doDispatch方法体内，首先看gentHandler方法，已知它返回的是个目标处理器执行链对象，之前关注的是其下的handler属性，现在关注interceptorList属性，是个存放内置拦截器与自定义拦截器对象的列表，然后用这个执行链对象调用applyPreHandle方法，底层执行所有拦截器对象的preHandle方法，只要有一个返回false，这个方法就返回false，注意到它外面还套个if语句，为假则直接返回，后续目标方法就不会执行。此方法体内，遍历本执行链对象的interceptors属性，是个存放所有拦截器对象的数组，循环体内，调用每个元素的preHandle方法，判断返回值为真，则记录一下当前索引到interceptorIndex属性中，继续下一轮，为假则调用triggerAfterCompletion方法，然后返回false。triggerAfterCompletion方法体内，也是遍历拦截器对象，但就不是所有了，而是根据interceptorIndex属性遍历那些执行了preHandle方法的拦截器对象，执行它们的afterCompletion方法。回到doDispatch方法体，随后用这个执行链对象调用applyPostHandle方法，但注意到若handle方法（底层执行目标方法）抛异常则不会调用applyPostHandle方法，最后不管抛没抛异常，都会调用processDispatchResult方法进行资源（目标资源或报错页面）的渲染工作，此方法在资源正常渲染条件下也用当前执行链对象调用了triggerAfterCompletion方法。在applyPostHandle方法体内，遍历所有拦截器对象，逆序调用它们的postHandle方法以满足链式排布，从这也能看出所有拦截器对象的postHandle方法要么都执行要么都不执行。再回到doDispatch方法体，如果processDispatchResult方法抛异常，就去catch语句体，底层用当前执行链对象调用triggerAfterCompletion方法。
+doDispatch方法体内，首先看gentHandler方法，已知它返回的是个目标处理器执行链对象，之前关注的是其下的handler属性，现在关注interceptorList属性，是个存放内置拦截器与自定义拦截器对象的列表，然后用这个执行链对象调用applyPreHandle方法，底层执行所有匹配当前请求（包括转发）地址（路径映射的作用体现于InterceptorRegistration类的getInterceptor方法）的拦截器对象的preHandle方法，只要有一个返回false，这个方法就返回false，注意到它外面还套个if语句，为假则直接返回，后续目标方法就不会执行。此方法体内，遍历本执行链对象的interceptors属性，是个存放所有拦截器对象的数组，循环体内，调用每个元素的preHandle方法，判断返回值为真，则记录一下当前索引到interceptorIndex属性中，继续下一轮，为假则调用triggerAfterCompletion方法，然后返回false。triggerAfterCompletion方法体内，也是遍历拦截器对象，但就不是所有了，而是根据interceptorIndex属性遍历那些执行了preHandle方法的拦截器对象，执行它们的afterCompletion方法。回到doDispatch方法体，随后用这个执行链对象调用applyPostHandle方法，但注意到若handle方法（底层执行目标方法）抛异常则不会调用applyPostHandle方法，最后不管抛没抛异常，都会调用processDispatchResult方法进行资源（目标资源或异常资源）的渲染工作，此方法在资源正常渲染条件下也用当前执行链对象调用了triggerAfterCompletion方法。在applyPostHandle方法体内，遍历所有拦截器对象，逆序调用它们的postHandle方法以满足链式排布，从这也能看出所有拦截器对象的postHandle方法要么都执行要么都不执行。再回到doDispatch方法体，如果processDispatchResult方法抛异常，就去catch语句体，底层用当前执行链对象调用triggerAfterCompletion方法。
 
-### 与过滤器对比
+### 对比过滤器
 
 拦截器更为强大，因为它注册进了IOC容器，就能利用容器的自动装配等功能。
 
@@ -1367,15 +1366,15 @@ JstlView支持jstl并实现国际化操作。实现步骤：
 
 ### 概述
 
-HandlerExceptionResolver接口隶属九大组件之一，项目运行时默认有以下三个实现类负责处理异常：
+HandlerExceptionResolver接口是九大组件之一handlerExceptionResolvers的泛型，默认主要是以下三个实现类负责处理异常：
 
 - ExceptionHandlerExceptionResolver：调用标有@ExceptionHandler的方法处理指定类型的异常。
-- ResponseStatusExceptionResolver：处理标有@ResponseStatus的自定义类型的异常，定制错误页面。
-- DefaultHandlerExceptionResolver：对springmvc内置的异常，若我们不处理，则由此类处理。
+- ResponseStatusExceptionResolver：处理标有@ResponseStatus的自定义类型的异常，定制错误页面或JSON数据。
+- DefaultHandlerExceptionResolver：对springmvc内置类型的异常，若我们不处理，则由此类处理。
 
-那么不在上述情况中的异常都会交给tomcat处理。
+那么不在上述情况中的异常都会交给tomcat作后续处理。
 
-异常处理流程体现在processDispatchResult方法调用的processHandlerException方法体内，遍历当前处理器对象的handlerExceptionResolvers属性，它含有三个分别对应上述类型的元素，它们调用resolveException处理当前异常，处理不了的就换下一个，都处理不了就继续往上抛给tomcat，有且仅有一个能处理的就处理然后将异常信息封装到ModelAndView对象中。
+源码解读参见springboot笔记。
 
 ### ExceptionHandler
 
@@ -1383,7 +1382,7 @@ HandlerExceptionResolver接口隶属九大组件之一，项目运行时默认�
 
 ```java
 /**
- * 处理本处理器内的方法抛出的某种或若干种异常
+ * 处理本处理器内的方法抛出的某种或若干种异常，性质同处理方法
  * 这类方法没有标RequestMapping注解，故Model参数无法引用隐含模型
  */
 @ExceptionHandler({ ArithmeticException.class, NullPointerException.class })
@@ -1399,17 +1398,19 @@ public ModelAndView handleException(Exception exception) {
 
 若存在多个所标方法处理同类型异常，则精确的优先，且这一个处理完了下一个当然就捕获不到了。
 
-可能多个处理器之间对某些异常处理的逻辑是一样的，那么可以将其抽取到专门的一个类中，降低代码冗余。给这个类打上ControllerAdvice注解使其被纳入IOC容器，得以捕获并处理所有处理器产生的异常。
+可能多个处理器之间对某些异常处理的逻辑是一样的，那么可以将其抽取到专门的一个类中，降低代码冗余。给这个类打上ControllerAdvice注解使其被纳入IOC容器，得以捕获并处理处理器产生的异常。
 
 ```java
+// 默认处理基本包下所有处理器
 @ControllerAdvice
+// @ControllerAdvice(annotations = {RestController.class}) // 限定范围
 public class CommonExceptionHandler {
 	@ExceptionHandler(ArithmeticException.class)
 	public ModelAndView handleArithmetic(ArithmeticException exception) {
 		ModelAndView mv = new ModelAndView();
 		System.out.println("logic for arithmetic exception");
 		mv.addObject("ex", exception.getMessage());
-		mv.setViewName("error");
+		mv.setViewName("/error");
 		return mv;
 	}
 
@@ -1418,7 +1419,7 @@ public class CommonExceptionHandler {
 		ModelAndView mv = new ModelAndView();
 		System.out.println("logic for null pointer exception");
 		mv.addObject("ex", exception.getMessage());
-		mv.setViewName("error");
+		mv.setViewName("/error");
 		return mv;
 	}
 }
@@ -1428,7 +1429,7 @@ public class CommonExceptionHandler {
 
 ### ResponseStatus
 
-此注解用于创建自己的异常类并自定义异常信息-提示信息与状态码，tomcat处理此异常时基于异常信息构建定制的页面。
+此注解用于创建自己的异常类并提示信息-错误原因与状态码，然后基于异常信息构建定制错误页面或JSON数据。
 
 来看个实例：
 
@@ -1439,7 +1440,7 @@ public class CommonExceptionHandler {
  * @author Van
  *
  */
-@ResponseStatus(reason = "用户名未找到", value = HttpStatus.NOT_ACCEPTABLE)
+@ResponseStatus(reason = "用户名未找到", value = HttpStatus.NOT_ACCEPTABLE) // 406
 public class UsernameNotFoundException extends RuntimeException {
 	private static final long serialVersionUID = -2712816095728233256L;
 }
@@ -1464,7 +1465,7 @@ springmvc自己针对内置异常的处理逻辑体现于DefaultHandlerException
 
 ### SimpleMappingExceptionResolver
 
-这个类也是HandlerExceptionResolver接口的实现类，它允许通过xml配置来实现异常处理。
+这个类也是HandlerExceptionResolver接口的实现类，它允许通过XML配置来实现异常处理。
 
 ```xml
 <!-- 异常处理解析器 -->
@@ -1486,7 +1487,7 @@ springmvc自己针对内置异常的处理逻辑体现于DefaultHandlerException
 </bean>
 ```
 
-一旦配置了这个，源码中当前处理器对象的handlerExceptionResolvers属性下就有4个元素了，这个排在最后，所以如果前面的元素能处理掉相同异常，这最后的元素就捕获不到了，对应配置就失效了。
+一旦配置了这个，源码中当前处理器对象的handlerExceptionResolvers属性下就有4个元素了，这个排在最后，所以如果前面的元素已处理掉某异常，这最后的元素就捕获不到了，对应配置就白弄了。
 
 ## Spring整合
 
@@ -1528,7 +1529,7 @@ spring整合springmvc的目的就是分工明确，具体让springmvc配置文�
 
 启动服务器时关注控制台打印的这些地方：
 
-```
+```sh
 信息: Initializing Spring root WebApplicationContext
 信息: Loading XML bean definitions from class path resource [application.xml]
 信息: Initializing Spring FrameworkServlet 'springDispatcherServlet'

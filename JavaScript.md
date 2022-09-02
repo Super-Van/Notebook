@@ -5,31 +5,31 @@
 - [JavaScript基础语法](https://www.bilibili.com/video/BV1Sy4y1C7ha?p=201&spm_id_from=pageDriver)。
 - [深入浅出Javascript](https://www.bilibili.com/video/BV1Ft411N7R3)。
 
-好多兼容性问题及其解决没有记录，特此说明。
+好多兼容性问题及其解决没有记录。
 
 ## 概述
 
 ### 概念
 
-JavaScript是运行在浏览器上的脚本语言，简称js，由网景公司的布兰登·艾奇开发。最初名曰LiveScript，因公司与Sun公司合作而改名。发明js的主要目的是支持网景公司的navigator浏览器的动态交互，从而占据市场。
+JavaScript是运行在浏览器上的脚本语言，简称js，由网景公司的布兰登·艾奇开发。最初名曰LiveScript，因公司与Sun公司合作而改名。发明js的主要目的是支持网景公司的navigator浏览器的动态交互，从而占据更大市场。
 
-js让单纯的静态页面具有交互性，让浏览器更加生动。所谓静态页面，指的是不论谁访问，呈现结果都是一样的页面；所谓动态页面，指的是根据不同用户的不同需求呈现相应结果的页面。
+JS让单纯的静态页面具有交互性，让浏览器更加生动。
 
-js的学习内容分三大块：ECMAScript（语法）、DOM、BOM。
+JS基础的学习内容分三大块：ECMAScript（语法）、DOM、BOM。
 
 ### 辨析
 
-js和java没有任何的关系，只是在语法上相似，如注释的写法只是比java的差一个文档注释。它们运行的位置不同：java（的.class字节码文件）运行在jvm中；js运行在浏览器的内存里。
+JS和java没有任何的关系，只是语法有相似之处。运行位置不同：java（的.class字节码文件）运行在jvm中；JS运行在浏览器里。
 
-js程序不需要程序员手动编译执行，而是写完源代码后，通过浏览器打开、解释、执行。其目标程序以普通文本形式保存并可用文本编辑器打开，故称作脚本语言。而java的目标程序即.class文件不能用文本编辑器打开，故不是脚本语言。
+java不是脚本语言。
 
-区分jsp和js：jsp（JavaServer Pages）隶属于java，运行于jvm。
+区分JSP和JS：jsp（JavaServer Pages）隶属于java，运行于JVM。
 
 ## ECMAScript
 
 ### 嵌入
 
-在html文件中嵌入js代码有三种方式。
+在html文件中嵌入JS代码有三种方式。
 
 #### 事件注册
 
@@ -64,7 +64,7 @@ js程序不需要程序员手动编译执行，而是写完源代码后，通过
 
 <img src="JavaScript.assets/数据类型.png" alt="数据类型"  />
 
-NaN是用非数字变量参与数值运算或函数所得不正常结果的类型。
+NaN是用非数字变量参与数值运算或函数所得不正常结果的类型。JS在整型上的精确度是16位，超出则四舍五入，故必要时应将整型转字符串。
 
 Infinity是做除法时除数为0所得结果的类型。
 
@@ -82,7 +82,7 @@ undefined
 NaN // 无效数字
 false
 
-/* 但是要注意，写明==或===符号的话就没有自动转换的效果了 */ 
+/* 但是写明==或===符号的话就没有自动转换的效果了 */ 
 if (23.3 == true)
     // 不打印
     console.log(1)
@@ -1324,7 +1324,7 @@ element.innerHTML
 document.createElement()
 ```
 
-第一种方式的缺点是在文档流加载完毕的条件下，每当执行它时，会先破后立，即先清除页面所有元素再重建。注：文档流加载完毕是指所有节点已准备就绪，dom树完整搭成，但可能尚未渲染、呈现出来。
+第一种方式的缺点是在文档加载完毕条件下，先破后立，重新加载解析渲染。
 
 用第二种方式加字符串拼接运算形成大量元素的效率会很低，而用第三种方式形成大量元素的效率高很多，用第二种方式加数组的push和join方法形成大量元素的效率是最高的。
 
@@ -1597,7 +1597,7 @@ window.onload = function() {
 
 凭借这几行代码我们就可以把js代码写在html标签的上方。
 
-考虑到用户的即时体验，另一个类似的事件属性DOMContentLoaded或许更常见。仅当dom加载完成，而不包括图表、样式表、flash等，就触发回调函数。
+考虑到用户的即时体验，另一个类似的事件属性DOMContentLoaded或许更常见。仅当dom树搭建完成，而不包括图表、样式表、flash等，就触发回调函数。
 
 ```js
 document.addEventListener("DOMContentLoaded", function() {
@@ -2357,7 +2357,7 @@ btnBackward.addEventListener("click", function () {
 | ()          | 提升优先级                               |
 | [a-bA-B0-9] | 匹配a-b或A-B或0-9的任意字符              |
 
-更多请参阅[表达式大全](https://tool.oschina.net/uploads/apidocs/jquery/regexp.html)。
+更多请参阅[菜鸟教程](https://www.runoob.com/regexp/regexp-tutorial.html)。
 
 ### 使用
 
@@ -2724,7 +2724,7 @@ Student.prototype = {
 由上引出针对对象成员（属性、方法）的查找规则：
 
 1. 首先查找对象自身有无此成员。
-2. 没有则在原型（对象的\_\_proto\_\_或类的prototype）中查找。
+2. 没有则在原型（对象的\_\_proto\_\_即类的prototype）中查找。
 3. 再没有就去原型的原型（Object的prototype）中查找。
 4. 还是没有就只能得到null了。
 
@@ -3057,8 +3057,6 @@ function fn2() {
 ```
 
 #### 语法变化
-
-我们通过一些案例来看看在严格模式下JS语法的变化。
 
 ##### 变量规定
 
@@ -3675,12 +3673,12 @@ console.log(c);
 另外还有对象解构。
 
 ```js
-// 左侧的name和age就不是属性，而是变量了
+// 左侧的name和age虽就名字跟右侧属性匹配，但落实为变量
 let { name, age } = { name: "tom", age: 22 };
 console.log(name);
 console.log(age);
 
-// 另一种写法，key相匹配，value才是变量
+// 另一种写法，属性名相匹配，属性值承接变量
 let { name: realName, age: realAge } = { name: "tom", age: 22 };
 console.log(realName);
 console.log(realAge);
@@ -3697,7 +3695,7 @@ const fn = (a, b) => {
     return a + b
 }
 console.log(fn(1, 2));
-// 上述函数体仅一行代码，则可省略大括号
+// 上述函数体仅一行代码，则可省略大括号，进一步可省return
 const fun = (a, b) => a + b;
 console.log(fun(2, 4));
 // 如果形参只有一个，则可省略小括号

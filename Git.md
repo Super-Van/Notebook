@@ -2,8 +2,8 @@
 
 参考视频：
 
-- [2019年最新 Git&GitHub 从入门到精通视频教程](https://www.bilibili.com/video/BV1f4411Q7aT)。
-- [Git与GitHub基础全套完整版教程](https://www.bilibili.com/video/BV1pW411A7a5)。
+- [2019年Git&GitHub教程](https://www.bilibili.com/video/BV1f4411Q7aT)。
+- [Git与GitHub基础教程](https://www.bilibili.com/video/BV1pW411A7a5)。
 
 ## 版本控制工具
 
@@ -32,7 +32,7 @@
 
 有集中式版本控制工具如CVS、SVN、VSS。示意图如下：
 
-<img src="D:\chaofan\typora\专业\Git.assets\集中式版本控制工具.png" alt="集中式版本控制工具"  />
+<img src="D:\chaofan\typora\专业\Git.assets\集中式版本控制工具.png" alt="集中式版本控制工具" style="zoom: 67%;" />
 
 这有一个明显的缺点-单点故障：服务器一旦宕机了，所有的历史数据都会丢失，每个客户端只有当前的状态。
 
@@ -71,9 +71,9 @@
 
 把文件从某区提交到另一个区（向右），是以复制的方式提交的，本区域中仍然存在该文件。
 
-下面这个图是封老师画的更简单的图：
+下面这个图呈现更宏观的流程：
 
-![git本地库结构简图](git.assets/git本地库结构.png)
+<img src="git.assets/git本地库结构.png" alt="git本地库结构简图" style="zoom:80%;" />
 
 ### 代码托管中心
 
@@ -185,9 +185,9 @@ drwxr-xr-x 1 Van 197609   0  6月 17 17:11 refs/
   $ git config --global user.email van@google.com
   ```
 
-级别优先级：采取就近原则。首先必须存在至少一个级别上的签名。两个级别上的签名都存在的话采用项目级别的。
+级别优先级：采取就近原则，必须存在至少一个级别上的签名，两个级别上的签名都存在的话采用项目级别的。
 
-前者信息会被保存到.git下面的config文件里，打开来瞧瞧：
+对于前者信息会被保存到.git下面的config文件里，打开来瞧瞧：
 
 ```bash
 $ cat .git/config
@@ -203,15 +203,11 @@ $ cat .git/config
         email = van@google.com
 ```
 
-后者信息会被保存到系统用户文件即c:\users\van\\.gitconfig中。
+对于后者信息会被保存到系统用户文件即c:\users\van\\.gitconfig中。
 
-那么在通常实际开发中，我们只设置系统用户级别的签名，当然有项目级别的特殊要求的话就另当别论了。
+在通常实际开发中，我们只设置系统用户级别的签名，当然在项目级别有特殊要求的话就另当别论了。
 
-#### 基本操作
-
-基本操作以版本控制为主。
-
-##### 操作的添加与提交
+#### 操作的添加与提交
 
 承接上一节。查看配置：
 
@@ -362,7 +358,7 @@ $ git commit --message '第二次提交'
 
 注意到与上一次提交后的信息比，没有了`(root-commit)`（根提交即首次提交）标识。
 
-##### 版本的前进与后退
+#### 版本的前进与后退
 
 用`git log`命令对版本记录产生直观的感受：
 
@@ -554,7 +550,7 @@ reset命令有三个参数：
 
 实际应用中以hard为主。
 
-##### 文件的删除与恢复
+#### 文件的删除与恢复
 
 先建文件garbage.txt并对其执行添加、提交操作，最后删掉它：
 
@@ -630,15 +626,9 @@ a2295c2 HEAD@{12}: commit (initial): 第一次提交
 
 综上所述，文件恢复的本质还是让HEAD指针指向存在该文件的某个版本。
 
-##### 文件的比较
+#### 文件的比较
 
-我们修改good.txt，然后使用比较指令：
-
-<img src="D:\chaofan\typora\专业\Git.assets\image-20210618151517243.png" alt="image-20210618151517243" style="zoom:80%;" />
-
-结果显示文件有新增行。
-
-然而将文件更新的操作添加到暂存区之后，执行比较命令会无结果，此时我们可以针对good.txt比较工作区和本地库里的当前版本：
+就good.txt比较工作区和本地库里的当前版本：
 
 ```bash
 $ git diff HEAD good.txt
@@ -670,14 +660,14 @@ index fcabc2e..1d3fefa 100644
 
 那么提交之后，再比较工作区和当前版本就无结果了，因为它们已经统一了。
 
-当我们进行比较，不指定文件名时，会显示所有不同文件的区别。如：
+当不指定文件名时，会显示所有不同文件的区别。如：
 
 ```bash
 $ git diff HEAD
 $ git diff HEAD^^^
 ```
 
-#### 分支管理
+#### 分支
 
 ![分支](git.assets/分支.png)
 
@@ -758,7 +748,7 @@ Van@LAPTOP-D74Q9RI2 MINGW64 /d/chaofan/demo (master|MERGING)
 
 <img src="D:\chaofan\typora\专业\Git.assets\image-20210618164641529.png" alt="image-20210618164641529" style="zoom:80%;" />
 
-然后我们用vim编辑此文件，达到使两分支都满意的状态。改完了，我们查看状态：
+然后我们用vim编辑此文件，权衡两分支达到满意的状态。改完了，我们查看状态：
 
 ```bash
 $ git status
@@ -836,11 +826,22 @@ a2295c2 HEAD@{22}: commit (initial): 第一次提交
 
 文件冲突包括某行内容不同（多出的行不算）-修改我本地的内容、文件缺失（对方或远程没有而本地有）-删除我本地的文件。
 
-### 本地库和远程库的交互
+#### 标签
+
+标签相当于某个有里程碑意义的版本号的强语义性名称。
+
+```bash
+# 给当前版本打标签
+$ git tag v2.0.1
+# 从某标签对应版本创建分支
+$ git checkout -b v1.2_fix v1.2
+```
+
+### 本地库与远程库交互
 
 github是一个网站，一个开源的源代码管理平台。注册后，用户可在自己的账户中创建仓库，用来管理项目的源代码，源代码由Git本地库上传到远程仓库中。知名的插件、框架、类库都被托管于此平台，我们可以下载、研究源码。
 
-#### 团队内部协作
+#### 团队内部
 
 ![团队内部协作](D:\chaofan\typora\专业\Git.assets\团队内部协作.png)
 
@@ -862,10 +863,16 @@ origin  https://github.com/Super-Van/notebook.git (fetch)
 origin  https://github.com/Super-Van/notebook.git (push)
 
 # 提交之前最好先拉取一下，因为远程可能有改动
-$ git pull origin master
+$ git pull origin master # 拉取远程库的master分支合并到本地同名分支，没有则创建
 
 # 提交，回车后需在弹框中登录，在英文状态下输入密码
-$ git push origin master
+$ git push origin master # 推送本地master分支合并到远程同名分支，没有则创建
+
+# 其他写法
+$ git pull origin master:develop # 远程master->本地develop
+$ git push origin master:release # 本地master->远程release
+$ git pull # 默认origin，分支名对应合并
+$ git push # 默认origin，分支名对应推送
 
 # 移除连接
 $ git remote rm origin
@@ -874,7 +881,7 @@ $ git remote rm origin
 再看一批组员的常规命令：
 
 ```bash
-# 克隆 将远程库项目复制到本地 不用自建本地库根目录及.git目录，会帮我们生成
+# 克隆 将远程库项目复制到本地，不用自建本地库根目录及初始化.git目录，自动生成
 $ git clone 远程仓库地址 别名（可不设，默认是仓库名）
 $ git clone https://github.com/Super-Van/notebook.git (fetch)
 $ git clone https://github.com/Super-Van/notebook.git (fetch) origin
@@ -887,9 +894,7 @@ $ git push 远程库地址别名 远程分支名
 $ git push origin master
 ```
 
-clone下载下来的是个目录，其中已有.git目录，故不用另外初始化。
-
-注意到在push的时候，用不同的账号登录就反映了不同的人对远程库所作的修改。那么若组员尚未被邀请，则push会失败，命令行会显示403错误（访问权限不足）。
+注意到在push的时候，不同的账号密码就反映了不同的人对远程库所作的修改。那么若组员尚未被邀请，则push会失败，命令行会显示403错误-访问权限不足。
 
 邀请方法：组长打开远程库，找Settiings->Manage access->Invite a collaborator，在弹出框中输入受邀组员的github用户名，然后会自动向该组员发送确认邮件，该组员接收邀请即可。
 
@@ -926,7 +931,7 @@ pull时可能产生文件冲突，如此则进入MERGING状态，解决办法跟
 
 ![团队内部与远程库](git.assets/团队内部与远程库.png)
 
-#### 跨团队协作
+#### 跨团队
 
 另一个团队的组长登录github，选定本团队的某个远程库，单击fork按钮。
 
@@ -949,9 +954,7 @@ pull时可能产生文件冲突，如此则进入MERGING状态，解决办法跟
 
 ##### SSH
 
-有了这个，每次push就不用输入用户名和密码了，当然只针对一个用户。
-
-不过这种方法暂时不记，因为下面一种更简单的操作可达同样效果。
+有了这个，每次push就不用输入用户名和密码了，当然只针对一个用这种方法暂时不记，因为下面一种更简单的操作可达同样效果。
 
 ##### 远程连接
 
@@ -962,13 +965,13 @@ clone时用如下格式可跳过后续push时用户名密码的输入，且添�
 ```bash
 $ git clone https://邮箱:密码@仓库地址
 # 克隆并建立连接
-$ git clone https://xxxxxx%40google.com:123456@github.com/Super-Van/notebook.git
+$ git clone https://xxxxxx@google.com:123456@github.com/Super-Van/notebook.git
 ```
 
 2021年暑期，因为github推行更安全的令牌机制，取代以前的密码，所以上述写法有所改变：
 
 ```bash
-$ git clone https://xxxxxx%40google.com://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/notebook.git
+$ git clone https://xxxxxx@qq.com:xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/notebook.git
 ```
 
 或者不使用克隆，而是通过修改远程连接设置推送验证的跳过：
@@ -983,11 +986,9 @@ $ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/no
 
 关于令牌机制的更多解读，可参见[github开发人员在七夕搞事情](https://blog.csdn.net/weixin_41010198/article/details/119698015)。
 
-## 图形化界面操作
+## 图形化操作
 
 ### eclipse
-
-这里仅以eclipse为例，其他IDE中使用git的方法自行找教程学习。
 
 项目右键->Team->Share Project。
 
@@ -999,7 +1000,7 @@ $ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/no
 
 可以在Preferences->Team->Git->Configuration的Repository Settings一栏中设置项目级别签名。这一步了解即可。
 
-在Preferences->Team->Git->Label Decorations中能了解图标的解释。
+在Preferences->Team->Git->Label Decorations中能了解图标的含义。
 
 提交的时候，注意不要把项目无关文件也提交（包括追踪）了，比如eclipse的.setting目录、.classpath文件、target目录等等。我们可以全局设置git忽略文件，步骤如下：
 
@@ -1047,7 +1048,11 @@ $ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/no
 4. 下一个窗口里应单选最后一项Import as general project。
 5. 项目右键->Configure->Convert to Maven Project。
 
-在eclipse中解决冲突的操作这里就不记了，因为没有实操条件，自行回顾封老师视频。值得一提的是，老师做的模拟是在不同的本地库（同一台电脑上的不同目录）向同一个远程库push。
+因为没有实操条件，在eclipse中解决冲突的操作这里就不记了，自行回顾视频。
+
+### IDEA
+
+参见[视频](https://www.bilibili.com/video/BV13a411q753?p=113)。
 
 ## git工作流
 
@@ -1057,52 +1062,5 @@ $ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/no
 
 ## Gitlab服务器环境搭建
 
-linux登场了，暂且不记。
-
-## 注
-
-梯子会影响push时的连接，取消代理：
-
-```bash
-git config --global --unset http.proxy
-```
-
-## NPM
-
-node package manager-node-模块管理工具。我们可以通过npm快速安装、卸载所需要的资源文件，如jQuery、Vue等。
-
-#### 安装
-
-参见[nodejs笔记](nodejs.md)
-
-#### 用npm管理模块
-
-npm命令下载安装的实质是从npmjs.com平台上下载安装。
-
-```bash
-#把模块安装到当前项目中，具体在node_modules文件夹里
-$ npm install 模块名
-#把模块安装在全局环境中
-$ npm install 模块名 -g
-#安装指定版本号的模块
-$ npm install 模块名@1.0.0
-#查看某个模块的版本信息，输出到指定JSON文件中
-$ npm view 模块名 versions > 模块名.version.json
-
-#初始化当前项目的配置依赖清单
-$ npm init -y
-#把模块保存到清单的生产依赖中
-$ npm i 模块名 --save
-#把模块保存到清单的开发依赖中
-$ npm i 模块名 --save-dev
-#根据清单里配置的要求跑环境
-$ npm i
-
-#查看全局模块的目录
-$ npm root -g
-#卸载安装在当前项目里的模块
-$ npm uninstall 模块名
-#卸载全局安装模块
-$ npm uninstall 模块名 -g
-```
+暂且不记。
 

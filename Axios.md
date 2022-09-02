@@ -1,6 +1,6 @@
 # Axios
 
-参考视频：[Web前端axios入门与源码解析](https://www.bilibili.com/video/BV1wr4y1K7tq?spm_id_from=333.999.0.0)。
+参考视频：[axios入门与源码解析](https://www.bilibili.com/video/BV1wr4y1K7tq?spm_id_from=333.999.0.0)。
 
 前置知识：Promise、AJAX。
 

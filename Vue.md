@@ -1,6 +1,6 @@
 # Vue
 
-参考视频：[2019年最全最新Vue、Vuejs教程，从入门到精通](https://www.bilibili.com/video/BV15741177Eh)。
+参考视频：[2019年Vuejs教程](https://www.bilibili.com/video/BV15741177Eh)。
 
 ## 概述
 
@@ -228,7 +228,7 @@ const app = new Vue({
 
 MVVM：Model View ViewModel。顾名思义，ViewModel是Model和View之间的桥梁，帮助Model和View进行通信。详细解读参见[维基百科](https://bk.tw.lvfukeji.com/wiki/MVVM)。
 
-![MVVM](vue.assets/mvvm.png)
+<img src="vue.assets/mvvm.png" alt="MVVM" style="zoom: 50%;" />
 
 从上图不难看出View和Model的交互。
 
@@ -249,7 +249,7 @@ ViewModel：
 
 - 视图模型层。
 - 沟通View和Model。
-- 一方面实现Data Binding（数据绑定），即将Model的改变实时反映（反应）到View上。
+- 一方面实现Data Binding（数据绑定），即将Model的改变实时反映到View上。
 - 另一方面实现Dom Listener（dom监听），即当dom发生某些事件时，监听到并按需改变对应data。
 
 针对计数器这个例子，下图体现了其对MVVM思想的反映：
@@ -1018,7 +1018,7 @@ Van Thomas
 - `.stop`：调用`event.stopPropagation()`。
 - `.prevent`：调用`event.preventDefault`。
 - `.{keyCode | keyAlias}`：特定按键触发回调函数。
-- `.native`：监听组件元素上的原生事件。注意原生事件本仅适用于普通元素。
+- `.native`：监听组件元素上的原生事件。原生事件本仅适用于普通元素。
 - `.once`：只触发一次回调函数。
 
 下面对上述修饰符举例。
@@ -1151,7 +1151,7 @@ key值相同的元素被视为可复用，反之不可复用。
 
 v-model常用于数据和表单控件属性之间的双向绑定。
 
-用一个例子理解：现有一个输入框，其v-model属性绑定了数据message。当我们输入了内容，它就实时地将内容传递给message，即更新message；当message先行改变，输入框的v-model属性值也会响应地发生改变。以上就反映了双向绑定机制。
+用一个例子理解：现有一个输入框，其v-model属性绑定了数据message。当我们输入了内容，它就实时地将内容传递给message，即更新message；当message先行改变，输入框的v-model属性值也会响应地发生改变。
 
 ```vue
 <input type="text" v-model="message">{{message}}
@@ -2100,9 +2100,9 @@ export default {
 </body>
 ```
 
-可见所绑定的数据都是从距其最近一级的组件或vue实例中取来的。
+可见所绑定的数据都是所属组件或vue实例中取来的。
 
-再看作用域插槽，其功能简而言之就是让父组件填充子组件的插槽时，能得到子组件的数据，本质是使子组件数据跨作用域。文字太苍白，直接上代码：
+再看作用域插槽，其功能简而言之就是让A组件填充B组件（AB关系任意-不一定是父子）的插槽时，能得到B组件的数据，本质就是使组件数据跨作用域。文字太苍白，直接上代码：
 
 ```html
 <template id="cpn">
@@ -2409,7 +2409,7 @@ module.exports = {
 
 对scripts里配置的命令，webpack优先从局部模块开始找而非全局模块，故上述build属性值可改为`webpack`。
 
-注：package.json里的devDependencies存放的是开发期依赖，它们是生产的必要条件但不参与生产；而dependencies属性存放的是生产期依赖，它们在开发和生产期都不可或缺。
+注：package.json里的devDependencies存放的是开发期依赖，生产期环境中有，故不需要额外提供，开发期则需要。而dependencies属性存放的是生产期依赖，生产期开发期都需要自行提供。
 
 #### loader
 
@@ -2960,7 +2960,7 @@ npm install @vue/cli-init -g
 初始化命令：
 
 ```powershell
-# 在项目所属目录输入 use-cli为新建目录名 后续导引都有默认值（不填、敲回车）
+# 在项目所属目录输入 use-cli为项目根目录 后续导引都有默认值（不填、敲回车）
 vue init webpack use-cli
 # 项目名
 ? Project name 
@@ -3002,7 +3002,7 @@ vue处理template的完整流程：
 1. 将template（html代码块）解析（parse）为抽象语法树（abstract syntax tree，AST）。
 2. 再将AST编译（compile）为render函数。
 3. render函数接着渲染出虚拟DOM（virtual DOM）。
-4. 虚拟DOM变为真实DOM并呈现出来。
+4. 虚拟DOM替换（挂载到）真实DOM并呈现出来。
 
 那么模式二的起点是render函数，前面的步骤就没有，模式一则囊括所有步骤。相比之下，模式二的性能显然更高，且所需代码量更少，此所谓更轻量更高效。
 
@@ -3071,7 +3071,7 @@ render: function (createElement) {
 ```powershell
 vue create use-cli3
 Vue CLI v4.5.15
-# 一般选最后一个 手动选特性
+# 一般选最后一个-手动选特性
 ? Please pick a preset:
   Default ([Vue 2] babel, eslint)
   Default (Vue 3) ([Vue 3] babel, eslint) 
@@ -3104,7 +3104,7 @@ Vue CLI v4.5.15
 
 关于git忽略项，node_modules和dist目录都是不需要被跟踪与提交的。
 
-相较于CLI2，我们看到CLI3的package.json文件里的依赖项少很多，是因为cli-service这个模块将其他一些模块封装、隐藏起来了，让开发人员更轻松。这一点也体现在运行指令`npm run serve`和`npm run build`上，即看不到配置文件，只看到`vue-cli-serve`。
+相较于CLI2，我们看到CLI3的package.json文件里的依赖项少很多，是因为cli-service这个模块将其他一些模块封装、隐藏起来了，让开发人员减负。运行指令`npm run serve`和`npm run build`便体现这一点，即看不到配置文件，只见`vue-cli-serve`。
 
 ### 配置的查看与修改
 
@@ -3112,7 +3112,7 @@ Vue CLI v4.5.15
 
 - 通过图形界面vue UI。它可以通过在任意路径通过`vue ui`命令打开，打开的是本地服务。后续操作参见[视频](https://www.bilibili.com/video/BV15741177Eh?p=98)。
 
-- 寻找隐藏起来的配置在哪然后手动改，发现分布在node_modules/@vue/cli-service下。
+- 找出隐藏起来的配置然后手动改，发现分布在node_modules/@vue/cli-service下。
 
 如果想修改或添加，那么在项目目录下创建vue.config.js文件：
 
@@ -3126,15 +3126,17 @@ module.exports = {
 
 ### 前端路由
 
-单页面复应用SPA（single page web application）日渐兴起，它必须由前端路由支持，vue-route的任务就是实现前端路由。
+单页面复应用SPA（single page web application）日渐兴起，它的功效体现于前端路由，vue-route的任务就是实现前端路由。从浏览器控制台Sources->Page一栏来理解，Page即对应一个单页面，当进行前端路由跳转，下面的目录是不变的（除开后面的[懒加载](#路由懒加载)情况），而一旦进行同步请求跳转，目录就变了，也就是跨页面（多页面），故前端路由是单页面内跳转，是SPA的精髓。
 
 前端路由与异步请求相互配合。前端路由靠浏览器控制页面的跳转，便无需向服务器发同步请求，只用发异步请求，服务器就只需响应动态数据而不含页面的静态部分，如此，一来减轻了网络传输的压力，二来改善了用户的体验。
+
+注：只要控制栏Network一项有东西，就说明向后台发了请求，即使Size分量带cache，也只不过是发了但被浏览器拦了下来。
 
 从本章案例我们能看出组件着实将三大件糅成一个整体。
 
 ### hash与history
 
-欲实现前端路由，应做到URL改变但也没并不刷新，即不去向后端发请求。那么具体方法有hash属性和history两种。
+欲实现前端路由，应做到URL改变但并不刷新，即不去向后端发请求。那么具体方法有hash属性和history两种。
 
 hash是location对象的属性，用于修改location对象的href（hyper reference）属性。我们学过锚链接，知道锚链接实现的是页面内跳转，并不涉及前后端交互，而hash的本质也是锚点，但注意与锚链接性质不同。
 
@@ -3647,16 +3649,14 @@ beforeRouteLeave(to, from, next) {
   next();
 ```
 
-我们设定keep-alive的exclude属性，使得只有指定组件的缓存权利才失效；设定include属性，使得只有指定组件的缓存权利才生效。比如我们仅不希望Profile与User组件被缓存：
+我们设定keep-alive的exclude属性，使得指定组件的缓存权利失效；设定include属性，使得指定组件的缓存权利生效。比如我们仅不希望Profile与User组件被缓存：
 
 ```html
-<!-- Profile、User都与对应组件的name保持一致 -->
+<!-- Profile、User都与对应组件的name保持一致 注：这儿有反常规不加空格的情况，另一个情况见于正则表达式 -->
 <keep-alive exclude="Profile,User">
   <router-view></router-view>
 </keep-alive>
 ```
-
-注：这儿有反常规不加空格的情况，另一个情况见于正则表达式。
 
 ## Vuex
 
@@ -3679,7 +3679,7 @@ Vue.component("cpn", {
 })
 ```
 
-只是这达不到响应式的效果。Vuex就既能实现组件共享状态，又能实现渲染出的共享状态动态刷新。
+只是这达不到响应式的效果。Vuex就既能实现组件共享状态，又能实现动态渲染的共享状态。
 
 联系实际，有些数据很适合作共享状态，如用户登录状态（名称、头像、地理位置等）、购物车、收藏等。
 
@@ -3745,9 +3745,9 @@ new Vue({
 
 关于更详细的优点解读，请参考[什么是“状态管理模式”](https://vuex.vuejs.org/zh/#%E4%BB%80%E4%B9%88%E6%98%AF-%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%A8%A1%E5%BC%8F)。我们着重看一下共享状态更新的流程：
 
-<img src="vue.assets/vuex.png" alt="vuex" style="zoom:80%;" />
+<img src="https://vuex.vuejs.org/vuex.png" alt="vuex" style="zoom:80%;" />
 
-不难看出组件并不是直接与State交互从而更新里面的变量（这样确实能自己实现），而是经由打补丁、提交等好几步。这样做的目的是让Devtools介入，Devtools是Vue官方提供的浏览器插件，用于跟踪状态更新，记录谁改过状态，以应对状态错误的情况。这个Devtools只针对同步修改过程跟踪，异步过程就跟踪不了了，于是又有Actions对异步过程进行处理，将包含修改的回调送入同步队列，再提交，进而实现Devtools对任何修改都能跟踪。Backend API（后端API，即网络请求）就是典型的异步过程。综上所述，状态的修改至少让Mutaions经手，有异步操作的话还需让Actions经手。
+不难看出组件并不是直接与State交互从而更新里面的变量，而是经由打补丁、提交等好几步。这样做的目的是让Devtools介入，Devtools是Vue官方提供的浏览器插件，用于跟踪状态更新，记录谁改过状态，以应对状态错误的情况。这个Devtools只针对同步修改过程跟踪，异步过程就跟踪不了了，于是又有Actions对异步过程进行处理，将包含修改的回调送入同步队列，再提交，进而实现Devtools对任何修改都能跟踪。Backend API（后端API，即网络请求）就是典型的异步过程。综上所述，状态的修改至少让Mutaions经手，有异步操作的话还需让Actions经手。
 
 前述代码中store对象有一些属性：state、getters、mutations、actions、modules，它们都是vuex的核心概念，随后会一一讨论。
 
@@ -3794,7 +3794,7 @@ vuex关于state属性提出单一状态树的概念，原文为single source of 
 
 联系生活实际理解。我们个人的所有信息（数据）分布在各个系统，比如银行、医保局、社保局、学校等，这样的好处是避免某一个系统被破坏，造成信息泄露，其他系统的信息并不会受到影响。缺点就是，若要对个人信息做大规模迁移，则要去各个系统进行办理，不方便，效率较低。
 
-那么同理，我们在index.js中其实可声明多个Store实例，满足多状态。但vuex就不建议我们这么做，因为不利于维护不方便访问，而且这样做并不能提升安全性，系统一旦破坏，这多个Store实例均小命不保。
+那么同理，我们在index.js中其实可声明多个Store实例，满足多状态。但vuex就不建议我们这么做，因为不利于维护不方便访问，而且这样做并不能提升安全性，系统一旦被破坏，这多个Store实例均小命不保。
 
 ### Getters
 
@@ -3847,7 +3847,7 @@ vuex官方明确说状态更新的唯一方式就是提交mutations。
 
 ```js
 /**
- * 5秒之后增2，并获取更改成功的结果
+ * 组件内 5秒之后增2，并获取更改成功的结果
  */
 addAfterTime() {
   this.$store
@@ -3874,7 +3874,7 @@ actions: {
 
 ### Modules
 
-虽然vuex推荐store对象只有一个，但允许在其中划分出多组`{states、mutations...}`。
+虽然vuex推荐store对象只有一个，但允许从其中划分出多组`{states、mutations...}`。
 
 具体语法不难理解亦无甚重点，还请参考[官方文档](https://vuex.vuejs.org/zh/guide/modules.html)。最好联系项目学习本节，也可参照下一节。
 
@@ -3923,7 +3923,7 @@ common：存放针对本项目的公共工具
 
 在根目录下新建vue.config.js（必须取此名）文件，其中自己写的配置最终都会并入主配置。
 
-最好在根目录下新建.editorconfig文件，以制定一些统一规则。下面是个示例：
+最好在根目录下新建.editorconfig文件，以制定一些代码规范。下面是个示例：
 
 ```ini
 root = true

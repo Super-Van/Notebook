@@ -1,6 +1,6 @@
 # HTML5+CSS3
 
-参考视频：[前端入门视频教程](https://www.bilibili.com/video/BV14J4114768)。
+参考视频：[前端入门教程](https://www.bilibili.com/video/BV14J4114768)。
 
 精通网页的结构、样式是前端开发人员的必备技能，也是学习JavaScript的基础。
 

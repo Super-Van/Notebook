@@ -1,6 +1,6 @@
 # JDBC
 
-参考视频：[JDBC核心技术视频教程](https://www.bilibili.com/video/BV1eJ411c7rf?spm_id_from=333.999.0.0)。
+参考视频：[JDBC核心技术教程](https://www.bilibili.com/video/BV1eJ411c7rf?spm_id_from=333.999.0.0)。
 
 ## 概述
 
@@ -423,7 +423,7 @@ select user, password from user_table where user = `'AABB'` and password = `'123
 相较于Statement，PreparedStatement还有其他优点：
 
 - 批量处理的效率更高。
-- 可往占位符里填流，以适应数据库中的Blob数据。
+- 可往占位符里填流，以适应数据库中的Blob类型。
 
 插入带图像分量的一条记录：
 
@@ -545,7 +545,7 @@ try {
 进一步，我们可充分利用TCP报文的空间批量发送明确语句。
 
 ```properties
-# 先要DBMS支持语句批处理，具体应该是批量发送
+# 先要DBMS支持语句批处理，具体来说是批量发送
 url=jdbc:mysql://localhost:3306/jdbc_learn?rewriteBatchedStatements=true
 ```
 
@@ -586,7 +586,7 @@ connection.commit();
 
 ## 事务
 
-事务概念就不详讲了，补充一些东西：数据库的自动提交只针对增删改操作，不针对查询，那么虽然MySQL认为查询算DML，但就不可作事务的结束，因为不引发自动提交。广义地认为提交或回滚标志着上一个事务的结束兼下一个事务的开始。
+事务概念就不详讲了，补充一些东西：数据库的自动提交只增删改操作支持，那么即使MySQL认为查询算DML，它也不可作事务的结束，因为不引发自动提交。广义上认为提交或回滚标志着上一个事务的结束兼下一个事务的开始。
 
 数据一旦提交，就不可回滚。所以我们要避免隐式提交的情况，包括执行DDL、DCL、DML、关闭连接。
 
@@ -628,7 +628,7 @@ public static int dmlBetter(Connection connection, String sql, Object... args) {
 
 附带讲，这样改一并解决了重复建立、关闭连接增大开销的问题，由此通用查询方法也得改。
 
-然后还得关闭DML的自动提交。注意对比：MySQL默认开启，Oracle默认关闭，MySQL的关闭阻止执行DML与关连接时的隐式提交，但阻止不了执行DDL、DCL时的隐式提交，Oracle的默认关闭则全都阻止不了。
+然后还得关闭DML的自动提交。注意对比：MySQL默认开启，Oracle默认关闭，MySQL的关闭阻止执行DML与关连接时的隐式提交，但阻止不了执行DDL、DCL时的隐式提交，Oracle的默认关闭则仅能阻止DML的自动提交（像关命令行窗口属于异常退出哦）。
 
 ```java
 Connection connection = null;
@@ -1077,7 +1077,7 @@ class CustomerDaoImplTest {
 }
 ```
 
-我们可对上述代码做些改进，解决诸查询方法中Class参数冗余的问题，详见项目。
+我们可对上述代码做些改进，解决BaseDao的诸查询方法中Class参数冗余的问题，详见项目。
 
 ## 数据库连接池
 

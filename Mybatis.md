@@ -2,7 +2,7 @@
 
 参考视频：
 
-- [Mybatis视频教程](https://www.bilibili.com/video/BV1gs411j7kA)。
+- [Mybatis教程](https://www.bilibili.com/video/BV1gs411j7kA)。
 - [SSM联讲](https://www.bilibili.com/video/BV1d4411g7tv?p=120)。
 
 ## 概述
@@ -11,7 +11,7 @@ MyBatis 是一个用于和数据库交互的持久化层框架或SQL映射框架
 
 回顾往昔，从原始的JDBC到DBUtils-自己写的、QueryRunner、JdbcTemplate，后者是工具，是较为简单的一些功能封装，框架则是某个领域的整体解决方案。比如数据库方面的框架应考虑到缓存、异常处理、部分字段映射等方方面面的问题。
 
-原生JDBC写起来繁杂且是硬编码（维护性差-改了SQL语句就得重新打包部署项目）-数据库层与dao层代码的耦合，梳理一下流程：
+原生JDBC写起来繁杂且是硬编码（维护性差-改了SQL语句就得重新打包部署）-数据库层与dao层代码的耦合，梳理一下流程：
 
 ![JDBC](mybatis.assets/jdbc.png)
 
@@ -39,7 +39,7 @@ Hibernate为用户完全屏蔽了底层JDBC细节，相当于把流程做成黑�
 
 ![mybatis](mybatis.assets/mybatis.png)
 
-SQL语句处在外部文件中，修改了就不用重新打包部署，但服务器要重启，因为运行时不会再将文件加载到内存。
+SQL语句处在外部文件中，修改了就不用重新打包部署，只用替换该文件，但服务器要重启，因为一旦运行便不会重复加载文件。
 
 流程中其他步骤的设定都可在全局配置文件中进行，相关的优化问题mybatis也在底层都解决了。
 
@@ -262,7 +262,7 @@ mybatis提供了类型处理（转换）器，用于预编译SQL语句时设置�
 
 ### databaseIdProvider
 
-此标签用于切换数据库SQL语法不统一的问题，但一般来说，项目开发前会确定好技术选型，包括用何种数据库等，不会中途更改，然后辛辛苦苦写好几套语句，除非市场大好、业务量剧增，当前厂商无法满足需求。
+此标签用于切换数据库SQL语法不统一的问题，但一般来说，项目开发前会确定好技术选型，包括用何种数据库等，不会中途更改，然后辛辛苦苦写好几套语句，除非市场大好、业务量剧增，当前数据库厂商无法满足需求。
 
 ```xml
 <!-- 对同一个SQL方法，根据不同数据库选用不同的SQL语句 DB_VENDOR指当前使用的数据库 -->
@@ -293,9 +293,7 @@ mybatis提供了类型处理（转换）器，用于预编译SQL语句时设置�
 - resource：起始于类路径。
 - class：接口的全限定类名，要求映射文件与对应接口同包且同名。
 
-mybatis支持给接口方法标上值为SQL语句Select、Update、Delete、Insert注解，替代映射文件，这样就只能用class属性，不过没人这么用，因为硬编码、语句可读性差。
-
-习惯上把所有映射文件集中在类路径下的某个目录中，故class属性很少用。
+习惯上把所有映射文件集中在类路径下的某个目录中，这样class属性就没用了。
 
 前面实例中的注册是逐文件注册，来看方便的批量注册：
 
@@ -304,7 +302,9 @@ mybatis支持给接口方法标上值为SQL语句Select、Update、Delete、Inse
 <package name="dao"/>
 ```
 
-这要求接口对应的映射文件也在这个包内，我们仍想集中存放映射文件的话，一个巧妙的方法是把存放目录名改得与此包名一样，编译输出字节码时就会混在一起。
+这要求接口对应的映射文件也在这个包内，我们仍想在接口目录之外集中存放映射文件的话，一个巧妙的方法是把存放目录名改得与此包名一样，编译输出字节码时就会混在一起。
+
+mybatis支持给接口方法标上值为SQL语句的Select、Update、Delete、Insert注解，以替代映射文件。不过没人这么用，因为是硬编码且语句可读性差。
 
 ## CRUD标签
 
@@ -612,7 +612,7 @@ public Map<String, Object> getEmpByIdAsMap(Integer id);
 
 ```java
 /**
- * @return 多条记录化为一个映射，记录的主键值作键，记录对应的对象作值
+ * @return 多条记录化为一个映射，记录的主键分量作键，记录转化的对象作值
  */
 @MapKey("id") // 指定对象的id属性作键
 public Map<Integer, Employee> getEmpsAsMap();
@@ -939,7 +939,7 @@ where标签仍有缺陷，它只能去除第一个满足条件的if标签体里�
 <select id="getLastNameByEmp" resultType="String">
     SELECT last_name
     FROM employee
-    <!-- prefix指给标签体加前缀，suffixOverrides指动态去除后缀，另有suffix属性指给标签体加后缀，prefixOverrides指动态去除前缀 -->
+    <!-- prefix指给标签体加前缀，suffixOverrides指动态去除后缀，另有suffix属性指加后缀，prefixOverrides指动态去除前缀 -->
     <trim prefix="WHERE" suffixOverrides="AND">
         <if test="id != null">
             id = #{id} AND
@@ -956,8 +956,6 @@ where标签仍有缺陷，它只能去除第一个满足条件的if标签体里�
     </trim>
 </select>
 ```
-
-这个用得不多。
 
 ### choose
 
@@ -1066,7 +1064,7 @@ emps.add(new Employee(null, "薛涛", "xuetao@qq.com", 0));
 empMapper.batchInsert(emps);
 ```
 
-这体现了insert语句的特性，一个语句执行插入多条记录。还有一种写法是每遍历一个元素就构造一条语句，最终向MySQL发送批量语句，执行起来效率会低一些。应先开启数据库的多查询设置：
+这体现了insert语句的特性，一个语句含多条待插记录。还有一种写法是每得到一个元素就构造一条语句，最终向MySQL发送批量语句，执行起来效率会低一些。对MySQL应先开启多查询设置：
 
 ```properties
 jdbc.url=jdbc:mysql://localhost:3306/mybatis?allowMultiQueries=true
@@ -1088,13 +1086,12 @@ depts[1] = new Department(null, "计算机科学", null);
 deptMapper.batchInsert(depts);
 ```
 
-oracle不支持insert特性即逗号分隔的多VALUES子句，对批量执行要将多语句套上begin、end关键字才支持。于是我们看针对oracle的批量插入，写法包括蠕虫复制与批量发送执行。
+oracle不支持insert特性即逗号分隔的多VALUES子句，对批量执行要将多语句套上begin、end关键字才行。于是我们看针对oracle的批量插入，包括蠕虫复制与批量发送执行。
 
 ```xml
 <insert id="batchInsert" databaseId="orcl">
     <!-- 依赖begin、end的批量发送执行 -->
     <foreach collection="list" item="emp" open="BEGIN" close="END;">
-        <!-- 分号就不能给separator属性了，因为每条语句都要带分号 -->
         INSERT INTO employee(id, last_name, email, gender)
         VALUES(emp_seq.nextval, #{emp.lastName}, #{emp.email}, #{emp.gender});
     </foreach>
@@ -1109,11 +1106,11 @@ oracle不支持insert特性即逗号分隔的多VALUES子句，对批量执行�
     <foreach collection="array" item="dept" separator="UNION ALL" open="SELECT dept_seq.nextval, name FROM (" close=")">
         SELECT #{dept.name} name FROM DUAL
     </foreach>
-    <!-- 由于oracle关于序列的规定，这里不得不嵌套多套一层查询 -->
+    <!-- 由于oracle关于序列的规定，这里不得不多套一层查询 -->
 </insert>
 ```
 
-separator、open、close三属性值都会智能地拼上空格。
+separator、open、close三属性值内都会智能地拼上空格。
 
 ### 内置参数
 
@@ -1203,6 +1200,8 @@ CRUD标签内的bind标签用于定义变量及其值，供父标签体使用。
 
 mybatis定义两级缓存，默认一级开启而二级关闭，有Cache接口供我们实现以自定义二级缓存。
 
+分清mybatis缓存-Java应用中、事务缓存-DBS中、查询缓存-DBS中。
+
 ### 一级缓存
 
 一级缓存（本地缓存）机制：代理对象调用SQL方法时会先根据一大串标识符（包括全限定方法名、实参列表等，后面源码会谈到）检查所属的SqlSession对象中有没有保存结果数据（底层用了映射），有则不向数据库发送请求，而是直接拿此数据，没有则访问数据库并将结果缓存到所属的SqlSession对象中。
@@ -1248,23 +1247,18 @@ try (// 关闭自动提交
     // false
     System.out.println(emp1 == emp2);
 }
-```
 
-```java
 try (// 关闭自动提交
         SqlSession sqlSession = sqlSessionFactory.openSession();) {
     EmployeeDao mapper = sqlSession.getMapper(EmployeeDao.class);
     Employee emp1 = mapper.getEmpById(2);
     // 执行DML但未提交，事务未结束
     mapper.updateEmailById(2, "dufu@qq.com");
-    // 需求上对缓存表的修改要反映给客户端，逻辑上参数变了，缓存数据映射的标识符跟着变了
-    Employee emp2 = mapper.getEmpById(3);
+    Employee emp2 = mapper.getEmpById(2);
     // false
     System.out.println(emp1 == emp2);
 }
-```
 
-```java
 try (SqlSession sqlSession = sqlSessionFactory.openSession(true);) {
     EmployeeDao mapper = sqlSession.getMapper(EmployeeDao.class);
     Employee emp1 = mapper.getEmpById(2);
@@ -1312,7 +1306,7 @@ try (SqlSession sqlSession1 = sqlSessionFactory.openSession(true);
 }
 ```
 
-观察控制台日志，带命中率就说明加载了二级缓存：
+观察控制台日志，这第一次查询结果即带命中率就说明加载了二级缓存：
 
 ```shell
 Cache Hit Ratio [dao.EmployeeDao]: 0.5
@@ -1355,7 +1349,7 @@ CRUD标签的flushCache属性决定一、二级缓存的清空与否：
 
 直接参考spring笔记的SSM整合。
 
-mybatis一旦由spring整合，SqlSessionFactory、SqlSession就都是单例的，各dao层接口对应的代理类也是单例的。
+mybatis一旦被spring整合，SqlSessionFactory、SqlSession就都是单例的，各dao层接口对应的代理类也是单例的。
 
 ## 逆向工程
 
@@ -1422,15 +1416,15 @@ try (SqlSession sqlSession = sqlSessionFactory.openSession(true);) {
 
 ## 源码解读
 
-尤注意[plugins](#plugins)一节提到的四类对象，为后续自己的插件开发作铺垫。
+尤注意[plugins](#plugins)一节提到的四类对象，为后续自己开发的插件作铺垫。
 
 SqlSessionFactoryBuilder对象调用build方法，传入承载全局配置文件的输入流。此方法体内调用重载的build方法，继续传入输入流。方法体内，创建XMLConfigBuilder对象，构造器传入输入流，这个对象调用parse方法。方法体内，调用parseConfiguration方法凭借DOM4J自根结点configuration开始解析。方法体内对settings等结点逐一解析，底层将解析结果保存在Configuration类型的属性configuration中，接着关注mapperElement方法，因涉及到SQL映射文件的解析。方法体内，有个负责解析映射文件的XMLMapperBuilder对象，它调用parse方法。此方法体内，调用到configurationElement方法，自根结点mapper开始解析。方法体内，逐一对namespace等结点进行解析，关注到与增删改查有关的buildStatementFromContext方法，传入所有CRUD结点组成的列表。体内调用重载的buildStatementFromContext方法。方法体内，遍历这些结点，遍历当前结点时创建负责解析SQL语句的XMLStatementBuilder对象，它调用parseStatementNode方法。体内逐一获取当前结点所含属性的值，后面调用addMappedStatement方法，传入这些值，得到一个MappedStatement对象，这个对象就保存着当前标签的详情，它也被保存在configuration属性中，底层就是键值对，带所属接口全类名的标签id值作键，MappedStatement对象作值。回到前一个parse方法，返回configuration属性引用的对象，这个对象保存着全局配置与诸映射文件的完整信息，关注mappedStatements属性，是由刚才提到的CRUD标签对应的键值对组成的映射，以及mapperRegistry属性下的knowMappers属性，是由各dao层接口全类名作键、创建其代理对象的MapperProxyFactory对象作值的键值对组成的映射。回到重载的build方法，将parse方法返回的Configuration对象传入又一个重载的build方法。方法体内，创建并返回DefaultSqlSessionFactory对象，构造器传入Configuration对象。最后这个对象又作第一个build方法的返回值。
 
 SqlSessionFactory对象调用openSession方法。体内调用openSessionFromDataSource方法，传入configuration属性下的defaultExecutorType属性，此属性对应全局配置里的defaultExecutorType设置项。方法体内，有事务相关的Transaction类型的对象tx，注意到configuration属性调用newExecutor方法，传入tx对象与接收defaultExecutorType属性值的ExecutorType类型的对象execType，得到四大对象中首先出现的Executor类型的对象executor。此方法体内，先创建Executor类型的对象executor，接着基于cacheEnabled属性判断是否开启二级缓存，是则将executor对象传入CachingExecutor进行封装，然后interceptorChain属性调用pluginAll方法又对executor对象进行封装-这是插件干涉的关键之处，最后返回executor对象。回到openSessionFromDataSource方法体，创建并返回DefaultSqlSession对象，将executor对象、configuration属性及boolean类型的autoCommit变量传入构造器。这个对象继续作openSession方法的返回值。
 
-SqlSession对象调用getMapper方法，传入了dao层接口对应的Class实例。体内调用configuration属性的getMapper方法，传入Class实例与当前DefaultSqlSession对象。体内调用mapperRegistry属性的getMapper方法，继续传Class实例及SqlSession对象。此方法体内，knownMappers属性调用get方法，根据Class实例得到对应的MapperProxyFactory类对象mapperProxyFactory，然后调用这个对象的newInstance方法并返回，传入的是SqlSession对象。方法体内，创建一个MapperProxy对象，构造器传入SqlSession对象、mapperInterface属性-对应接口的Class实例及methodCache映射属性，这个对象再传入重载的newInstance方法并返回。体内返回使用Java的Proxy类调用newProxyInstance方法产生对应接口的代理对象，此处没有被代理对象，是对接口直接进行代理，因为参数是接口Class实例的类加载器、接口的Class实例以及MapperProxy对象，类MapperProxy实现了InvocationHandler接口及其下invoke方法。通过观察MapperProxy类体可知这个代理对象保存着当前SqlSession对象、dao层接口的Class实例。
+SqlSession对象调用getMapper方法，传入了dao层接口对应的Class实例。体内调用configuration属性的getMapper方法，传入Class实例与当前DefaultSqlSession对象。体内调用mapperRegistry属性的getMapper方法，继续传Class实例及SqlSession对象。此方法体内，knownMappers属性调用get方法，根据Class实例得到对应的MapperProxyFactory类对象mapperProxyFactory，然后调用这个对象的newInstance方法并返回，传入的是SqlSession对象。方法体内，创建一个MapperProxy对象，构造器传入SqlSession对象、mapperInterface属性-对应接口的Class实例及methodCache映射属性，这个对象再传入重载的newInstance方法并返回。体内返回使用Java的Proxy类调用newProxyInstance方法产生对应接口的代理对象，此处没有被代理对象，是对接口直接进行代理，因为参数是接口Class实例的类加载器、接口的Class实例以及MapperProxy对象，类MapperProxy实现了InvocationHandler接口及其下invoke方法。观察MapperProxy类体可知这个代理对象保存着当前SqlSession对象、dao层接口的Class实例。
 
-代理对象调用SQL方法，其实是调用MapperProxy类的invoke方法。方法体内使用mybatis包装过的MapperMethod对象调用execute方法，传入sqlSession属性-当前SqlSession对象及SQL方法的参数。此方法体内，判断增删改查类型，接着convertArgsToSqlCommandParam方法前面已经分析过了，然后用SqlSession对象调用selectOne方法（针对当前测试），传入SQL方法的全限定方法名与解析得到的参数。体内还是会调用selectList方法，只不过取第一个元素，传入的是全限定方法名及解析参数。体内又调用重载的selectList方法，继续传入方法名与参数。此方法体内，configuration属性调用getMappedStatement方法，根据方法名得到封装了标签详情的MappedStatement类对象ms，接着executor属性调用query方法，传入ms对象与解析参数的包装对象（这个包装过程就包括前面提到的Collection、List等类型的参数被封装成映射，键即list、array字符串）。该方法体内，传入的ms对象调用getBoundSql方法，传入包装参数得到BoundSql类对象boundSql，其中封装着select标签的详情，包括语句、诸属性值、参数映射等，而后调用createCacheKey方法返回CacheKey对象，即本地缓存映射里的键（适用于一级、二级），由SQL方法全限定名+语句等一大串组成，最后调用重载的query方法。体内判断二级缓存开启与否，开启则用delegate属性调用query方法，否则继续判断缓存中有没有相应数据，有则直接返回，否则用delegate属性调用query方法，将返回数据存入缓存。此方法体内，判断一级缓存中有没有相应数据，有则直接返回，否则调用queryFromDatabase方法，结果作返回值。体内调用doQuery方法，将结果存入一级缓存，并作返回值。方法体内，从MappedStatement对象拿到configuration属性值赋给configuration对象，它再调用newStatementHandler方法返回第二个露脸的四大对象之一StatementHandler类对象handler。方法体内，底层默认（与标签的statementType属性有关）创建PreparedStatementHandler对象并赋给statementHandler变量，statementHandler对象接着传入interceptorChain属性调用的pluginAll方法，结果作返回值，这里又体现了插件的干涉。回到doQuery方法体，调用prepareStatement方法进行预编译，传入handler对象。方法体内，先获取原生的Connection对象，再用handler对象调用prepare方法，传入连接对象，做预编译，返回一个原生Statement对象赋给变量stmt，接着用handler对象调用parameterize方法，传入stmt对象，对占位符填充参数。该方法体内，parameterHandler属性调用setParameters方法，传入Statement对象强转成的PreparedStatement对象，应注意这个ParameterHandler类型的属性在BaseStatementHandler类构造器中由configuration属性初始化，这就有了第三个露脸的四大对象之一，且初始化底层也有pluginAll方法的干涉。方法体内，只需关注TypeHandler对象调用setParameter方法设置参数，传入PreparedStatement对象。再次回到doQuery方法体，handler对象调用query方法返回结果列表，底层用最后出现的四大对象之一ResultHandler对象处理查询结果集（此对象形成时也受pluginAll方法干涉），再底层也用到TypeHandler对象调用getResult方法得到每列分量，返回前还调用closeStatement方法关闭stmt对象。结果列表一层层往上返回。
+代理对象调用SQL方法，其实是调用MapperProxy类的invoke方法。方法体内使用mybatis包装过的MapperMethod对象调用execute方法，传入sqlSession属性-当前SqlSession对象及SQL方法的参数。此方法体内，判断增删改查类型，接着convertArgsToSqlCommandParam方法前面已经分析过了，然后用SqlSession对象调用selectOne方法（针对当前测试），传入SQL方法的全限定方法名与解析得到的参数。体内还是会调用selectList方法，只不过取第一个元素，传入的是全限定方法名及解析参数。体内又调用重载的selectList方法，继续传入方法名与参数。此方法体内，configuration属性调用getMappedStatement方法，根据方法名得到封装了标签详情的MappedStatement类对象ms，接着executor属性调用query方法，传入ms对象与解析参数的包装对象（这个包装过程就包括前面提到的Collection、List等类型的参数被封装成映射，键即list、array字符串）。该方法体内，传入的ms对象调用getBoundSql方法，传入包装参数得到BoundSql类对象boundSql，其中封装着select标签的详情，包括语句、诸属性值、参数映射等，而后调用createCacheKey方法返回CacheKey对象，即本地缓存映射里的键（适用于一级、二级），由SQL方法全限定名+语句等一大串组成，最后调用重载的query方法。体内判断二级缓存开启与否，开启则用delegate属性调用query方法，否则继续判断缓存中有没有相应数据，有则直接返回，否则用delegate属性调用query方法，将返回数据存入缓存。此方法体内，判断一级缓存中有没有相应数据，有则直接返回，否则调用queryFromDatabase方法，结果作返回值。体内调用doQuery方法，将结果存入一级缓存，并作返回值。方法体内，从MappedStatement对象拿到configuration属性值赋给configuration对象，它再调用newStatementHandler方法返回第二个露脸的四大对象之一StatementHandler类对象handler。方法体内，底层默认（与标签的statementType属性有关）创建PreparedStatementHandler对象并赋给statementHandler变量，statementHandler对象接着传入interceptorChain属性调用的pluginAll方法，结果作返回值，这里又体现了插件的干涉。回到doQuery方法体，调用prepareStatement方法进行预编译，传入handler对象。方法体内，先获取原生的Connection对象，再用handler对象调用prepare方法，传入连接对象，做预编译，返回一个原生Statement对象赋给变量stmt，接着用handler对象调用parameterize方法，传入stmt对象，对占位符填充参数。该方法体内，parameterHandler属性调用setParameters方法，传入Statement对象强转成的PreparedStatement对象，应注意这个ParameterHandler类型的属性在BaseStatementHandler类构造器中由configuration属性初始化，这就有了第三个露脸的四大对象之一，且其初始化过程底层也有pluginAll方法的干涉。方法体内，只需关注TypeHandler对象调用setParameter方法设置参数，传入PreparedStatement对象。再次回到doQuery方法体，handler对象调用query方法返回结果列表，底层用最后出现的四大对象之一ResultHandler对象处理查询结果集（此对象形成时也受pluginAll方法干涉），再底层也用到TypeHandler对象调用getResult方法得到每列分量，返回前还调用closeStatement方法关闭stmt对象。结果列表一层层往上返回。
 
 由上一段归纳出一个流程图：
 
@@ -1446,10 +1440,10 @@ SqlSession对象调用getMapper方法，传入了dao层接口对应的Class实�
 
 ```java
 public Object pluginAll(Object target) {
-for (Interceptor interceptor : interceptors) {
-  target = interceptor.plugin(target);
-}
-return target;
+    for (Interceptor interceptor : interceptors) {
+      target = interceptor.plugin(target);
+    }
+    return target;
 }
 ```
 
@@ -1512,7 +1506,7 @@ public class MyPlugin implements Interceptor {
 - signatureMap-目标类Class实例作键、被代理方法集合作值的映射。
 - target-目标类实例。
 
-当注册了多个插件，从全局配置文件上到下扫描的顺序执行各插件对象的plugin方法生成代理对象，如此一来上面第三个属性target最底层的才是四大代理对象之一，往上每一层都是下一层代理对象，于是代理对象的intercept方法会按插件配置的逆序执行。
+当注册了多个插件，从全局配置文件上到下扫描的顺序执行各插件对象的plugin方法生成代理对象，如此一来上面第三个属性target最底层的才是四大代理对象之一，往上每一层都是下一层的代理对象，于是代理对象的intercept方法会按插件配置的逆序执行。
 
 对四大对象方法的扩展就体现于intercept方法，那么我们弄个偷梁换柱的例子，篡改占位符参数：
 
@@ -1520,7 +1514,7 @@ public class MyPlugin implements Interceptor {
 @Override
 public Object intercept(Invocation invocation) throws Throwable {
     System.out.println("intercept\t" + invocation.getTarget());
-    // 拿到StatementHandler实对象的parameterHandler属性的parameterObject属性即占位符参数
+    // 拿到StatementHandler对象的parameterHandler属性的parameterObject属性即占位符参数
     MetaObject metaObject = SystemMetaObject.forObject(invocation.getTarget());
     Object param = metaObject.getValue("parameterHandler.parameterObject");
     System.out.println(param);
@@ -1538,7 +1532,7 @@ public Object intercept(Invocation invocation) throws Throwable {
 
 ## 批量操作
 
-前面[foreach](#foreach)一节提到的批量保存严格来说不是批量操作，因为DBS一次不能接收太长的SQL语句，比如以分号分隔的insert长语句差不多1000条就满了。
+前面[foreach](#foreach)一节提到的批量保存严格来说不算批量操作，因为DBS一次不能接收太长的SQL语句，比如以分号分隔的insert长语句差不多1000条就满了，而真正的批处理克服了这一缺陷。
 
 mybatis提供了批量执行器，即BatchExecutor类。若在全局配置中指定defaultExecutorType设置项为BATCH则所有SQL方法执行的时候底层都用的是BatchExecutor对象，那么SQL语句都会变成批量发送，这是不必要的。可以在调用openSession方法时传入执行器类型以仅针对当前会话使用批量发送。
 
@@ -1580,7 +1574,7 @@ private SqlSession sqlSessionTemplate;
 
 @Override
 public int batchInsertEmps() {
-    @SuppressWarnings("unused")
+
     // 这里创建的代理对象可就不是单例了
     EmployeeDao empDao = sqlSessionTemplate.getMapper(EmployeeDao.class);
     // ...
@@ -1596,7 +1590,7 @@ oracle不支持LIMIT，故借实现oracle的LIMIT功能体验mybatis存储过程
 
 ## 处理枚举
 
-如在插入记录时，默认会把枚举对象的名字赋给对应分量，底层调用枚举对象的父类方法name，也就是说设置占位符参数及取分量值时，javaType与jdbcType互转，这个javaType就是枚举类，jdbcType默认是字符串，假使想将jdbcType改为整型，可针对javaType配置TypeHandler以指定jdbcType，底层则调用枚举对象的另一个父类方法ordinal-枚举对象的序号。
+如在插入记录时，默认会把枚举对象的名字赋给对应分量，底层调用枚举对象的父类方法name，也就是说设置占位符参数及取分量时，javaType与jdbcType互转，这个javaType就是枚举类，jdbcType默认是字符串，假使想将jdbcType改为整型，可针对javaType配置TypeHandler以指定jdbcType值，底层则调用枚举对象的另一个父类方法ordinal-枚举对象的序号。
 
 ```xml
 <typeHandlers>

@@ -1,6 +1,6 @@
 # Maven
 
-参考视频：[Maven视频教程](https://www.bilibili.com/video/BV1Pt411y7Rh)。
+参考视频：[Maven教程](https://www.bilibili.com/video/BV1Pt411y7Rh)。
 
 ## 概述
 
@@ -173,35 +173,35 @@ maven官网有更为详细的介绍：
 
 #### 优先原则
 
-作用：解决同名（除开版本号）jar包冲突的问题。
+作用：解决同坐标仓库jar包冲突的问题。
 
 原则一：路径最短者优先。
 
 ![依赖原则1](Maven.assets/依赖原则1.png)
 
-原则二：路径相同的情况下，先声明者（dependency标签在前）优先。
+原则二：路径长度相同的情况下，先声明者（父工程的dependency标签在前）优先。
 
 ![依赖原则2](Maven.assets/依赖原则2-1581866874346.png)
 
 #### 统一版本号
 
-1. 在properties标签中用自定义标签定义统一的版本号。比如：
+在properties标签体中用自定义标签定义统一的版本号。比如：
 
-   ```xml
-   <properties>
-       <spring.version>4.3.7.RELEASE</spring.version>
-   </properties>
-   ```
+```xml
+<properties>
+    <spring.version>4.3.7.RELEASE</spring.version>
+</properties>
+```
 
-2. 在dependency标签中用`${自定义标签名}`（这里标签名是`spring.version`）引用版本号。比如：
+在dependency标签中用`${自定义标签名}`（这里标签名是`spring.version`）引用版本号。比如：
 
-   ```xml
-   <dependency>
-   	<groupId>org.springframework</groupId>
-   	<artifactId>spring-beans</artifactId>
-   	<version>${spring.version}</version>
-   </dependency>
-   ```
+```xml
+<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-beans</artifactId>
+	<version>${spring.version}</version>
+</dependency>
+```
 
 注：properties标签的作用不止于统一定义版本号，凡是需要统一声明的东西都可以在其中定义。如统一项目源码的字符集：
 
@@ -213,7 +213,7 @@ maven官网有更为详细的介绍：
 
 #### 查询
 
-可上各类框架、类库的官网查找，也可去[mvnrepository](https://mvnrepository.com/)查找，这个网站收录了主流框架和类库的依赖信息。也可以去[阿里云仓库](https://maven.aliyun.com/mvn/search)或其他地方找。
+可上框架、类库的官网查找，也可去[mvnrepository](https://mvnrepository.com/)、[阿里云仓库](https://maven.aliyun.com/mvn/search)等地方找。
 
 ### 坐标
 
@@ -269,10 +269,10 @@ Maven定义了抽象的生命周期，生命周期中各个阶段的具体任务
 
 生命周期的各阶段分别具有特定任务，任务由插件完成。有些任务相似，故由同一插件完成，例如：
 
-| 生命周期中的阶段 | 插件目标    | 插件                  |
-| ---------------- | ----------- | --------------------- |
-| compile          | compile     | maven-compiler-plugin |
-| test             | testCompile | maven-compier-plugin  |
+| 阶段    | 插件目标    | 插件                  |
+| ------- | ----------- | --------------------- |
+| compile | compile     | maven-compiler-plugin |
+| test    | testCompile | maven-compier-plugin  |
 
 ### 继承
 
@@ -316,14 +316,14 @@ Maven定义了抽象的生命周期，生命周期中各个阶段的具体任务
 ```xml
 <!-- 聚合：子模块统一安装 -->
 <modules>
-	<!-- 指定各个子工程相对于父工程pom.xml文件的路径 -->
+	<!-- 指定仓库内各个子工程相对于父工程pom.xml文件的路径 -->
     <module>../Hello</module>
     <module>../HelloFriend</module>
     <module>../MakeFriend</module>
 </modules>
 ```
 
-要安装这些子工程模块的话直接用父模块的pom.xml文件安装即可。令人称道的是maven会智能地调整各模块的安装顺序以保证工程间的依赖。
+想安装子工程模块，直接用父模块的pom.xml文件安装即可。maven会智能地调整各模块的安装顺序以保证工程间的依赖。
 
 ## 常用命令
 
@@ -344,6 +344,9 @@ mvn package
 mvn install
 #生成站点
 mvn site
+#清理x命令产生的东西并重新一路进行到x
+mvn clean x
+mvn clean package
 ```
 
 ## eclipse中的使用

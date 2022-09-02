@@ -2,7 +2,7 @@
 
 参考视频：
 
-- [JavaWeb视频教程](https://www.bilibili.com/video/BV18s411u7EH)。
+- [JavaWeb教程](https://www.bilibili.com/video/BV18s411u7EH)。
 - [Java Web部分课程](https://www.bilibili.com/video/BV1q4411u7mM?spm_id_from=333.999.0.0)。
 
 ## 概述
@@ -131,9 +131,9 @@ tomcat规定web项目两个位置放字节码（这个位置也叫类路径class
 ```xml
 <Host appBase="myapps" autoDeploy="true" name="www.zcf.com" unpackWARs="true">
 	<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log" suffix=".txt"/>
-    <!-- 内嵌式 值一般取相对路径，这里等价于D:\server\apache-tomcat-8.5.70\myapps\ssm-->
+    <!-- 相对路径+内嵌式，这里等价于D:\server\apache-tomcat-8.5.70\myapps\ssm（绝对路径+内嵌式） -->
     <Context docBase="ssm" path="/ssm"/>
-    <!-- 外链式 -->
+    <!-- 绝对路径+外链式 -->
     <Context docBase="D:\Van\virtualHost\ssm\WebContent" path="/virtual"/>
 </Host>
 ```
@@ -223,7 +223,7 @@ Connection: keep-alive
 
 反映请求、响应的成功情况，常见的有：
 
-- 2开头：成功（包括转发）。
+- 2开头：成功。
 - 3开头：成功且要求重定向。
 - 4开头：失败，如404-找不到目标资源、405、400-跟客户端发的请求有关。
 - 5开头：失败，服务器内部错误，有时跟客户端发的请求有关。
@@ -240,11 +240,11 @@ Connection: keep-alive
 
 此请求头可用于阻止恶意访问或跳转回原页面。
 
-只有因触发页面中的某个链接（href、src、AJAX的URL等）而产生的请求才包含此请求头，刷新、重定向里的第二次请求都算，像地址栏直接转导就不含。
+只有因触发页面中的某个链接（href、src、AJAX的URL等）而产生的请求才包含此请求头。此请求头具有传递性。
 
-referer（referrer）意思就是触发当前请求的链接引用的是哪个URL即所处页面的URL。
+referer（referrer）值是触发当前请求的链接引用的URL即所处页面的URL（带查询字符串）。
 
-可参考此[文章](https://www.sojson.com/blog/58.html)，其中强调了我们不能完全依赖它，因为可以伪造请求报文。
+可参考此[文章](https://www.sojson.com/blog/58.html)，其中强调了我们不能完全依赖它，因为axios、potman等都可以伪造请求报文。
 
 ## JSP
 
@@ -266,7 +266,7 @@ tomcat的全局web.xml中定义了jsp请求与处理类JspServlet的映射。
 
 若index.jsp被首次请求，则index.jsp被翻译成index_jsp.java，即一个类，其超类之一就是HttpServlet，故此类就是一个servlet，具体原文档里的后端部分译为Java代码，前端部分译为字符串传入JspWriter对象out的write方法，随后这个类被编译成index_jsp.class，两个文件均生成在work目录下，最后加载index_jsp.class，通过反射创建此类实例并调用其_jspService方法，即执行后端部分并执行write方法将前端部分写出到HttpServletResponse对象response（\_jspService方法的一个参数）的缓冲区，再由后者传输给浏览器去加载解析渲染，若非首次请求且jsp文档没改动，则无需重新编译。
 
-收到响应后前端部分被浏览器按HTML格式加载，故jsp文档的正常展示必须依靠服务器，本地打开的话浏览器不认得这个扩展名，就展示成普通文本。 
+收到响应后前端部分被浏览器按HTML格式接收，故jsp文档的正常展示必须依靠服务器，本地打开的话浏览器不认得这个扩展名，就展示成普通文本。 
 
 ### 页面元素
 
@@ -875,9 +875,9 @@ URL定位到的资源分为：
 - 静态资源：实际的文件，地址带文件扩展名。
 - 动态资源：处理请求的程序，地址不带扩展名。
 
-浏览器发送一个请求，先根据URL中的协议+主机名+端口号+项目名定位到某计算机上tomcat软件上部署的某项目，然后将路径名剩余部分同url-pattern或WebServlet注解的值相匹配，匹配上了就加载classes下对应servlet类的字节码、通过反射创建其实例、调用service方法处理并返回，匹配不上则去项目根目录下找，还找不到就返回404了。
+浏览器发送一个请求，先根据URL中的协议+主机名+端口号+项目名定位到某计算机上tomcat软件上部署的某项目，然后将路径名剩余部分同url-pattern或WebServlet注解的值相匹配，匹配上了就加载classes目录下对应servlet类的字节码、通过反射创建其实例、调用service方法处理并返回，匹配不上则去项目根目录下找，还找不到就返回404了。
 
-JSP是特殊的动态资源，JSP一章中分析了对此请求的处理流程。
+JSP是特殊的动态资源，JSP一章中分析了对此请求的[处理流程](#运行原理)。
 
 ### 生命周期
 
@@ -897,7 +897,7 @@ my first servlet
 销毁servlet实例...
 ```
 
-综上可得首次收到对应请求时servlet容器调用构造器创建servlet实例，初始化前调用init方法，接着调用service方法处理请求，之后的每次访问都只调用此实例的service方法，项目从服务器上卸载或关闭服务器时servlet实例被销毁，但此前调用destroy方法。
+综上可得首次收到对应请求时servlet容器调用构造器创建servlet实例，初始化时调用init方法，接着调用service方法处理请求，之后的每次访问都只调用此实例的service方法，项目从服务器上卸载或关闭服务器时servlet实例被销毁，此间调用destroy方法。
 
 构造器和init方法仅执行一次表明此实例是个单例。诸方法支持多线程，那么为避免线程安全问题，最好不要在此类中添加域。
 
@@ -1111,7 +1111,7 @@ dispatcher.forward(request, response);
 
 一次请求只能对应一次响应，故方法体内不要响应多次-写多个转发、多个重定向或转发加重定向。
 
-由于支持多线程，响应语句与其他语句本来没有先后要求，可以先响应后在响应期间执行后续语句，但有时存在隐患，比如带数据转发时下一个servlet实例拿不到数据：
+由于多线程的存在，响应语句与其他语句没有先后要求，可以先响应后在响应期间执行后续语句，但有时存在隐患，比如带数据转发时下一个servlet实例拿不到数据：
 
 ```java
 // 第一个servlet类实例
@@ -1131,7 +1131,7 @@ request.getRequestDispatcher("../hello.jsp").forward(request, response);
 - get请求参数容量有限（4-5KB），如上传大文件会失败；而post的请求体可含大量数据。
 - 乱码问题的解决方案不同，参见[编码方式-请求](#请求)。
 
-### 转发和重定向
+### 转发与重定向
 
 |                 | 转发            | 重定向           |
 | --------------- | --------------- | ---------------- |
@@ -1140,6 +1140,10 @@ request.getRequestDispatcher("../hello.jsp").forward(request, response);
 | 请求-响应次数   | 1               | 2                |
 | 对象支持        | HttpRequest对象 | HttpResponse对象 |
 | 目标资源        | 必须是项目内的  | 不限于项目内的   |
+
+服务端内部的转发可看作特殊的请求，故也带有方法等属性，值接续自当前请求。
+
+在浏览器点前进后退是不发请求的，因为利用的是缓存的资源，这也印证了前端路由的可行性。而且在后退得到的地址中，重定向中的第一个地址、转发的目标地址都不会出现，这不难理解：缓存存的是有内容的页面，重定向里的第一个地址就是作重定向用的，不对应页面；转发是服务器内部进行的，浏览器不可知，当然记录不了转发后的目标地址。
 
 ### 注
 
@@ -1220,7 +1224,7 @@ request.setCharacterEncoding("UTF-8");
 归纳一下虚拟路径（就是URL）的含义。
 
 - url-pattern处，绝对路径起始于web项目的根路径。
-- 页面中，绝对路径起始于服务器的根路径，相对路径起始于当前资源所属路径。
+- 页面中，绝对路径起始于服务器的根路径，相对路径起始于当前资源所属路径（易知对重定向，属第二个路径）。
 - 转发处，绝对路径起始于项目的根路径（这也印证了转发只针对项目内资源），相对路径起始于当前资源所属路径。
 - 重定向处，绝对路径起始于服务器的根路径，相对路径起始于当前资源所属路径。
 - 其他情况。
@@ -1235,7 +1239,7 @@ base标签属HTML标签库，用于给本页面中的所以相对路径（包括
 <!-- 置于head标签内且在所有含路径标签之前 最好写成动态的，协议名://主机名:端口号/项目名/ -->
 <base href="<%=request.getScheme() %>://<%=request.getServerName() %>:<%=request.getServerPort() %><%=request.getContextPath() %>/"/>
 <base href="<%=request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/" %>" /> 
-<!-- 注意request.getContextPath()返回值是带斜杠的 -->
+<!-- 注意request.getContextPath()返回值是带起始斜杠的 -->
 ```
 
 ## 三层架构
@@ -1345,10 +1349,7 @@ public class UserServlet extends BaseServlet {
 
 ### 分页
 
-有这么几种思路：
-
-- 在后端算出指定页的起始记录号，再去数据库基于limit关键字查询。
-- 像PageHelper那样，在后端一次性拿到所有记录，再计算、截取某页数据。
+一种思路是在后端算出指定页的起始记录号，再去数据库基于limit关键字查询。
 
 分页模型要素分析（注意顺序）：
 
@@ -1366,13 +1367,13 @@ public class UserServlet extends BaseServlet {
 
 ### 重复提交
 
-重复（仅指URL重复，不包括请求参数）写数据的提交会带来问题。举一些例子：
+重复（不包括查询字符串的URL重复）写数据的提交会带来问题。举一些例子：
 
 - 重复插入数据库。
 - 重复修改数据库。
 - 服务器性能无谓损耗。
 
-前两个问题是针对用户的，因为系统不报错但用户不知情，从以下活动体会他们的不知情：
+前两个问题是关系到用户体验的，因为系统不报错但用户不知情，从以下活动体会他们的不知情：
 
 - 网卡了，用户后退到缓存的提交页面做提交，以为后退能撤销刚才的提交，以为提交一次其实是两次。
 - 网卡了，用户在提交后转发到的页面做刷新，以为刷新一次上次提交就失效但并不会，以为提交一次其实是两次。
@@ -1383,13 +1384,11 @@ public class UserServlet extends BaseServlet {
 常用解决方案诸如：
 
 - 针对刷新重复提交问题，将转发改成重定向。
-- 通过前端JS阻止重复触发提交链接。
+- 通过前端JS阻止重复触发提交链接。（可是JS是可禁用的）
 
 特别介绍令牌（token）机制，它能替代上述两种方案，还能解决浏览器后退到缓存页面重复提交的问题。
 
 具体是在请求页面时向session里添加一个令牌数据（可用UUID充当），另添加一个作令牌的请求参数，然后在提交的处理逻辑中比对令牌参数和session里的令牌，一致则移除令牌数据并执行后续逻辑。
-
-注：一般地，在浏览器点前进后退是不发请求的，因为利用的是缓存的资源。而且后退得到的地址只能是地址栏出现过的地址，像重定向中的第一个地址、转发的目标地址就不会出现。
 
 ```java
 // TokenServlet内
@@ -1416,8 +1415,8 @@ String token = (String) session.getAttribute("token");
 String tokenParam = request.getParameter("tokenParam");
 System.out.println("令牌参数：" + tokenParam);
 System.out.println("令牌数据：" + token);
+// 有人可能不经页面，直接通过地址栏提交，不带令牌参数
 if (tokenParam == null) {
-    // 有人可能不经页面，直接通过地址栏提交，不带令牌参数，那么这两个令牌都是null了
     response.sendRedirect(request.getContextPath() + "/TokenServlet");
 } else if (tokenParam.equals(token)) {
     // 令牌一致，允许注册 注册逻辑就省略了
@@ -1432,7 +1431,11 @@ if (tokenParam == null) {
 }
 ```
 
-如此，用户只有重新访问提交页面（控制台size一栏不带cache），才能重复提交，因为此时的重复他是知情的。
+令牌不一致，那么如何优雅地让用户明白重复提交了呢？
+
+注：点浏览器左上角三个按钮，得到的静态资源可能取自缓存，AJAX等则不会，按shift+F5（谷歌推荐）清空缓存地刷新。
+
+不知情的重复提交发生在页面的跳转（包括前端控制的跳转）时，故其他情况下的提交（增删改操作）一般无需令牌机制。前后端分离时，客户端的令牌可由页面刷新时发AJAX获取。
 
 ### 验证码
 
@@ -1442,7 +1445,7 @@ if (tokenParam == null) {
 
 有个验证码生成工具叫kaptcha，是谷歌旗下的。图片的相关配置可参考[kaptcha配置文件](https://blog.csdn.net/ZhangVeni/article/details/50990895)。大多数第三方包下含Constants.class文件，里面定义了一些重要的常量，像kaptcha的这个文件就有图片样式、验证码内容相关的常量。
 
-注：可设置浏览器是否缓存图片，若不缓存，则即使后退也会请求图片资源。
+注：可设置浏览器是否缓存图片，若不缓存，则即使后退也会重新请求图片资源。
 
 ### 计算问题
 
@@ -1471,7 +1474,7 @@ JSP standard tag libray-JSP标准标签库，是一套由Sun公司制定的API�
 - `<c:url>`与`<c:redirect>`里的绝对路径起始于项目根路径，前者可用于重写URL，解决浏览器禁用cookie问题。
 
   ```java
-  // encode系列方法重写URL，即智能地判断浏览器是否禁用cookie，是则拼上;JSESSIONID键值对
+  // encode系列方法重写URL，智能地判断浏览器是否禁用cookie，是则拼上;JSESSIONID键值对
   response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/cookie.jsp"));
   ```
 
@@ -1510,7 +1513,7 @@ JSP standard tag libray-JSP标准标签库，是一套由Sun公司制定的API�
 
 ### 概述
 
-servlet、过滤器filter、监听器listener是Javaweb的三大组件。
+servlet、过滤器、监听器是Javaweb的三大组件。
 
 可参考[Servlet 编写过滤器](https://www.runoob.com/servlet/servlet-writing-filters.html)。另参考J2EE文档的javax.servlet.Filter接口，其中对filter的定义如下：
 
@@ -1581,11 +1584,11 @@ public class MyFilter implements Filter {
 ```java
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 		throws IOException, ServletException {
-    // 此时request对象和response对象已经生成了
+    // 此时request对象和response对象已经生成且都作实参了
 	if (request.getParameter("money") != null) {
-        // 响应报文未完全形成，但已经生成响应头，且先往response对象的缓冲区中写数据作响应体的开头，由于没指定设编码方式，响应头里的编码方式就是默认的会导致乱码的
+        // 响应报文未完全形成，但已经生成响应头，且先往response对象的缓冲区中写数据准备作响应体的开头，由于没指定设编码方式，响应头里的编码方式就是默认的会导致乱码的
         response.getWriter().write("头插");
-        // 执行jsp文档对应的字节码，将前端部分追加写出到response对象的缓冲区 注意设定内容类型的代码会失效，因为响应头已经生成了，想改里面的编码方式已经晚了
+        // 执行jsp文档翻译出的java代码，将前端部分追加写出到response对象的缓冲区 注意设定内容类型的代码会失效，因为响应头已经生成了，想改里面的编码方式已经晚了
 		chain.doFilter(request, response);
         // 往response对象的缓冲区里追加数据
         response.getWriter().write("尾插");
@@ -1605,7 +1608,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 
 过滤器从创建到销毁均由服务器控制，不过生命周期跟servlet稍有不同。
 
-过滤器对象的创建和初始化是随着项目的加载而进行的，通过调用构造器创建对象，初始化前调用init方法，它们都仅执行一次，故过滤器也是单例。对象随着项目的卸载而销毁，销毁前执行destroy方法。每当服务器接收到对应请求，就调用doFilter方法来拦截。各方法也均支持多线程。
+过滤器对象的创建和初始化是随着项目的加载而进行的，通过调用构造器创建对象，初始化时调用init方法，它们都仅执行一次，故过滤器也是单例。对象随着项目的卸载而销毁，销毁时执行destroy方法。每当服务器接收到对应请求，就调用doFilter方法来拦截。各方法也均支持多线程。
 
 ### url-pattern
 
@@ -1650,7 +1653,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 HttpServletRequest req = (HttpServletRequest) request;
 // /java-web/girl.jsp URI是去掉Host部分的地址，不带查询字符串
 String uri = req.getRequestURI();
-// http://localhost/java-web/girl.jsp URL是完整的地址，但不带查询字符串
+// http://localhost/java-web/girl.jsp URL是完整的地址，但也不带查询字符串
 StringBuffer url = req.getRequestURL();
 // 请求头里的路径名是/java-web/girl.jsp?money=100
 ```
@@ -1769,13 +1772,13 @@ public void init(FilterConfig fConfig) throws ServletException {
       private static Map<Long, Connection> conns = new HashMap<>();
   
       /**
-       * 从c3p0连接池中获取连接，并存入映射，唯一对应当前线程（请求->响应）
+       * 从c3p0连接池中获取连接，并存入映射，唯一对应当前线程（请求->响应），或从映射中获取连接
        * 
        * @return
        * @throws SQLException
        */
       public static Connection getConnection() throws SQLException {
-          // 当前线程id唯一（在执行期间唯一，id号并不是自增的，是可以复用的）
+          // 当前线程id唯一（id号并不是自增唯一的，是可以复用的，仅在已被分配期间唯一）
           long id = Thread.currentThread().getId();
           // 各用各的，不会搞乱
           Connection connection = conns.get(id);
@@ -2303,9 +2306,9 @@ tomcat依赖（或环境）就是一组jar包，它们可见于tomcat根目录�
 
 ### 概述
 
-即Java Name Directory Interface-Java命名与目录接口。
+即Java Name Directory Interface-Java名称目录接口。
 
-我们想在项目间共享数据，域对象就爱莫能助了。但可用JNDI实现，它通过tomcat配置文件context.xml对数据（对象）进行读写。
+JNDI实现在项目间共享数据，域对象等，具体通过tomcat配置文件context.xml对这些东西进行读写。
 
 ### 使用
 

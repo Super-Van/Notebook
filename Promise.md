@@ -1,6 +1,6 @@
 # Promise
 
-参考视频：[Web前端Promise教程从入门到精通](https://www.bilibili.com/video/BV1GA411x7z1)。
+参考视频：[Promise教程](https://www.bilibili.com/video/BV1GA411x7z1)。
 
 ## 概述
 
@@ -110,14 +110,13 @@ const btn = document.querySelector("button")
 btn.addEventListener("click", () => {
     const p = new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest()
-        xhr.open("get", "https://api.apiopen.top/getJok")
+        xhr.open("get", "http://localhost:8080/ghibli/songs")
         xhr.send()
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4) {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     resolve(xhr.response)
                 } else {
-
                     reject(xhr.response)
                 }
             }
@@ -445,7 +444,7 @@ p.then(value => {
     console.log(value);
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            // throw "error" 注意在异步任务的回调函数里抛异常catch就爱莫能助了，只能用reject
+            // throw "error" 注意在异步任务的回调函数里抛异常跟异常穿透无缘了，因为直接由window调用
             reject("error 2")
             // resolve("第二个定时器到点")
         }, 2000);
@@ -459,7 +458,7 @@ p.then(value => {
     })
 }).then(value => {
     console.log(value);
-    // throw "error 3" 回调函数里抛异常catch才有反应
+    // throw "error 3" 应在结果处理函数里抛异常
 }).catch(reason => {
     console.warn(reason);
 })
@@ -1066,7 +1065,7 @@ MyPromise.prototype.then = function (onResolved, onRejected) {
 MyPromise.prototype.then = function (onResolved, onRejected) {
     // 可能未定义回调函数
     if (typeof onResolved !== "function") {
-        // 即 value => { return value}
+        // 即 value => {return value}
         onResolved = value => value
     }
     if (typeof onRejected !== "function") {
@@ -1493,9 +1492,7 @@ class MyPromise {
 
 ## async与await
 
-这两个东西往往一起出场。关于它们的详细描述可参看[async函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function)与[await表达式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await)。
-
-async关键字以隐式promise对象的方式简化了对promise的使用，await表达式让多异步任务的串联更为直观清晰。
+这两个东西往往一起出场。async关键字接一个函数，隐式地创建Promise对象并返回，还作为await的依赖。await表达式是await关键字接一个Promise对象，得到其结果值，让多异步任务的串联更为简明。关于它们的详细描述可参看[async函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function)与[await表达式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await)。
 
 我们还是以读多文件为例看看这两个东西的优势：
 
@@ -1516,7 +1513,7 @@ async function readAndCon() {
 console.log(readAndCon());
 ```
 
-再将入门案例中发送Ajax请求的例子改写一下：
+再将入门案例中发送AJAX请求的例子改写一下：
 
 ```js
 function getJokes(url) {
@@ -1537,12 +1534,9 @@ function getJokes(url) {
 }
 const btn = document.querySelector("button")
 btn.addEventListener("click", async () => {
-    try {
-        let jokes = await getJokes("https://api.apiopen.top/getJoke")
-        console.log(jokes);
-    } catch (error) {
-        console.log(error);
-    }
+    // await只关心结果，onRejected函数就没定义，默认异常往上抛
+    let jokes = await getJokes("http://localhost:8080/ghibli/songs")
+    console.log(jokes);
 })
 ```
 
