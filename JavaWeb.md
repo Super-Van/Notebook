@@ -2285,7 +2285,7 @@ sc delete Tomcat8.5
 
 ![image-20200710114625522](JavaWeb.assets/image-20200710114625522.png)
 
-tomcat依赖（或环境）就是一组jar包，它们可见于tomcat根目录的lib文件夹内。
+tomcat环境（或依赖）就是一组jar包，它们可见于tomcat根目录的lib文件夹内。
 
 关于字节码文件存放路径的修改及lib目录的设定可参考此[博客](https://www.cnblogs.com/printN/p/6537903.html)。
 

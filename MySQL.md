@@ -499,7 +499,7 @@ firewall-cmd --add-port=3306/tcp --permant
 firewall-cmd reload
 ```
 
-附带讲用阿里云ECS，要去安全组->配置规则->手动添加，才能完全开放此端口。
+附带讲用云服务器，要去安全组->配置规则->手动添加，才能完全开放此端口。
 
 然后是默认配置的问题：
 
@@ -517,7 +517,7 @@ mysql> select host, user from user;
 4 rows in set (0.00 sec)
 ```
 
-结果说明root用户只有来自本机（服务器）才能登录，那么我们最好把localhost改成`%`，即允许他在任何IP地址对应的客户端登录。
+结果说明root用户只能在服务器上的客户端登录，把localhost改成`%`，便是允许在任何IP地址对应的客户端登录（一般不建议）。
 
 ```sql
 UPDATE SET user host = '%' WHERE user = 'root';

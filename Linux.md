@@ -1674,6 +1674,7 @@ yum -y install mysql
 yum -y update mysql
 # 卸载，看出yum与rpm作用的对象不同，一个是rpm文件，一个是引用文件集合的软件名
 yum -y remove mysql
+yum -y install git
 ```
 
 用wget在服务端下载安装包到当前目录：
@@ -1686,12 +1687,12 @@ wget https://nginx.org/download/nginx-1.13.11.tar.gz
 
 ### JDK
 
-去[官网](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html)下载压缩包到服务器。
+去[官网](https://www.oracle.com/java/technologies/downloads/)下载压缩包到服务器。
 
 解压并去`/etc/profile`配置<span id="env">环境变量</span>：
 
 ```ini
-JAVA_HOME=/usr/local/jdk-11.0.14
+JAVA_HOME=/usr/local/jdk1.8.0_341
 PATH=$JAVA_HOME/bin:$PATH
 ```
 
@@ -1715,7 +1716,7 @@ sh startup.sh
 
 ### Maven
 
-从[镜像站](https://repo.huaweicloud.com/apache/maven/maven-3/3.3.9/binaries/)下载压缩包到服务器。
+从[镜像站](https://repo.huaweicloud.com/apache/maven/maven-3/3.3.9/binaries/)下载压缩包到服务器，解压即可。
 
 配置环境变量：
 
@@ -1728,7 +1729,7 @@ PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
 
 ### Redis
 
-从[官网](https://redis.io/download/)下载压缩包到服务器。
+从[官网](https://redis.io/download/)下载压缩包到服务器并解压。
 
 ```sh
 # 安装依赖的编译环境
@@ -1770,43 +1771,44 @@ make && make install
 
 ```sh
 #!bin/bash
-echo "================================"
-echo "start automatic deployment shell"
-echo "================================"
+echo "==============="
+echo "自动化部署脚本启动"
+echo "==============="
 
 APP_NAME=takeout
 
-echo "stop the former application"
+echo "停止此前服务"
 # 杀死项目上次启动产生的进程
-pid=`$(ps -ef | grep $APP_NAME | grep -v | grep -v kill | awk '{print $2}')`
-if [$pid]; then
-    echo "stop process"
+pid=`ps -ef | grep $APP_NAME | grep -v grep | grep -v kill | awk '{print $2}'`
+if [ $pid ]
+then
+    echo "停止成功"
     kill -15 $pid
 fi
+sleep 2
 # 怕没有杀死
-pid=`$(ps -ef | grep $APP_NAME | grep -v | grep -v kill | awk '{print $2}')` 
-if [$pid]; then
-    echo "kill process"
+pid=`ps -ef | grep $APP_NAME | grep -v grep | grep -v kill | awk '{print $2}'` 
+if [ $pid ]
+then
+    echo "杀死进程"
     kill -9 $pid
-else
-    echo "stop success"
 fi
 
-echo "pull the lastest code from github"
-cd /usr/local/$APP_NAME
+echo "从github拉取最新代码"
+cd /usr/program/$APP_NAME
 # 已经自行克隆了
 git pull
-echo "pull finished"
+echo "拉取完成"
 
-echo "start package"
+echo "开始打包"
 # 本例跳过测试
 output=`mvn clean package -Dmaven.test.skip=true`
 cd target
 
-echo "start the application"
+echo "启动服务"
 # 在后台运行，将日志输出到文件
 nohup java -jar $APP_NAME-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod &> $APP_NAME.log &
-echo "application started"
+echo "服务已启动"
 ```
 
 可能要开放脚本的执行权限，如`chmod a+x /usr/local/autoDeploy.sh`。
@@ -1824,7 +1826,7 @@ sbin/nginx：二进制文件，开关服务
 
 ```sh
 # 版本
-./nginx -v
+sbin/nginx -v
 # 检查配置文件正常与否
 ./nginx -t
 # 启动
@@ -1834,22 +1836,23 @@ ps -ef | grep nginx
 ./nginx -s stop
 # 重新加载配置
 ./nginx -s reload
-# 最好给./nginx立别名或环境变量，最好用前者，后者有用户限制
+# 最好给sbin/nginx立别名或环境变量
 ```
 
 前后端分离配置：
 
 ```conf
-#静态资源
+server_name  8.130.37.35;
+# 静态资源
 location / {
     root   html/takeout-dist;
     index  index.html;
 }
-#反向代理
+# 反向代理
 location ^~ /api/ {
     rewrite ^/api/(.*)$ /$1 break;
-    proxy_pass http://localhost:8080;
+    proxy_pass http://8.130.37.35:8080;
 }
 ```
 
-关于接口文档，有YAPI、Swagger等工具，项目用的是支持Swagger的[knife4j](https://doc.xiaominfo.com/docs/quick-start)，根据控制层方法生成文档页面资源。
+关于接口文档，有YAPI、Swagger等工具，项目用的是支持Swagger的[knife4j](https://doc.xiaominfo.com/docs/quick-start)，由控制层方法生成文档。

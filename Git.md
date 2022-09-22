@@ -886,6 +886,10 @@ $ git clone 远程仓库地址 别名（可不设，默认是仓库名）
 $ git clone https://github.com/Super-Van/notebook.git (fetch)
 $ git clone https://github.com/Super-Van/notebook.git (fetch) origin
 
+# 必要时取消代理
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+
 # 拉取中央仓库的更新内容
 $ git pull 远程库地址别名 远程分支名
 $ git pull origin master

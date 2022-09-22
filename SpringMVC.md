@@ -604,7 +604,7 @@ return "redirect:/toSuccess";
 
 基于源码梳理视图解析的流程。
 
-聚焦于上一章第三段的processDispatchResult方法，传入请求对象、响应对象、目标处理器的执行链对象、handle方法返回的ModelAndView对象及一个异常对象，方法体的主要工作就是将数据渲染到视图中，体内调用render方法，传入ModelAndView对象、请求对象、响应对象。方法体内，调用resolveViewName方法根据视图路径得到View对象。进这个方法体，for循环遍历九大组件之一的viewResolvers-全体视图解析器对象，来轮着调用resolveViewName方法解析视图路径，另传入Locale对象，一旦有一个解析得到View对象就返回，比如我们在XML中配了类型为InternalResourceViewResolver的视图解析器，故只检索到这一个。体内调用createView方法，继续传入区域信息与视图路径。此方法体内，依据视图路径的前缀做相应处理，若以`redirect:`起始，则创建RedirectView对象，若以`forward:`起始，则创建InternalResourceView对象，它们均为view接口的实现类，否则调用父类的createView方法创建View对象，底层就做了拼接所配的前后缀的操作。往上每一层都是将这个视图对象返回，直到回到render方法体，之后用此视图对象调用render方法，传入Map对象-ModelAndView对象封装的数据、请求对象、响应对象。体内先执行createMergedOutputModel方法，传入Map对象、请求对象、响应对象，<span id="merge">得到Map对象-隐含模型与request域对象绑定数据合并的数据</span>，后执行InternalResourceView覆盖的renderMergedOutputModel方法，传入合并数据、请求对象、响应对象。此方法做了最终的渲染工作-将合并数据全部暴露给请求域对象并转发或者重定向到下一个资源，体现于exposeModelAsRequestAttributes方法（传入合并数据与请求对象）、getRequestDispatcher方法、forward方法，注意此处的渲染还没到将数据填充进页面的阶段，还得经过JspServlet翻译jsp得到的servlet的_jspService方法，以及后面要讨论的HttpMessageConverter某实现类对象的写出到响应体的过程。
+聚焦于上一章第三段的processDispatchResult方法，传入请求对象、响应对象、目标处理器的执行链对象、handle方法返回的ModelAndView对象及一个异常对象，方法体的主要工作就是将数据渲染到视图中，体内调用render方法，传入ModelAndView对象、请求对象、响应对象。方法体内，调用resolveViewName方法根据视图路径得到View对象。进这个方法体，for循环遍历九大组件之一的viewResolvers-全体视图解析器对象，来轮着调用resolveViewName方法解析视图路径，另传入Locale对象，一旦有一个解析得到View对象就返回，比如我们在XML中配了类型为InternalResourceViewResolver的视图解析器，故只检索到这一个。体内调用createView方法，继续传入区域信息与视图路径。此方法体内，依据视图路径的前缀做相应处理，若以`redirect:`起始，则创建RedirectView对象，若以`forward:`起始，则创建InternalResourceView对象，它们均为View接口的实现类，否则调用父类的createView方法创建View对象，底层就做了拼接所配的前后缀的操作。往上每一层都是将这个视图对象返回，直到回到render方法体，之后用此视图对象调用render方法，传入Map对象-ModelAndView对象封装的数据、请求对象、响应对象。体内先执行createMergedOutputModel方法，传入Map对象、请求对象、响应对象，<span id="merge">得到Map对象-隐含模型与request域对象绑定数据合并的数据</span>，后执行InternalResourceView覆盖的renderMergedOutputModel方法，传入合并数据、请求对象、响应对象。此方法做了最终的渲染工作-将合并数据全部暴露给请求域对象并转发或者重定向到下一个资源，体现于exposeModelAsRequestAttributes方法（传入合并数据与请求对象）、getRequestDispatcher方法、forward方法，注意此处的渲染还没到将数据填充进页面的阶段，还得经过JspServlet翻译jsp得到的servlet的_jspService方法，以及后面要讨论的HttpMessageConverter某实现类对象的写出到响应体的过程。
 
 宏观理解。不管目标方法返回值类型是String、ModelAndView还是别的，底层都是要以ModelAndView对象为核心，因为视图名（视图路径）与数据都由它封装着。而后视图解析器对象才能根据它实例化视图对象，接着视图对象才能渲染-暴露数据并跳转。
 
@@ -620,7 +620,7 @@ View接口的实现类有很多，用来应对JSP文档、含JSTL的JSP文档、
 
 ### JstlView
 
-承接上一节，我们实践一下，配置XML让InternalResourceViewResolver对象创建JstlView对象，默认创建的是InternalResourceView对象，前者是后者的子类。
+承接上一节，我们实践一下，配置XML让InternalResourceViewResolver对象创建JstlView对象。
 
 ```xml
 <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -632,7 +632,7 @@ View接口的实现类有很多，用来应对JSP文档、含JSTL的JSP文档、
 
 其实只要导了包，第三个property可以不配，底层会自动奔着JstlView类型创建视图对象。
 
-其实InternalResourceViewResolver默认被注册，条件是自己没配视图解析器。故没有前后缀补全需求的话，这个bean可不配。
+其实InternalResourceViewResolver默认被注册，条件是自己没配视图解析器，见于initViewResolvers方法、体内的getDefaultStrategies方法、spring-webmvc包下的DispatcherServlet.properties文件。故若无前后缀补全需求，此bean可不配。
 
 ### 方法简化
 

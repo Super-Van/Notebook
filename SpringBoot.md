@@ -729,7 +729,7 @@ public void configureContentNegotiation(ContentNegotiationConfigurer configurer)
 
 这个模板引擎性能不佳，适合小型应用，不适合高并发项目，高并发得靠其他模板引擎或前后端分离。
 
-有了这玩意儿前后端不分离，主要是后端学的。springboot默认不支持JSP，能发现没有底层的JspServlet依赖。
+有了这玩意儿前后端不分离，主要是后端学的。springboot默认无法支持JSP，虽然默认注册了InternalResourceViewResolver，但底层依赖的JspServlet相关包并没导入。
 
 语法类似JSP，自行查找文档。
 
