@@ -5,27 +5,19 @@
 - [JavaWeb教程](https://www.bilibili.com/video/BV18s411u7EH)。
 - [Java Web部分课程](https://www.bilibili.com/video/BV1q4411u7mM?spm_id_from=333.999.0.0)。
 
-## 概述
-
-前端部分这里就不记了。
-
-附带讲一下单元测试与异常。若抛出异常但处理了，则单元测试的结果是成功；若抛出异常且没有处理，则单元测试的结果是失败。
-
 ## XML
 
 ### 概述
 
-即extensible markup language-可扩展标记语言，由W3C组织发布，作用是以统一的格式组织有关系的数据，多级标签能很好地反映数据的层次结构。
+即extensible markup language-可扩展标记语言，由W3C组织发布，作用是以统一的格式组织数据，多级标签能很好地反映数据的层次结构。由于这种统一的编写规范，它常用于传输数据、作配置文件。
 
-由于这种统一的编写规范，实际方面它常用于传输数据、作配置文件。
-
-注：HTML和XML共一个爹叫SGML（标准通用标记语言）。两者分工不同-HTML主要做页面展示，故语法比较随意；XML主要做数据的存储、描述、传输，故语法很严格。
+注：HTML和XML共一个爹叫SGML（standard generalized markup language-标准通用标记语言）。两者分工不同-HTML主要做页面展示，故语法比较随意；XML主要做数据的存储、描述、传输，故语法很严格。
 
 ### 读写
 
-解析目前解析方式有两派（可参考javax.xml.parser包）：
+目前解析数据的方式有两派（可参考javax.xml.parser包）：
 
-- DOM：W3C官方推荐的解析方式，与HTML的解析类似，一次性完加载XML文件，然后据此生成DOM树，接着解析。
+- DOM：W3C官方推荐的解析方式，与HTML的解析类似，一次性完加载XML文件，然后生成DOM树，接着解析。
   - JDOM：对DOM方式的封装，使更好用。
   - DOM4J：在JDOM基础上进一步封装，综合DOM方式和SAX方式的优点，用前者修改，用后者解析。
 - SAX（simple API for XML）：非官方标准，却是应用最广的方式，仅支持查询，不过效率更高，基于事件回调边加载边解析。
@@ -33,13 +25,11 @@
 
 解析是由XML解析器完成的。
 
-这里用DOM4J，JDK用的是原生的DOM或SAX，因此我们要导入外部的jar包。
-
-本节不给出代码，请参考xml项目。
+练习用DOM4J，JDK用的是原生的DOM或SAX，因此我们要导入外部的jar包。相关代码请参考xml项目。
 
 ### xPath
 
-xPath很像jQuery，是一个针对XML文档的元素选择器，简化了上一节相关的查询写法，顾名思义，是通过路径语法来简化的。
+xPath很像jQuery，是一个针对XML文档的元素选择器，简化了上一节相关查询的写法，顾名思义，是通过路径语法来简化的。
 
 它依赖jar包jaxen。
 
@@ -63,9 +53,9 @@ for (Element age : ages) {
 
 ### 概述
 
-服务器概念分硬件、软件两个层面来认知，首先是个性能很好的计算机，其次上面装有提供服务的软件。
+服务器概念分硬件、软件两个层面，首先是个性能很好的主机，其次上面装有提供服务的软件。web服务器主要负责接收客户端发来的请求并响应资源。
 
-web服务器主要负责接收客户端发来的请求并响应资源。具体对javaweb程序来说，必须具备servlet，它就干接收、处理请求及响应资源的事，还须具备servlet容器即web服务软件，二者缺一不可。
+欲开发javaweb程序，必须具备[servlet](#Servlet)，负责接收、处理请求及响应资源，还须具备servlet的容器即web服务软件，二者缺一不可。
 
 常见的javaweb服务软件：
 
@@ -76,13 +66,13 @@ web服务器主要负责接收客户端发来的请求并响应资源。具体�
 - Weblogic：Oracle旗下，要钱，适合大型项目。
 - Websphere：IBM旗下，要钱，适合大型项目。
 
-免费开源的Tomcat用java语言开发，是一个符合J2EE标准（Servlet规范）的web服务软件。
+免费开源的Tomcat是用java语言开发的，是一个符合J2EE标准（Servlet规范）的web服务软件。
 
-web应用是静态的还是动态的取决于是否包含请求处理程序以及是否涉及数据库。
+web应用是静态的还是动态的取决于是否包含自己部署的请求处理程序。
 
 ### 安装
 
-安装路径中不能有空格、中文等。
+安装路径中不能有空格、中文。
 
 ### 目录结构
 
@@ -93,16 +83,16 @@ lib：运行服务器依赖的jar包
 logs：运行期间的日志
 temp：临时文件
 webapps：部署目录，含所有web项目，一个项目对应一个文件夹，默认站点是ROOT
-work：服务器运行时编译好的文件，如java、class文件
+work：jsp文件对应的java、class文件，项目的session钝化文件等
 ```
 
 ### eclipse
 
 默认拷贝出一个tomcat镜像，地址在工作空间内，部署目录为wtpwebapps，更改其配置不影响原tomcat。
 
-开发完到生产条件下，就不再用eclipse了，而是把项目打成war包置于webapp目录下，运行tomcat，自动解压。
+到了生产阶段，就不再用eclipse了，而是把项目打成war包置于webapp目录下，启动tomcat，自动解压运行，属[内嵌式](#inner)部署。
 
-一般而言，修改了jsp、css等文件，不需要重启服务器。
+一般而言，修改了jsp、html等文件，不需要重启服务器。
 
 ### 站点目录结构
 
@@ -113,50 +103,61 @@ src：源文件
 WebContent：资源
 	META-INF：版本信息等，不重要
 	WEB-INF：不可见资源，不能直接访问，只能间接访问
-  		classes：编译源程序生成的字节码文件（classpath）
+  		classes：编译源程序生成的字节码文件
   		lib：导入的jar包
   		web.xml：配置文件
 ```
 
-WEB-INF目录里的资源不能直接通过浏览器访问，只能通过内部转发（重定向也不行）访问。
+WEB-INF目录里的资源不能直接通过浏览器访问，只能通过内部转发访问。重定向相当于两次直接访问，不行。
 
-tomcat规定web项目两个位置放字节码（这个位置也叫类路径classpath），即WEB-INF下的classes与lib，前者对应自己源文件的字节码，后者对应jar包字节码。然后应将lib下的jar包add to build path，针对web项目，eclipse能帮我们完成。
+<span id="rule">tomcat规定</span>web项目的两个类路径，即WEB-INF下的classes与lib，前者存放源文件的字节码，后者存放jar包。然后应将lib下的jar包add to build path，针对web项目，eclipse为我们代劳了。
 
-部署后生成的同名目录仅含WebContent文件夹里面的东西（上码第3行至第7行），也就是说tomcat把其他的文件都略过了。
+<span id="package">部署后生成的同名目录仅含WebContent文件夹里面的东西（上码第3行至第7行）。</span>
 
 ### 虚拟主机
 
 已经有一个name为localhost的虚拟主机，可在server.xml中增加虚拟主机。
 
 ```xml
+<!-- 默认的一个 -->
+<Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true">
+   <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log" suffix=".txt"/>
+</Host>
+
+<!-- 相对路径，起始于tomcat根目录 -->
 <Host appBase="myapps" autoDeploy="true" name="www.zcf.com" unpackWARs="true">
 	<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log" suffix=".txt"/>
-    <!-- 相对路径+内嵌式，这里等价于D:\server\apache-tomcat-8.5.70\myapps\ssm（绝对路径+内嵌式） -->
+    <!-- 相对路径+内嵌式，ssm目录是解压原生项目打成的war包得到的目录 -->
     <Context docBase="ssm" path="/ssm"/>
+    <!-- 相对路径+外链式 -->
+    <Context docBase="springmvc\WebContent" path="/springmvc"/>
     <!-- 绝对路径+外链式 -->
-    <Context docBase="D:\Van\virtualHost\ssm\WebContent" path="/virtual"/>
+    <Context docBase="D:\chaofan\virtualHost\ssm\WebContent" path="/virtual"/>
 </Host>
 ```
 
 appBase：虚拟主机根目录。针对上例tomcat目录下会生成myapps文件夹。
 
-name：自定义的主机名，协议名+主机名+端口号就映射到appBase值对应的路径。针对上例，`http://www.zcf.com`就映射到`D:\server\apache-tomcat-8.5.70\myapps`。
+name：自定义的主机名，协议+主机名+端口号就映射到appBase值对应的路径。针对上例，`http://www.zcf.com`就映射到`D:\server\apache-tomcat-8.5.70\myapps`。
 
-Context的两个重要参数：
+Context的两个重要属性：
 
-- docBase：web项目的站点路径，实现外链式（启动服务器时工作目录中不会产生同名目录）或内嵌式部署。
+- docBase：web项目的站点路径，实现外链式或<span id="inner">内嵌式</span>部署，推荐前者。
+  - 内嵌式：路径必须在webapps下面，必须是相对的（即不能出现webapps的绝对路径），对应目录是war包解压结果。
+
+  - 外链式：路径绝对相对任意，但不能含webapps的绝对路径，对应的目录是原生项目的WebContent目录（呼应[前面](#packa)，打war包其实就是对它打包），服务器启动时webapps内不会产生相应解压目录。
 
 - path：项目名，协议名+主机名+端口号拼上此值就映射到docBase值对应的路径。针对上例，`http://www.zcf.com/virtual`就映射到`D:\Van\virtualHost\ssm\WebContent`，`http://www.zcf.com/ssm`就映射到`D:\server\apache-tomcat-8.5.70\myapps\ssm`。
 
 ### 注
 
-端口号占用问题：打开命令行，输入`netstat -ano | findstr 8080`，意即找出占用8080端口的进程的ID，然后去任务管理器中找到命中进程，将其终止。
+windows端口号占用问题：打开命令行，输入`netstat -ano | findstr 8080`，意即找出占用8080端口的进程的ID，然后去任务管理器中找到命中进程，将其终止。
 
 ## HTTP
 
 ### 概述
 
-HTTP协议规定了浏览器和万维网服务器之间的通信规则，规定了所传输的请求、响应报文的格式。
+HTTP协议规定了浏览器和万维网服务器之间的通信规则，规定了请求、响应报文的格式。
 
 报文基本结构是报文首部+空行+报文主体。
 
@@ -183,7 +184,7 @@ Cookie: _ga=GA1.1.1182678932.1647678234
 请求报文格式：
 
 - 请求首行：`请求方法 路径名（后可跟查询字符串） 协议及其版本`。如上例第1行。
-- 请求头信息：本次请求的一系列设置信息（键值对形式）。如上例第2行至末尾。
+- 请求头信息：请求的一系列设置信息（键值对形式）。如上例第2行至末尾。
 - 空行：空格加回车。get方法无以下两项，如上例所示。
 - 请求体：即请求参数。get方法的参数列表跟在路径名后面，其他方法的参数列表就是请求体。
 
@@ -212,12 +213,12 @@ Connection: keep-alive
 
 响应报文格式：
 
-- 响应首行：`协议版本 响应状态码`。
+- 响应首行：`协议及其版本 响应状态码`。
 - 响应头信息：尤其注意内容类型。
 - 空行：如上例第10行。
 - 响应体：即响应数据。如上例第11行至末尾。
 
-上面两段示例都不是最完整的，且不是每行都很重要，下面就捡重要的、开发中我们会经常考察的来讲。
+上面两段示例都不是最完整的，且不是每行都很重要，下面就拣选开发中我们会经常考察的来讲。
 
 ### 状态码
 
@@ -232,19 +233,19 @@ Connection: keep-alive
 
 服务器（浏览器）根据请求头（响应头）里的内容类型来解析请求参数（响应体）。
 
-参考[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type)了解响应内容类型。尤注意其media-type分量，谈到了MIME（multipurpose internet mail extensions-多功能因特网邮件扩展）类型，其写法为`大类型/小类型`，并与某个文件扩展名相对应。tomcat的web.xml文件用mime-mapping标签记录了极为完整的MIME类型。
+参考[官方文档](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type)了解响应内容类型。尤注意其media-type指令，谈到了MIME（multipurpose internet mail extensions-多功能因特网邮件扩展）类型，其写法为`大类型/小类型`，并与某个文件扩展名相对应。tomcat的web.xml文件用mime-mapping标签记录了极为完整的MIME类型。
 
-参考[Ajax笔记](Ajax.md)以了解请求内容类型。
+参考Ajax笔记以了解请求内容类型。
 
 ### Referer
 
 此请求头可用于阻止恶意访问或跳转回原页面。
 
-只有因触发页面中的某个链接（href、src、AJAX的URL等）而产生的请求才包含此请求头。此请求头具有传递性。
+只有因触发页面中的某个链接（href、src、AJAX里的URL等）而产生的请求才包含此请求头。此请求头具有传递性。
 
-referer（referrer）值是触发当前请求的链接引用的URL即所处页面的URL（带查询字符串）。
+referer（referrer）值是触发链接引用的URL即所处页面的URL（可带查询字符串）。
 
-可参考此[文章](https://www.sojson.com/blog/58.html)，其中强调了我们不能完全依赖它，因为axios、potman等都可以伪造请求报文。
+可参考此[文章](https://www.sojson.com/blog/58.html)，其中强调了我们不能完全靠它实现安全访问，因为axios、potman等都可以伪造请求报文。
 
 ## JSP
 
@@ -262,11 +263,11 @@ JSP（Java Server Page）是实现动态网页的核心技术，本质就是serv
 
 tomcat的全局web.xml中定义了jsp请求与处理类JspServlet的映射。
 
-当请求index.jsp时，调用处理类对象的service方法，这个方法干什么呢？
+当请求index.jsp时，调用JspServlet对象的service方法，这个方法干什么呢？
 
-若index.jsp被首次请求，则index.jsp被翻译成index_jsp.java，即一个类，其超类之一就是HttpServlet，故此类就是一个servlet，具体原文档里的后端部分译为Java代码，前端部分译为字符串传入JspWriter对象out的write方法，随后这个类被编译成index_jsp.class，两个文件均生成在work目录下，最后加载index_jsp.class，通过反射创建此类实例并调用其_jspService方法，即执行后端部分并执行write方法将前端部分写出到HttpServletResponse对象response（\_jspService方法的一个参数）的缓冲区，再由后者传输给浏览器去加载解析渲染，若非首次请求且jsp文档没改动，则无需重新编译。
+若index.jsp被首次请求，则index.jsp被翻译成index_jsp.java，即一个类，其超类之一就是HttpServlet，故此类就是一个servlet，具体原文档里的后端部分译为Java代码，前端部分译为字符串传入JspWriter对象out的write方法，随后这个类被编译成index_jsp.class，两个文件均生成在work目录下，最后加载index_jsp.class，通过反射创建此类实例并调用其`_jspService`方法，即执行后端部分并执行write方法将前端部分写出到HttpServletResponse对象response（`_jspService`方法的一个参数）的缓冲区，response再转成响应报文传输给浏览器去加载解析渲染，若非首次请求且jsp文档没改动，则无需重新编译。
 
-收到响应后前端部分被浏览器按HTML格式接收，故jsp文档的正常展示必须依靠服务器，本地打开的话浏览器不认得这个扩展名，就展示成普通文本。 
+收到响应后前端部分被浏览器按HTML格式接收，故jsp文档的正常展示必须依靠服务器，本地打开的话浏览器不认得扩展名jsp，就展示成普通文本。 
 
 ### 页面元素
 
@@ -288,7 +289,7 @@ tomcat的全局web.xml中定义了jsp请求与处理类JspServlet的映射。
   %>
   ```
 
-- 本片段一经翻译会变成servlet的域和方法。
+- 本片段一经翻译会变成servlet的成员。
 
   ```jsp
   <%!
@@ -393,9 +394,9 @@ include指令：静态包含其他页面。
 <%@ include file="/user/common.jsp"%>
 ```
 
-注：参考此[文章](https://www.cnblogs.com/wxgblogs/p/5602689.html)了解静态包含于动态包含的异同。
+参考此[文章](https://www.cnblogs.com/wxgblogs/p/5602689.html)了解静态包含于动态包含的异同。
 
-taglib指令：引入标签库。在[JSTL](#JSTL)一章再了解。
+taglib指令：引入标签库。等到了[JSTL](#JSTL)一章再学。
 
 ### 标签
 
@@ -404,9 +405,9 @@ taglib指令：引入标签库。在[JSTL](#JSTL)一章再了解。
 ```jsp
 <!-- 动态包含 路径用法同静态包含 -->
 <jsp:include page="common.jsp"></jsp:include>
-<!-- 不带参转发 路径用法同servlet一章中的转发操作 -->
+<!-- 不带参转发 路径写法同servlet一章中的转发操作 -->
 <jsp:forward page="login_success.jsp"></jsp:forward>
-<!-- 带参转发 -->
+<!-- 带参（数据）转发 -->
 <jsp:forward page="/TempServlet">
 	<jsp:param name="username" value="root"/>
 </jsp:forward>
@@ -418,24 +419,24 @@ taglib指令：引入标签库。在[JSTL](#JSTL)一章再了解。
 
 我们可在jsp页面内使用九大内置对象（或叫隐含对象），它们由服务器实例化。
 
-- pageContext：属PageContext类，封装本servlet实例的上下文信息。
+- pageContext：属PageContext类。
 
-- out：属JspWriter类，在页面上输出内容。
+- out：属JspWriter类，在页面上、控制台输出内容。
 - request：属HttpServletRequest接口，封装本次请求信息。
 - response：属HttpServletResponse接口，封装本次响应信息。
-- sesssion：属HttpSession接口，记录当前会话信息，后面专门谈session和cookie。
+- sesssion：属HttpSession接口，记录当前会话信息。
 - application：属ServletContext接口，封装当前web项目信息。
 - config：属ServletConfig接口，封装本servlet实例的配置信息。
 - page：属Object类，引用本servlet实例。
 - exception：属Throwable类，封装本servlet实例的异常信息。
 
-在翻译jsp文档所得类的_jspService方法体内能发现这九个内置对象作局部变量或参数。
+在翻译jsp文档所得类的`_jspService`方法体内能发现这九个内置对象作局部变量或参数。
 
 #### config
 
 ```jsp
 <%
-	// jsp 因为全局web.xml中为*.jsp请求配的名字就是jsp
+	// jsp 因为全局web.xml中为路径模板为*.jsp配的名字就是jsp
 	System.out.println(config.getServletName());
 %>
 ```
@@ -446,7 +447,7 @@ taglib指令：引入标签库。在[JSTL](#JSTL)一章再了解。
 
 #### response
 
-所属类有几个重要方法需要掌握，但一般通过JSP使用，参见后面的[HttpServletResponse](#HttpServletResponse)。
+所属类有几个重要方法需要掌握，但一般不用在jsp文档里，参考后面的[HttpServletResponse](#HttpServletResponse)。
 
 附带理解一下两个输出：
 
@@ -475,15 +476,13 @@ print方法是将数据输出到out对象的缓冲区，write方法是将数据�
 
 - pageContext：当前页面可见。
 - request：本次请求可见。
-- session：某浏览器与某项目的一次会话内的请求可见，关于一次会话有以下命题：
+- session：某浏览器与某项目的一次会话内的多次请求可见，关于一次会话有以下诠释：
   - 同次会话内的请求均携带一个Name值为JSESSIONID的cookie，且此cookie的Value值都一样。
   - 服务器生成一对新的session与Name值为JSESSIONID的cookie，标志着某浏览器与某项目新会话的开启。
 
-- application：某项目本次运行期间针对本项目的请求可见。
+- application：某项目本次运行期间与某浏览器与本项目的多次会话可见。
 
 尽量使用最小范围对象以减少服务器的资源、性能损耗，因为维护的时间短。
-
-注：同一浏览器开出来的多个窗口，处同一会话。
 
 ##### pageContext
 
@@ -510,7 +509,7 @@ print方法是将数据输出到out对象的缓冲区，write方法是将数据�
 
 ##### request
 
-所属类有几个重要方法需要掌握，但一般不通过JSP使用，参见后面的[HttpServletRequest](#HttpServletRequest)。
+所属类有几个重要方法需要掌握，但一般也用在jsp文档里，参考后面的[HttpServletRequest](#HttpServletRequest)。
 
 还是上一节的例子，不过把pageContext改成request：
 
@@ -549,7 +548,7 @@ print方法是将数据输出到out对象的缓冲区，write方法是将数据�
 <%= session.getAttribute("one") %>
 ```
 
-说明只要浏览器不关且项目未下线，期间即使发不同请求，也能共享数据。
+说明只要浏览器不关且项目未下线，期间多个请求共享数据。
 
 若先访问one.jsp，然后关闭浏览器再打开或切换浏览器，访问two.jsp，则显示null。
 
@@ -641,7 +640,7 @@ print方法是将数据输出到out对象的缓冲区，write方法是将数据�
 
 ## JavaBean
 
-JavaBean是基于Java语言的一种可重用组件。参考[JavaBean百科](https://baike.baidu.com/item/javaBean)。
+JavaBean是基于Java语言的一种可重用组件。
 
 作用：
 
@@ -664,9 +663,6 @@ JavaBean是基于Java语言的一种可重用组件。参考[JavaBean百科](htt
 ```java
 /**
  * 封装数据的实体模型或数据模型
- * 
- * @author Van
- *
  */
 public class User {
 	private String name;
@@ -797,17 +793,17 @@ public class LoginLogic {
 
 ### 概述
 
-广义上servlet指sun公司指定的一套技术标准，即一系列web应用相关的接口，包括监听器等。狭义上servlet指javax.servlet.Servlet接口及其子接口、实现类。引用J2EE文档对此接口的定义：
+servlet广义上指sun公司指定的一套技术标准，即一系列web应用相关的接口，狭义上指Servlet接口及其子接口、实现类。引用J2EE文档对此接口的定义：
 
 > A servlet is a small Java program that runs within a Web server. Servlets receive and respond to requests from Web clients, usually across HTTP, the HyperText Transfer Protocol.
 
-servlet实例由servlet容器（即web服务器如tomcat）创建，其下方法在特定情况下被回调。
+servlet实例由servlet容器（即web服务器如tomcat）创建，其下方法在特定时间被回调。
 
-一个servlet类按一定的路径规则捕捉请求。对2.5及以下版本，需配置web.xml；对3.0及以上版本，用WebServlet注解比较方便，两者不能共存。
+一个servlet类按一定的路径规则捕捉请求。对2.5及以下版本，只能配置web.xml；对3.0及以上版本，用WebServlet注解更为方便，两者不能共存。
 
 ```xml
 <servlet>
-    <!-- 第3、7行值相同，作为某请求与处理该请求的servlet类之间的桥梁 -->
+    <!-- 第3、7行值相同，作为路径模板与处理此类请求的servlet之间的桥梁 -->
 	<servlet-name>xxx</servlet-name>
     <servlet-class>servlet.MyServlet</servlet-class>
 </servlet>  
@@ -839,6 +835,7 @@ public class MyServlet implements Servlet {
 	@Override
 	public ServletConfig getServletConfig() {
 		System.out.println("获取servlet实例的配置...");
+        // 其实获取个寂寞，要间接从上一个方法的参数那里拿
 		return null;
 	}
 
@@ -875,7 +872,7 @@ URL定位到的资源分为：
 - 静态资源：实际的文件，地址带文件扩展名。
 - 动态资源：处理请求的程序，地址不带扩展名。
 
-浏览器发送一个请求，先根据URL中的协议+主机名+端口号+项目名定位到某计算机上tomcat软件上部署的某项目，然后将路径名剩余部分同url-pattern或WebServlet注解的值相匹配，匹配上了就加载classes目录下对应servlet类的字节码、通过反射创建其实例、调用service方法处理并返回，匹配不上则去项目根目录下找，还找不到就返回404了。
+浏览器发送一个请求，先根据URL中的协议+主机名+端口号+项目名定位到某计算机上tomcat软件上部署的某项目，然后将路径名同url-pattern或WebServlet注解的值相匹配，匹配上了就加载classes目录下对应servlet类的字节码、通过反射创建其实例、调用service方法处理并返回，匹配不上则去WebContent目录下找静态资源，还找不到就返回404了。
 
 JSP是特殊的动态资源，JSP一章中分析了对此请求的[处理流程](#运行原理)。
 
@@ -897,7 +894,7 @@ my first servlet
 销毁servlet实例...
 ```
 
-综上可得首次收到对应请求时servlet容器调用构造器创建servlet实例，初始化时调用init方法，接着调用service方法处理请求，之后的每次访问都只调用此实例的service方法，项目从服务器上卸载或关闭服务器时servlet实例被销毁，此间调用destroy方法。
+综上可得首次捕捉到请求时servlet容器调用构造器创建servlet实例，初始化时调用init方法，接着调用service方法处理此请求，之后每次捕捉到请求都只调用此实例的service方法，项目从服务器上卸载或关闭服务器时servlet实例被销毁，期间调用destroy方法。
 
 构造器和init方法仅执行一次表明此实例是个单例。诸方法支持多线程，那么为避免线程安全问题，最好不要在此类中添加域。
 
@@ -905,7 +902,7 @@ my first servlet
 
 
 
-默认servlet类等到需要处理请求的时候才被创建，可使其随着tomcat服务器的启动而创建。两种改法：
+默认servlet类等到需要处理有关请求的时候才被创建，可使其随着tomcat服务器的启动而创建。两种改法：
 
 ```xml
 <servlet>
@@ -949,12 +946,13 @@ my first servlet
 public void init(ServletConfig config) throws ServletException {
     // 获取servlet-name标签值即类别名
     System.out.println(config.getServletName());
-    // 获取init-param标签值即初始化参数
+    // 以init-param标签下的param-name标签体获取param-value标签体即以初始化参数名取参数值
     System.out.println(config.getInitParameter("slogan"));
     // 获取ServletContext对象，它封装了所属web应用相关的信息和方法
     System.out.println(config.getServletContext());
     System.out.println("初始化servlet实例...");
 }
+
 // 打印结果
 my
 fight for motherland
@@ -966,7 +964,7 @@ org.apache.catalina.core.ApplicationContextFacade@3afec336
 
 ### ServletContext
 
-当前servlet实例的上下文，指的就是所属web应用即部署的项目，对应的域对象是application。
+当前servlet实例的上下文，指的就是所属web应用即部署的项目，对应JSP域对象application。
 
 编辑web.xml：
 
@@ -1005,11 +1003,11 @@ public class UseContext implements Servlet {
 		System.out.println(context.getContextPath());
 		// D:\apache-tomcat-8.5.70\wtpwebapps\java-web\hello.jsp 起头斜杠指项目根路径 常用于文件上传下载
 		System.out.println(context.getRealPath("/hello.jsp"));
-		// context对象可作为最大的范围对象application共享数据
+		// context对象作为最大范围对象共享数据
 		context.setAttribute("common", 521);
         // 空响应体
 	}
-	// ...
+	// 其他省略
 }
 ```
 
@@ -1017,7 +1015,7 @@ public class UseContext implements Servlet {
 
 ### HttpServlet
 
-通过eclipse创建的servlet类并不是实现Servlet接口，而是继承HttpServlet类。
+通过eclipse创建的servlet类并不是实现Servlet接口，而是继承HttpServlet抽象类。
 
 ```xml
 <servlet>
@@ -1056,7 +1054,7 @@ public class MyHttpServlet extends HttpServlet {
 }
 ```
 
-结合上图中的那段文字，分析源码。自定义servlet类继承HttpServlet类，后者继承GenericServlet类，又后者实现Servlet接口。按理说，感知到请求，就会调用servlet实例的service方法，假定自定义类已覆盖doGet和doPost，按是否覆盖service分情况讨论：
+结合上图中的那段文字，分析源码。自定义servlet类继承HttpServlet类，后者继承GenericServlet类，又后者实现Servlet接口。按理说，匹配到请求，就会调用servlet实例的service方法，假定自定义类已覆盖doGet和doPost，按是否覆盖service分情况讨论：
 
 - 当我们没覆盖service，调用父类HttpServlet的service方法，此方法体内又去调用重载的service方法，此方法体内判断请求方法是get、post还是其他，然后调用对应的do方法，又因为自定义类覆盖了doGet与doPost，故调用自定义类的对应do方法。
 - 当我们覆盖了service。不管何种请求，直接调用自定义类的service方法。
@@ -1073,7 +1071,7 @@ writer.write("plain text");
 ```
 
 ```java
-// 重定向 由于本servlet类的奇葩url-pattern，应跳到上一级
+// 重定向 先到上一级，既是当前虚拟地址的上一级又是物理地址的上一级
 response.sendRedirect("../hello.jsp");
 // 方法体执行结束，意味着对重定向里的第一个请求处理完毕
 ```
@@ -1081,7 +1079,7 @@ response.sendRedirect("../hello.jsp");
 控制台显示重定向里第一次响应的响应体是空的，响应头里有一项Location引人瞩目，告诉浏览器第二次请求的URL。
 
 ```java
-// 也可重定向到动态资源 我另创建了一个TempServlet，模板是extra/TempServlet ./可省略
+// 也可重定向到动态资源 我另创建了一个TempServlet，模板是/extra/TempServlet ./可省略
 response.sendRedirect("./TempServlet");
 ```
 
@@ -1101,49 +1099,47 @@ for (String hobby : hobbies) {
 System.out.println(request.getHeader("Content-type"));
 System.out.println(request.getHeader("Content-length"));
 /* 转发到另一个资源 */
-// 用最小范围对象request带数据
+// 用范围对象携带数据
 request.setAttribute("age", 18);
 // 获取转发器
 RequestDispatcher dispatcher = request.getRequestDispatcher("TempServlet");
-// 转发 从参数request看出带数据转发的特性
+// 转发 从参数request看出转发带数据的特征
 dispatcher.forward(request, response);
 ```
 
 一次请求只能对应一次响应，故方法体内不要响应多次-写多个转发、多个重定向或转发加重定向。
 
-由于多线程的存在，响应语句与其他语句没有先后要求，可以先响应后在响应期间执行后续语句，但有时存在隐患，比如带数据转发时下一个servlet实例拿不到数据：
+由于多线程，响应语句与其他语句没有先后要求，可以在响应期间执行后续语句，但有的语句必须写在响应语句之前才有用，比如保存转发数据。一般还是把唯一的响应语句写在方法体末尾。
 
 ```java
 // 第一个servlet类实例
 request.getRequestDispatcher("TempServlet").forward(request, response);
-request.setAttribute("age", 18);
+request.setAttribute("age", 18); // 应该先存数据再转发
 
 // 下一个servlet类实例 眼见得有两次转发
 System.out.println(request.getAttribute("age")); // null
 request.getRequestDispatcher("../hello.jsp").forward(request, response);
 ```
 
-故一般把唯一的响应语句写在方法体末尾。
-
 附带熟悉一下get方法和post方法的区别：
 
 - get的参数是显式的，跟在路径名后面；post的参数是隐式（请求体）显式均可存在。
-- get请求参数容量有限（4-5KB），如上传大文件会失败；而post的请求体可含大量数据。
-- 乱码问题的解决方案不同，参见[编码方式-请求](#请求)。
+- get参数容量有限（4-5KB），无法上传大文件；而post的请求体可含大量数据。
+- 乱码问题的解决方案不同，参见[请求编码方式](#请求)。
 
 ### 转发与重定向
 
-|                 | 转发            | 重定向           |
-| --------------- | --------------- | ---------------- |
-| 浏览器地址栏    | 不变            | 改变             |
-| request范围数据 | 共享            | 不共享           |
-| 请求-响应次数   | 1               | 2                |
-| 对象支持        | HttpRequest对象 | HttpResponse对象 |
-| 目标资源        | 必须是项目内的  | 不限于项目内的   |
+|               | 转发            | 重定向           |
+| ------------- | --------------- | ---------------- |
+| 浏览器地址栏  | 不变            | 改变             |
+| 请求范围数据  | 共享            | 不共享           |
+| 请求-响应次数 | 1               | 2                |
+| 对象支持      | HttpRequest对象 | HttpResponse对象 |
+| 目标资源      | 必须在项目内    | 不限于项目内     |
 
 服务端内部的转发可看作特殊的请求，故也带有方法等属性，值接续自当前请求。
 
-在浏览器点前进后退是不发请求的，因为利用的是缓存的资源，这也印证了前端路由的可行性。而且在后退得到的地址中，重定向中的第一个地址、转发的目标地址都不会出现，这不难理解：缓存存的是有内容的页面，重定向里的第一个地址就是作重定向用的，不对应页面；转发是服务器内部进行的，浏览器不可知，当然记录不了转发后的目标地址。
+点浏览器左上角三个按钮，得到的静态资源很可能取自缓存（这也印证前端路由的可行性），AJAX等则不会，按shift+F5清空缓存式刷新。而且在后退得到的地址中，重定向中的第一个地址、转发的目标地址都不会出现，这不难理解：缓存存的是有内容的页面，重定向里的第一个地址就是作重定向用的，不对应页面；转发是服务器内部进行的，浏览器不可知，当然记录不了转发后的目标地址。
 
 ### 注
 
@@ -1174,7 +1170,7 @@ if (count > 0) {
 
 #### 响应
 
-响应给浏览器的时候要明确告知资源的编码方式，浏览器知道它怎么编码的才能解码回原内容。浏览器默认的字符集ISO-8859-1是个大杂烩，无法智能适配具体编码方式，故需我们指定。
+响应给浏览器的时候要明确告知资源的编码方式，浏览器知道它怎么编码的才能解码回原内容。浏览器默认的字符集ISO-8859-1是个大杂烩，无法智能化为具体编码方式，故需我们指定。
 
 ```java
 // 只告诉浏览器按HTML格式解析文本，但并未指定字符集，会显示乱码
@@ -1195,7 +1191,7 @@ response.setCharacterEncoding("UTF-8");
 
 像html、jsp等文档中有指定编码方式的语句，则无需额外指定。
 
-殊途同归，最终的效果都体现在控制台响应头的这一项：
+殊途同归，最终的效果都体现在控制台里响应头的这一项：
 
 ```
 Content-Type: text/html;charset=UTF-8
@@ -1210,7 +1206,7 @@ Content-Type: text/html;charset=UTF-8
 request.setCharacterEncoding("UTF-8");
 ```
 
-此方案只适用于post请求，不适合get请求。因为post请求的参数是以请求体形式存在的，意味着调用doPost方法的时候才将二进制流转为字符串，get请求的参数是跟在URL后面的，而这完整路径在doGet执行前早就被服务器按默认编码方式解析了。
+此方案只适用于post请求，不适合get请求。因为当post请求的参数以请求体形式存在，调用doPost方法的时候才将二进制流转为字符串，而get请求的参数是跟在URL后面的，完整路径在doGet执行前早就被服务器按默认编码方式解析了。
 
 对get请求正确做法是在tomcat的server.xml文件中配置：
 
@@ -1225,20 +1221,20 @@ request.setCharacterEncoding("UTF-8");
 
 - url-pattern处，绝对路径起始于web项目的根路径。
 - 页面中，绝对路径起始于服务器的根路径，相对路径起始于当前资源所属路径（易知对重定向，属第二个路径）。
-- 转发处，绝对路径起始于项目的根路径（这也印证了转发只针对项目内资源），相对路径起始于当前资源所属路径。
+- 转发处，绝对路径起始于项目的根路径（这也印证了转发只适合项目内资源），相对路径起始于当前资源所属路径。
 - 重定向处，绝对路径起始于服务器的根路径，相对路径起始于当前资源所属路径。
 - 其他情况。
 
-若不指定项目名，项目的根路径与服务器的根路径就一样了，但最好不要这样做，容易误导。
+若不指定项目名，项目的根路径与服务器的根路径就一样了，但最好不要这样做，容易误导自己。
 
-使用相对路径的话一不小心会产生错误，实际开发中一般统一用绝对路径，较为稳妥。既然用绝对路径，重定向时就得补上项目名，最好通过HttpServletRequest对象的getContextPath方法动态获取。
+使用相对路径一来容易产生错误，二来不易读，故实际开发中一般统一用绝对路径。既然用绝对路径，重定向时就得补上项目名，最好通过HttpServletRequest对象的getContextPath方法动态获取。
 
-base标签属HTML标签库，用于给本页面中的所以相对路径（包括JS里的）补上指定前缀，使其化为绝对路径。
+base标签属HTML标签库，其href值充当本页面中所有相对路径（包括JS里的）的起始点，使其化为绝对路径。
 
 ```jsp
 <!-- 置于head标签内且在所有含路径标签之前 最好写成动态的，协议名://主机名:端口号/项目名/ -->
 <base href="<%=request.getScheme() %>://<%=request.getServerName() %>:<%=request.getServerPort() %><%=request.getContextPath() %>/"/>
-<base href="<%=request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/" %>" /> 
+<base href="<%=request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/"%>" /> 
 <!-- 注意request.getContextPath()返回值是带起始斜杠的 -->
 ```
 
@@ -1246,7 +1242,7 @@ base标签属HTML标签库，用于给本页面中的所以相对路径（包括
 
 ### 概述
 
-本章第一节分析三层架构，后面几节搜集一些项目相关的问题。
+本章第一节分析三层架构，后面几节收集项目相关的一些问题。
 
 从上到下是：
 
@@ -1262,30 +1258,30 @@ base标签属HTML标签库，用于给本页面中的所以相对路径（包括
 
 ![MVC与三层架构的关系](JavaWeb.assets/MVC与三层架构的关系.png)
 
-往细里说的话其实有5层。
+可以看出往细里说的话有5层。
 
 三层间的关系：上层调用下层，下层处理并返回结果给上层。
 
 ### classpath
 
-有必要提一下长见识的classpath的问题，假如要读入一个配置文件，若使用单元测试类加文件输入流，则这个文件不管放部署前项目的什么地方都能读进来，只要路径写对了，看几个例子：
+假如要读入一个配置文件，若使用单元测试类加文件输入流，则这个文件不管放部署前项目的什么地方都能读进来，只要路径写对了，看两个例子：
 
 ```java
 Properties props = new Properties();
-// 从原生项目根目录中找
+// 从后例可知经过编译这个WebContent目录不在类路径下，但还是能找到，说明编译器解析得到文件的绝对路径，将其写入字节码，运行时从原生项目下读取
 props.load(new FileInputStream("webcontent\\db.properties"));
 
 Properties props = new Properties();
-// 同上
+// 同理这个src目录也不会出现在classes文件夹里
 props.load(new FileInputStream("src\\db.properties"));
 ```
 
-若项目已然部署，在方法中使用文件输入流，则无论文件放哪都是找不到的。我们只能借助类加载器，用类加载器就涉及到classpath的问题，它找文件的起始路径是classpath即诸字节码的根路径，已有一个源码包src，我们再建一个源码包名如config，把配置文件置于其下，对比部署前后的情况：
+若项目已然部署，在方法中使用文件输入流，则无论文件放哪都是找不到的。我们只能借助类加载器，它找文件的起始路径就是classpath，已有一个源码包src，我们再建一个源码包名如config，把配置文件置于其下，对比部署前后的情况：
 
 | ![原生源码包](javaweb.assets/原生源码包.png) | ![部署后的classes目录](javaweb.assets/部署后的classes目录.png) |
 | -------------------------------------------- | ------------------------------------------------------------ |
 
-发现所有源码包下的东西集束于classes文件夹中，只不过左边内层是java文件，右边是class文件。
+发现所有源码包下的文件汇集于classes文件夹中，只不过左边里面放的是java文件，右边是class文件。
 
 用类加载器读配置文件的代码：
 
@@ -1296,13 +1292,13 @@ props.load(TempServlet.class.getClassLoader().getResourceAsStream("db.properties
 System.out.println(props.getProperty("username"));
 ```
 
-### servlet优化
+### 优化servlet
 
 对自定义的servlet类进行优化，为将来理解springmvc框架的控制器作铺垫。
 
-目前是一个servlet类与一个请求一一对应，请求一多的话servlet类也会跟着变多，我们想对它们进行分类整合，比如将登录、注册的处理逻辑并入一个UserServlet类，让它们作此类的方法，设一个请求参数用于指定调用哪个方法，再利用反射动态调用。
+目前是一个servlet类与一个请求一一对应，请求一多的话servlet类也会跟着变多，我们想对它们进行分类整合，比如将登录、注册的处理逻辑并入一个UserServlet类，让它们作此类的方法，可设一个请求参数用于指定调用哪个方法，再利用反射动态调用。
 
-拿到请求参数然后动态调用方法的逻辑也是通用的，故可抽取到一个BaseServlet类中。这个类又由UserServlet等类继承，那么在子类中就只用写像登录、注册这样的具体方法。
+拿到这个参数然后动态调用方法的逻辑也是通用的，故可抽取到一个BaseServlet类中，这个类又由UserServlet等类继承，那么在子类中就只用写像登录、注册这样的具体方法。
 
 ```java
 @WebServlet("/BaseServlet")
@@ -1343,52 +1339,53 @@ public class UserServlet extends BaseServlet {
 	public void register(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//...
 	}
-    //还有别的针对用户的处理逻辑就再加方法
+    // 还有新的处理逻辑就再加方法
 }
 ```
 
 ### 分页
 
-一种思路是在后端算出指定页的起始记录号，再去数据库基于limit关键字查询。
+常见思路是：浏览器给定页号与每页记录数，在后端算出指定页的起始记录号，再去数据库借助limit关键字查询。
 
 分页模型要素分析（注意顺序）：
 
 - 总记录数：从数据库查出来。
 - 每页记录数：有默认值，可由外部指定，须大于0。
 - 首页号：若总记录数为0，则为0，否则为1。
-- 总页数（尾页号）：若总记录数为0，则取0，否则若总记录数/每页记录数有余数，则取商加1，否则取商。
+- 总页数（尾页号）：若总记录数为0，则取0，否则若$总记录数\div每页记录数$有余数，则取商加1，否则取商。
 - 当前页号：由外部指定，须大于等于首页号且小于等于尾页号。
-- 本页起始索引：若当前页号为0则取0，否则取(当前页号-1)*每页记录数。
+- 本页起始索引：若当前页号为0则取0，否则取$(当前页号-1)\times每页记录数$。
 - 本页所有记录：根据本页起始索引和每页记录数，从数据库查出来。
 - 本页是否有上一页：当前页号是否大于首页号。
 - 本页是否有下一页：当前页号是否小于尾页号。
 - 上一页号：若有上一页，当前页号-1。
 - 下一页号：若有上一页，当前页号+1。
 
+项目内有实现代码。
+
 ### 重复提交
 
-重复（不包括查询字符串的URL重复）写数据的提交会带来问题。举一些例子：
+重复（不算上参数列表的URL的重复）写数据的提交会带来问题。举一些例子：
 
-- 重复插入数据库。
-- 重复修改数据库。
-- 服务器性能无谓损耗。
+- 重复插入数据库，记录冗余。
+- 重复修改数据库，web、DBS服务器性能无谓损耗。
 
-前两个问题是关系到用户体验的，因为系统不报错但用户不知情，从以下活动体会他们的不知情：
+第一个问题是关系到用户体验的，因为系统不报错但用户不知情，从以下活动体会他们的不知情：
 
 - 网卡了，用户后退到缓存的提交页面做提交，以为后退能撤销刚才的提交，以为提交一次其实是两次。
 - 网卡了，用户在提交后转发到的页面做刷新，以为刷新一次上次提交就失效但并不会，以为提交一次其实是两次。
 - 网卡了，用户再次触发某提交链接，以为再次触发上一次的就失效但并不会，以为提交一次其实是两次。
 
-那么解决原理就是阻止上述活动，只有用户在响应得到的提交页面上提交且仅提交一次时，才真正执行处理提交的逻辑。
+那么解决原理就是阻止上述活动，只有用户在响应得到的提交页面上第一次提交时，才真正执行处理提交的逻辑。
 
 常用解决方案诸如：
 
 - 针对刷新重复提交问题，将转发改成重定向。
-- 通过前端JS阻止重复触发提交链接。（可是JS是可禁用的）
+- 通过前端JS阻止重复触发提交链接（可JS是可禁用的）。
 
 特别介绍令牌（token）机制，它能替代上述两种方案，还能解决浏览器后退到缓存页面重复提交的问题。
 
-具体是在请求页面时向session里添加一个令牌数据（可用UUID充当），另添加一个作令牌的请求参数，然后在提交的处理逻辑中比对令牌参数和session里的令牌，一致则移除令牌数据并执行后续逻辑。
+具体是在请求提交页面时向session里添加一个令牌数据（可用UUID充当），向请求域对象中添加同一个令牌数据准备作提交带的参数，然后在提交的处理逻辑中比对令牌参数和session里的令牌，一致则移除令牌数据并执行后续逻辑。
 
 ```java
 // TokenServlet内
@@ -1433,25 +1430,23 @@ if (tokenParam == null) {
 
 令牌不一致，那么如何优雅地让用户明白重复提交了呢？
 
-注：点浏览器左上角三个按钮，得到的静态资源可能取自缓存，AJAX等则不会，按shift+F5（谷歌推荐）清空缓存地刷新。
-
-不知情的重复提交发生在页面的跳转（包括前端控制的跳转）时，故其他情况下的提交（增删改操作）一般无需令牌机制。前后端分离时，客户端的令牌可由页面刷新时发AJAX获取。
+前后端分离的应用中，客户端的令牌可由页面刷新时发AJAX获取。
 
 ### 验证码
 
 用于防止恶意注册、暴力登录等，但作用有限，如今机器越来越厉害了。
 
-验证码机制与token机制一样。请求页面时嵌入验证码图片，并将对应内容存入session，然后在提交的处理逻辑中对比验证码参数和session里的内容数据，匹配才移除内容数据并执行后续逻辑。
+验证码机制与token机制一样。在提交页面中嵌入验证码图片（URL填入src属性），并将对应内容存入session，然后在提交的处理逻辑中对比验证码参数和session里的内容，匹配才执行后续逻辑并移除内容数据。
 
-有个验证码生成工具叫kaptcha，是谷歌旗下的。图片的相关配置可参考[kaptcha配置文件](https://blog.csdn.net/ZhangVeni/article/details/50990895)。大多数第三方包下含Constants.class文件，里面定义了一些重要的常量，像kaptcha的这个文件就有图片样式、验证码内容相关的常量。
+常用验证码生成工具kaptcha，是谷歌旗下的。图片的相关配置可参考[kaptcha配置文件](https://blog.csdn.net/ZhangVeni/article/details/50990895)。大多数第三方包下含Constants.class文件，里面定义了一些重要常量，像kaptcha的这个文件就有图片样式、验证码内容相关的常量。切实使用参见项目。
 
 注：可设置浏览器是否缓存图片，若不缓存，则即使后退也会重新请求图片资源。
 
-### 计算问题
+### 计算误差
 
-项目运行时有可能会遇到计算问题，诸如整数溢出为负数或0、浮点数精度损失。
+项目运行时有可能会遇到计算问题，诸如自然数溢出为负数、浮点数精度损失。
 
-我们最好在有计算问题的地方使用Big系列类，用完转回原类型。注意实例化BigDecimal时传入字符串最稳妥。
+我们最好在有计算问题的地方使用Big系列类，用完转回原类型。实例化BigDecimal时传入字符串最稳妥。
 
 ## EL表达式
 
@@ -1471,10 +1466,10 @@ JSP standard tag libray-JSP标准标签库，是一套由Sun公司制定的API�
 
 用法详见[JSP 标准标签库](https://www.runoob.com/jsp/jsp-jstl.html)。提一些注意点：
 
-- `<c:url>`与`<c:redirect>`里的绝对路径起始于项目根路径，前者可用于重写URL，解决浏览器禁用cookie问题。
+- `<c:url>`与`<c:redirect>`里的绝对路径起始于项目根路径。前者可用于重写URL，解决浏览器禁用cookie问题（所以cookie并不能完全被禁用）。
 
   ```java
-  // encode系列方法重写URL，智能地判断浏览器是否禁用cookie，是则拼上;JSESSIONID键值对
+  // encode系列方法重写URL，智能地判断浏览器是否禁用cookie，是则拼上;JSESSIONID=Value的值
   response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/cookie.jsp"));
   ```
 
@@ -1486,26 +1481,24 @@ JSP standard tag libray-JSP标准标签库，是一套由Sun公司制定的API�
 
 欲自定义标签必遵守Sun制定的规范，即实现JspTag接口。自定义标签分以下几步：
 
-1. 在WEB-INF/tags目录中编写标签库的描述文件：new xml file->取名，改后缀为tld->create xml file from an xml schema file->select xml catalog entry->选中含web-jsptaglibrary的xsd->移除j2ee前缀。
+1. 在`WEB-INF/tags`目录中编写标签库的描述文件：new xml file；取名，改后缀为tld->create xml file from an xml schema file；select xml catalog entry；选中含web-jsptaglibrary的xsd；移除j2ee前缀。
 1. 编写此文件，描述标签结构。
 1. 定义对应的实现类，须实现JspTag的子接口SimpleTag。
 
 ## cookie与session
 
-这两个东西配合起来用于提升访问效率，直接从服务端取数据、往服务端存数据。
+这两个东西配合起来用于提升访问效率-避免访问数据库，直接从服务端取数据、往服务端存数据。
 
 可参考文章[session和cookie的区别](https://blog.csdn.net/qq_35257397/article/details/52967241)。
 
-类型说明：
+术语说明：
 
-- session是HttpSession接口实现类的对象，注意所含的id域。
-- cookie是Cookie类的对象，注意所含的Name域和Value域。
+- session是HttpSession接口的对象，注意所含的id域（定义在实现类MockHttpSession中）。
+- cookie是Cookie类的对象，注意所含的name域和value域。
 
-内容太杂，这里拣关键的说一下。
+这里拣关键的说一下。每次浏览器访问服务器某项目时，服务器先看请求带没带Name值为JSESSIONID的cookie（记作凭证cookie）：没带的话就为此项目并此浏览器生成一对session和凭证cookie，前者准备保存项目相关数据，后者交给浏览器保存，前者的id值与后者的value值一模一样，这就标志着一次新的会话开启了，浏览器下次访问此项目时就会带着这个cookie（前提是这个cookie没被删）；带了的话浏览器将它的value值同现存的所有session的id值一一比对，匹配上了的就允许其读写此session所保存的数据，全都不匹配的话（意味着对应session失效了）就重新生成一对session与凭证cookie并将后者交给浏览器，覆盖掉原有的凭证cookie，这标志着又一次新的会话开启了。
 
-每次浏览器访问服务器某项目时，服务器先看请求带没带Name值为JSESSIONID的cookie（记作凭证cookie）：没带的话就为此项目并此浏览器生成一对session和凭证cookie，前者准备保存项目相关数据，后者交给浏览器保存，前者的id值与后者的Value值一模一样，这就开启了新一次会话，浏览器下次访问此项目时就会带着这个cookie；带了的话浏览器将它的Value值同现存的所有session的id值一一比对，有匹配的就允许其操作此session所保存的数据，全都不匹配的话就重新生成一对session与凭证cookie并将后者交给浏览器，覆盖掉原有的凭证cookie，这又开启了一次新的会话。
-
-一个session的id值或一个凭证cookie的Value值唯一标识一个浏览器与一个项目的一次会话。
+故一个session的id值或相等的凭证cookie的value值唯一标识一个浏览器与一个项目的一次会话。
 
 相关方法的使用参考项目。
 
@@ -1515,7 +1508,7 @@ JSP standard tag libray-JSP标准标签库，是一套由Sun公司制定的API�
 
 servlet、过滤器、监听器是Javaweb的三大组件。
 
-可参考[Servlet 编写过滤器](https://www.runoob.com/servlet/servlet-writing-filters.html)。另参考J2EE文档的javax.servlet.Filter接口，其中对filter的定义如下：
+可参考[菜鸟教程](https://www.runoob.com/servlet/servlet-writing-filters.html)。另参考J2EE文档的Filter接口部分，对过滤器对象的定义如下：
 
 > A filter is an object that performs filtering tasks on either the request to a resource (a servlet or static content), or on the response from a resource, or both.
 
@@ -1525,14 +1518,13 @@ servlet、过滤器、监听器是Javaweb的三大组件。
 - 拦截响应，读写响应报文。
 - 放行请求或不放行而响应其他资源。
 
-由上生成的应用诸如登录验证、事务控制、乱码解决等。
+由上衍生的应用诸如登录验证、事务控制、乱码解决等。
 
 用法上同servlet很像。看个例子：
 
 ```java
 //@WebFilter("/MyFilter")
 public class MyFilter implements Filter {
-
 	public MyFilter() {
 		System.out.println("创建我的过滤器");
 	}
@@ -1548,7 +1540,7 @@ public class MyFilter implements Filter {
             // 满足要求才放行
 			chain.doFilter(request, response);
 		} else {
-			// 不满足要求则不会响应目标资源，而是替代资源
+			// 不满足要求则不会响应目标资源，而是响应替代资源
 			response.getWriter().write("no money, no girl");
 		}
 	}
@@ -1556,7 +1548,6 @@ public class MyFilter implements Filter {
 	public void init(FilterConfig fConfig) throws ServletException {
 		System.out.println("初始化我的过滤器");
 	}
-
 }
 ```
 
@@ -1579,42 +1570,42 @@ public class MyFilter implements Filter {
 
 ### 执行原理
 
-为某项目添加过滤器之后，访问此项目某资源的请求会先被过滤器拦截并检查，满足条件则放行，获取目标资源，否则响应过滤器中定义的替代资源，无替代资源的话就返回一个空响应体的响应。并且，在响应目标资源时，也会先被过滤器拦截，可以篡改响应体。
+为某项目添加过滤器之后，访问某些资源的请求会先被过滤器拦截并检查，满足条件则放行，获取目标资源，否则响应过滤器中定义的替代资源，无替代资源的话就返回一个空响应体的响应。并且，在响应目标资源时，也会先被过滤器拦截，可以篡改响应体。
 
 ```java
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 		throws IOException, ServletException {
     // 此时request对象和response对象已经生成且都作实参了
 	if (request.getParameter("money") != null) {
-        // 响应报文未完全形成，但已经生成响应头，且先往response对象的缓冲区中写数据准备作响应体的开头，由于没指定设编码方式，响应头里的编码方式就是默认的会导致乱码的
+        // 响应报文未完全形成，但由于已经往response对象的缓冲区中写了文本（准备作响应体的开头），响应头里的编码方式就确定下来，又自己没指定编码方式，故确定下来的编码方式是默认的，会导致乱码
         response.getWriter().write("头插");
-        // 执行jsp文档翻译出的java代码，将前端部分追加写出到response对象的缓冲区 注意设定内容类型的代码会失效，因为响应头已经生成了，想改里面的编码方式已经晚了
+        // 执行jsp文档翻译出的java代码，将前端部分追加写出到response对象的缓冲区，注意设定内容类型的代码会失效，因为编码方式已经确定了，想更改已经晚了
 		chain.doFilter(request, response);
         // 往response对象的缓冲区里追加数据
         response.getWriter().write("尾插");
-        // 而后响应报文最终形成，被发送给浏览器
-        System.out.println("拦截响应")
+        System.out.println("拦截响应");
+        // 后面响应报文完整成形，被发送给浏览器
 	} else {
 		// 响应体为空
 	}
 }
 ```
 
-若满足条件却不显式调用doFilter方法，请求不被放行，于是返回头插尾插数据作响应体的响应。
+若满足条件却不显式调用doFilter方法，则请求不被放行，于是返回头插尾插文本作响应体的响应。
 
-前后扩充响应体仅适用于jsp资源，对普通静态资源，只能做头插，因为doFilter一执行完响应体成形了。
+前后扩充响应体仅适用于jsp资源，对普通静态资源，只能做头插，因为doFilter一执行完响应体就成形了。
 
 ### 生命周期
 
-过滤器从创建到销毁均由服务器控制，不过生命周期跟servlet稍有不同。
+过滤器从创建到销毁同样由服务器控制，不过生命周期跟servlet稍有不同。
 
-过滤器对象的创建和初始化是随着项目的加载而进行的，通过调用构造器创建对象，初始化时调用init方法，它们都仅执行一次，故过滤器也是单例。对象随着项目的卸载而销毁，销毁时执行destroy方法。每当服务器接收到对应请求，就调用doFilter方法来拦截。各方法也均支持多线程。
+过滤器对象的创建和初始化是随着项目的加载而进行的，通过调用构造器创建对象，初始化时调用init方法，它们都仅执行一次，故过滤器也是单例。对象随着项目的卸载而销毁，销毁时执行destroy方法。每当服务器接收到匹配的请求，过滤器对象就调用doFilter方法来拦截。各方法也均支持多线程。
 
 ### url-pattern
 
 配置此标签值进行灵活匹配，拦截某个请求或某一类请求。
 
-- 精确匹配：拦截标签值与地址尾部完全一样的请求。
+- 精确匹配：拦截标签体与除开项目名以外的路径名完全一样的请求。
 
   ```xml
   /girl.jsp
@@ -1622,7 +1613,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
   /client/LoginServlet
   ```
 
-- 路径匹配：标签值由路径名与通配符组成，拦截对此路径下任意资源的请求。
+- 路径匹配：标签体含通配符，拦截对某路径下任意资源的请求。
 
   ```xml
   /* 本项目下所有资源
@@ -1635,7 +1626,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
   ```xml
   *.jsp
   *.jpg
-  *.* 谁都不拦截（不是谁都拦截），没人这么配
+  *.* 谁都不拦截（而不是谁都拦截），没人这么配
   ```
 
 上述配置也适用于servlet，但servlet一般只采用精确匹配。
@@ -1651,9 +1642,9 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 ```java
 // 发的是http://localhost/java-web/girl.jsp?money=100
 HttpServletRequest req = (HttpServletRequest) request;
-// /java-web/girl.jsp URI是去掉Host部分的地址，不带查询字符串
+// /java-web/girl.jsp URI是路径名
 String uri = req.getRequestURI();
-// http://localhost/java-web/girl.jsp URL是完整的地址，但也不带查询字符串
+// http://localhost/java-web/girl.jsp URL是完整的地址，但不带查询字符串
 StringBuffer url = req.getRequestURL();
 // 请求头里的路径名是/java-web/girl.jsp?money=100
 ```
@@ -1675,11 +1666,11 @@ public void init(FilterConfig fConfig) throws ServletException {
 
 当多个过滤器拦截同一个请求，web.xml中先出现的过滤器先拦截请求，后拦截响应，因为web.xml自上而下被服务器扫描，先扫描到的离浏览器越近、离资源越远。
 
-对于离资源最近的过滤器，执行doFilter方法体，针对动态资源底层就会调用service方法、_jspService方法。
+链式拦截的本质是它们doFilter方法的嵌套调用。那么对于离资源最近的过滤器，执行doFilter方法，针对动态资源底层就会调用service（doGet、doPost）方法或`_jspService`方法。
 
 ### dispatcher
 
-假如我们通过一个servlet转发得到gir.jsp，则过滤器不会拦截，因为其url-pattern只针对浏览器发来的请求，不针对服务器内部的转发。不过可通过dispatcher标签增强其管控范围：
+假如我们通过一个servlet转发得到girl.jsp，则过滤器不会拦截，因为其url-pattern只针对浏览器发来的请求，不针对服务器内部的转发。不过可通过dispatcher标签增强其管控范围：
 
 ```xml
 <filter-mapping>
@@ -1697,7 +1688,7 @@ public void init(FilterConfig fConfig) throws ServletException {
 - INCLUDE：只拦截动态包含。
 - ERROR：只拦截JSP异常时向全局报错页面的转发。注意page指令里的errorPage属性指的是局部报错页面，靠FORWARD拦截。
 
-借此机会看一下全局（此项目）报错页面的配置：
+借此机会看一下全局（当前项目）报错页面的配置：
 
 ```xml
 <error-page>
@@ -1708,9 +1699,9 @@ public void init(FilterConfig fConfig) throws ServletException {
 
 ### 控制事务
 
-服务器接收请求到发送相应，是由一个线程控制的，对接数据库的事务机制，这一个线程必须对应一个连接，从而保证出错时能撤销当前请求涉及到的所有DML操作。项目里我们设定业务逻辑层诸方法内部获取、释放连接，若servlet处理请求调多个业务逻辑层方法或业务逻辑层方法调用本层方法，则产生多事务，做不到整体回滚。
+从接收请求到发送相应，是由一个线程控制的，对接数据库的事务机制，这一个线程必须对应一个连接，从而保证出错时能撤销当前请求涉及到的所有DML操作。项目里我们设定业务逻辑层诸方法体内获取、释放连接，若servlet处理请求调多个业务逻辑层方法或业务逻辑层方法调用本层方法，则产生多事务，做不到整体回滚。
 
-参考bookstore-upper项目，整个项目里的大部分异常都抛给事务过滤器处理。我们提倡底层做约束（抛异常），高层统一回滚（处理），消除try-catch语句高度冗余。罗列关键的改进点：
+参考bookstore-upper项目，整个项目里的大部分异常都抛给事务过滤器处理。我们提倡底层做约束（抛异常），高层统一回滚（处理），既消除try-catch语句的高度冗余又实现整体回滚。罗列关键的改进点：
 
 - 造了个事务过滤器，实现全局事务控制兼全局异常处理，可联想express的错误处理中间件。
 
@@ -1738,14 +1729,14 @@ public void init(FilterConfig fConfig) throws ServletException {
           resp.sendRedirect(req.getContextPath() + "/exception.jsp");
       } finally {
           try {
-              // 恢复自动提交
+              // 恢复自动提交（尽管底层自动做了）
               if (conn != null) {
                   conn.setAutoCommit(true);
               }
           } catch (SQLException e) {
               e.printStackTrace();
           }
-          // 释放连接、移除键值对
+          // 释放资源、回收连接，移除键值对
           JDBCUtils.closeResource(conn, null, null);
       }
   }
@@ -1829,13 +1820,13 @@ public void init(FilterConfig fConfig) throws ServletException {
           method.setAccessible(true);
           method.invoke(this, request, response);
       } catch (Exception e) {
-          // 在catch里抛出非受检异常，由事务过滤器捕获
+          // 在catch里继续抛出非受检异常，往上抛，让事务过滤器捕获
           throw new RuntimeException(e);
       }
   }
   ```
 
-- dao层方法少了大量Connection参数的定义、service层方法少了大量try-catch语句，但两层均多出大量throws语句。
+- dao层方法少了大量Connection参数的定义、service层方法少了大量try-catch语句，代价是两层均多出大量throws语句。
 
 ## 监听器
 
@@ -1845,28 +1836,26 @@ public void init(FilterConfig fConfig) throws ServletException {
 - 对应会话的HttpSession接口对象。
 - 对应web应用的ServletContext接口对象。
 
-这三个对象各由各的监听器监听，合起来有8个，如下所示：
+这三个对象由各自的监听器监听，合起来有8个，如下所示：
 
 <img src="D:\chaofan\typora\专业\JavaWeb.assets\image-20220504161651355.png" alt="image-20220504161651355" style="zoom:80%;" />
 
-由上图左列可只这些监听器接口分三大类：
+由上图左列可知这些监听器接口分三大类：
 
 - 3个：监听生命周期，仅创建与销毁。
-- 3个：监听属性的增改（setAttribute）删（removeAttribute）。
-- 2个：监听session对象的钝化活化（activation）和对象绑定（binding）。
+- 3个：监听数据的增改（setAttribute）删（removeAttribute）。
+- 2个：监听session对象的钝化活化（activation）和数据绑定（binding）。
 
-下面这个例子包办了，三个对象都能监听：
+看一些例子：
 
 ```java
-// 监听三个域对象的监听器
+// 监听三个域对象生命周期的监听器
 public class LifeCycleListener implements ServletRequestListener, HttpSessionListener, ServletContextListener {
-
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		System.out.println("正在销毁application对象");
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		System.out.println("正在创建application对象");
@@ -1874,7 +1863,6 @@ public class LifeCycleListener implements ServletRequestListener, HttpSessionLis
 		ServletContext context = sce.getServletContext();
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public void sessionCreated(HttpSessionEvent se) {
 		System.out.println("正在创建session对象");
@@ -1884,7 +1872,7 @@ public class LifeCycleListener implements ServletRequestListener, HttpSessionLis
 
 	@Override
 	public void sessionDestroyed(HttpSessionEvent se) {
-		// session销毁（失效）只有到期、手动失效两种方式
+		// session销毁（失效）只有到期（自动失效）、手动失效两种方式
 		System.out.println("正在销毁session对象");
 		// 关闭服务器、卸载项目等都不会调用此方法，session只是被钝化，并不是被销毁
 	}
@@ -1894,7 +1882,6 @@ public class LifeCycleListener implements ServletRequestListener, HttpSessionLis
 		System.out.println("正在销毁request对象");
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public void requestInitialized(ServletRequestEvent sre) {
 		System.out.println("正在创建request对象");
@@ -1905,10 +1892,8 @@ public class LifeCycleListener implements ServletRequestListener, HttpSessionLis
 }
 ```
 
-下面这个例子也是包办的：
-
 ```java
-// 监听三个域对象的属性的监听器 后面几个方法体里的代码类似，就不写了
+// 监听三个域对象存取数据的监听器 后面几个方法体里的代码类似，就不写了
 public class AttributeListener implements ServletRequestAttributeListener, HttpSessionAttributeListener, ServletContextAttributeListener {
 
 	@Override
@@ -1980,17 +1965,17 @@ public class AttributeListener implements ServletRequestAttributeListener, HttpS
 
 - 绑定：执行setAttribute方法，存入数据。
 - 解绑：removeAttribute方法，移除数据。
-- 钝化：为了给内存腾出空间、防止数据丢失，服务器将session对象从内存序列化进硬盘，又叫持久化。
+- 钝化：为了给内存腾出空间、防止数据丢失，服务器将session对象从内存序列化进硬盘。
 - 活化：钝化的逆过程。
 
 我们引用官方文档对钝化活化监听器的定义：
 
 > Objects that are bound to a session may listen to container events notifying them that sessions will be passivated and that session will be activated. A container that migrates session between VMs or persists sessions is required to notify all attributes bound to sessions implementing HttpSessionActivationListener.
 
-监听的目标是绑定给session的对象，故应让某个JavaBean实现此接口以及Serializable接口：
+监听的目标是绑定给session的对象，故应让相关实体类实现此接口以及Serializable接口：
 
 ```java
-// 只监听Student对象
+// 监听做绑定的实体类
 public class Student implements HttpSessionActivationListener, Serializable {
 	private static final long serialVersionUID = -4801427360080538621L;
 
@@ -2020,10 +2005,9 @@ public class Student implements HttpSessionActivationListener, Serializable {
 
 > Causes an object to be notified when it is bound to or unbound from a session. The object is notified by an [`HttpSessionBindingEvent`](https://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpSessionBindingEvent.html) object. This may be as a result of a servlet programmer explicitly unbinding an attribute from a session, due to a session being invalidated, or due to a session timing out.
 
-监听的目标也是绑定给session的对象，故同样是让某个JavaBean实现此接口：
+监听的目标也是绑定给session的对象，故同样是让相关实体类实现此接口：
 
 ```java
-// 只监听User对象
 public class User implements HttpSessionBindingListener {
 	@Override
 	public void valueBound(HttpSessionBindingEvent event) {
@@ -2139,7 +2123,7 @@ submit=submit
 
 ### 概述
 
-这东西太常见了，如上传头像、上传商品海报、下载表格等。思考文件存储在哪里好呢，数据库还是服务器？数据库一般保存占空间很小的字段，二进制流的话一来占空间，二来传到应用再传到客户端很费时间，故对优化的项目而言文件（图片、音视频等）一般存到静态文件服务器；对普通项目而言文件就存到某个目录下。
+这东西太常见了，如上传头像、上传商品海报、下载表格等。思考文件存储在哪里好呢，数据库还是服务器？数据库一般保存占空间很小的字段，二进制流的话一来占空间，二来传到应用再传到客户端很费时间，故对实际项目而言文件（图片、音视频等）一般存到静态文件服务器；对练习项目而言文件存到某个目录下就行了。
 
 ### 上传
 
@@ -2150,14 +2134,14 @@ request.setCharacterEncoding("utf-8");
 String username = request.getParameter("username");
 // 一般是带后缀的文件名（除了IE奇葩）
 String avatar = request.getParameter("avatar");
-// 借助commons-io
-String stream = IOUtils.toString(request.getInputStream());
-// stream是空串的，证明流并没有传进来
+// 借助commons-io将字节转字符
+String stream = IOUtils.toString(request.getInputStream()); // 通过字节输入流将请求体输入为字节流
+// stream是空串的，证明文件数据并没有装进请求体
 System.out.println("流：" + stream);
 response.sendRedirect("/java-web/file-upload.jsp");
 ```
 
-参考[form标签的enctype属性](https://www.w3school.com.cn/tags/att_form_enctype.asp)。然后把enctype值改成B类型，就发现除了流，其他参数拿不到了，都封进流了。
+参考[form标签的enctype属性](https://www.w3school.com.cn/tags/att_form_enctype.asp)，应把enctype值改成B类型。发现除了流，其他参数拿不到了，借此讨论getParameter方法的能力范围，查询字符串里的参数是一定能拿到的，但能不能拿到请求体里的参数看情况：内容类型若为A-格式为form data，只能拿非二进制数据，若为B、C-格式为request payload，什么拿不到。
 
 ```java
 request.setCharacterEncoding("utf-8");
@@ -2183,11 +2167,11 @@ Content-Type: image/jpeg
 一串乱码...
 ```
 
-接着就想如何由流拆分得到各个参数。
+接着就想如何通过流将输入的请求体拆分转化得到各个参数（Java对象）。
 
 ```java
 request.setCharacterEncoding("utf-8");
-// 借助commons-fileupload，它依赖commons-io
+// 借助commons-fileupload
 DiskFileItemFactory factory = new DiskFileItemFactory();
 ServletFileUpload fileUpload = new ServletFileUpload(factory);
 try {
@@ -2196,14 +2180,15 @@ try {
     for (FileItem fileItem : list) {
         // true表示普通表单域，false表示文件
         if (fileItem.isFormField()) {
-            // 普通表单域的name值
-            String fieldName = fileItem.getFieldName();
-            System.out.println(fieldName);
+            // name值
+			System.out.println(fileItem.getFieldName());
+            // value值
+			System.out.println(fileItem.getString("UTF-8"));
         } else {
             // 文件名
             String fileName = fileItem.getName();
             System.out.println(fileName);
-            // 获取文件流
+            // 获取文件输入流
             InputStream stream = fileItem.getInputStream();
             // 防止重名覆盖
             String prefix = UUID.randomUUID().toString();
@@ -2211,7 +2196,7 @@ try {
             FileOutputStream outputStream = new FileOutputStream(
                     getServletContext().getRealPath("/upload/") + prefix + "_" + fileName);
             IOUtils.copy(stream, outputStream);
-            // 请求报文一收完，输入流自动关闭，只用手动关输出流
+            // 请求体一输入完，输入流自动关闭，只用手动关输出流
             outputStream.close();
         }
     }
@@ -2245,9 +2230,9 @@ fis.close();
 
 ## 项目发布
 
-一般是将原生项目打成war包，放在远程服务器tomcat安装路径下的webapps文件夹内，让tomcat自动部署。
+一般是将原生项目打成war包，放在远程服务器tomcat安装路径下的webapps文件夹内，启动tomcat时自动解压运行。
 
-我们还总将tomcat启动程序做成服务，随开机启动：
+我们还可以将tomcat启动程序做成windows服务，随开机启动：
 
 ```shell
 # 进入tomcat安装路径，可能需要管理员权限 服务名任意
@@ -2285,11 +2270,11 @@ sc delete Tomcat8.5
 
 ![image-20200710114625522](JavaWeb.assets/image-20200710114625522.png)
 
-tomcat环境（或依赖）就是一组jar包，它们可见于tomcat根目录的lib文件夹内。
+tomcat环境（或库）就是一组jar包，见于tomcat根目录的lib文件夹内。
 
-关于字节码文件存放路径的修改及lib目录的设定可参考此[博客](https://www.cnblogs.com/printN/p/6537903.html)。
+关于字节码输出路径的修改及jar包目录lib的设定可参考此[博客](https://www.cnblogs.com/printN/p/6537903.html)。
 
-附带谈一下jar包的问题，这里记录一下自己在两个IDE上的实验结果：
+附带谈一下jar包编译路径、类路径的问题，这里记录一下自己在两个IDE上的实验结果：
 
 - eclipse：
 
@@ -2302,13 +2287,15 @@ tomcat环境（或依赖）就是一组jar包，它们可见于tomcat根目录�
   - web项目：只把jar包拷贝到lib目录下，编译会报错。要手动对它们逐一进行Add as Library或Project Structure->Modules->Denpendencies->+Jars or directories->选中lib目录（推荐）。但直接运行能成功。
   - 普通项目：同eclipse。
 
+直接运行成功证明了jar包置于lib下是tomcat的一大[约定](#rule)，启动项目扫描到相关import语句它自动从lib中加载字节码，无需指明类路径。附带讲扫描到Java API相关的import语句（java.lang也是隐式import进来的），它也是自动从相应路径加载字节码，呼应Java笔记中的JAVA_HOME配置。
+
 ## JNDI
 
 ### 概述
 
-即Java Name Directory Interface-Java名称目录接口。
+即java name directory interface-java名称目录接口。
 
-JNDI实现在项目间共享数据，域对象等，具体通过tomcat配置文件context.xml对这些东西进行读写。
+JNDI依靠tomcat的配置文件context.xml，实现域对象范围的进一步扩大-在项目间共享数据。
 
 ### 使用
 
@@ -2322,7 +2309,7 @@ JNDI实现在项目间共享数据，域对象等，具体通过tomcat配置文�
 
 ```java
 Context jndi = new InitialContext();
-// java:comp/env/ 这个前缀一定要加
+// java:comp/env/这个前缀一定要加
 String value = (String)jndi.lookup("java:comp/env/jndiName");
 out.print(value);
 ```

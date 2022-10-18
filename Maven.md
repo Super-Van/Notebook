@@ -22,29 +22,40 @@ jar包来源于他人或官网，不同技术的官网下载jar包的方式是�
 
 一个jar包所依赖的另一个jar包需要手动添加到项目中，那么程序员就得熟悉各jar包之间的依赖关系，这增加了学习成本。Maven可以帮助我们级联导入所有jar包。
 
-### 是什么
+### 概念
 
 Maven是一款用java编写的、服务于java平台的自动化构建工具。
 
 ### 构建
 
-所谓构建，就是Maven以源文件、框架配置文件、jsp、html、图片等资源生产一个可运行项目的过程。它分为三步：编译、部署、搭建。对于一个基于B/S模式的项目，要运行的不是动态web工程的源码，而是它编译、部署后的结果。
-
-- java是一门编译型语言，.java源文件必须编译成.class字节码文件才能执行。
-- 若我们想访问j自己的ava web程序则必须将此web工程的编译结果放到服务器的指定目录中并启动服务器，这个放置的过程就是部署。
-- 在实际项目中还需整合第三方框架。web工程除了有源程序、jsp、图片等静态资源外，还包括第三方框架的jar包及各类配置文件，所有这些资源需遵循正确的目录要求一并部署到服务器中。
+所谓构建，就是Maven将源文件、框架配置文件、html、图片、第三方jar包等生产出一个可运行项目的过程。
 
 构建的具体环节：
 
-1. 清理-将旧class文件删除，为下一次编译做准备。
-2. 编译-将源程序转化为class文件。
-3. 测试-自动调用Junit程序。
-4. 报告-告知测试程序运行的结果。
-5. 打包-动态web工程打成war包，普通java工程打成jar包。
-6. 安装-将打包而得的文件复制到本地仓库中。
-7. 部署-将war包复制到服务器（如tomcat）的指定目录下。
+1. 清理（clean）：将旧class文件删除，为下一次编译做准备。
+2. 编译（compile）：将源程序转化为class文件。
+3. 测试（test）：自动调用Junit程序。
+4. 报告：贯穿环节，跟踪其他环节的进行。
+5. 打包（package）：动态web工程打成war包，普通java工程打成jar包。
+6. 安装（install）：将打包得到的文件复制到本地仓库中。
+7. 部署（deploy）：将war包或jar包发布到远程仓库（如公司私服）中，参见[maven打包项目到私服](https://www.cnblogs.com/xhq1024/p/10671395.html)。
 
-那么Maven的牛逼之处就是自动化构建，即将编译、打包、部署等重复耗时的工作交给机器完成。
+这些都由maven完成，我们只需输入相应的[命令](#命令)。
+
+我们想访问自己的ava web程序，到上面第5步就行了，接着须将war包放到服务器的指定目录中并启动服务器，这个放置过程也叫部署。maven为项目内文件指定了严格的目录结构。
+
+```
+src/main/java
+src/main/resources
+src/test/java
+src/test/resources
+target
+src
+	main
+	webapp
+		META-INF
+		WEB-INF
+```
 
 ### 安装
 
@@ -52,7 +63,7 @@ Maven是一款用java编写的、服务于java平台的自动化构建工具。
 
 1. 检查环境变量JAVA_HOME。
 2. 解压Maven核心程序的压缩包，放在非中文无空格的路径中。
-3. 配置Maven相关环境变量-MAVEN_HOME及path。
+3. 配置Maven相关环境变量MAVEN_HOME及path。
 4. 验证。执行`mvn -v`命令以查看版本信息。
 
 安装完毕，最好要配置下面一些东西：
@@ -98,7 +109,7 @@ Maven是一款用java编写的、服务于java平台的自动化构建工具。
   <localRepository>D:\server\apache-maven-3.6.3\mvnrep</localRepository>
   ```
 
-## 核心概念
+## 核心
 
 ### 目录结构
 
@@ -114,7 +125,7 @@ Maven是一款用java编写的、服务于java平台的自动化构建工具。
 
 ### POM
 
-Project Object Model-项目对象模型。pom.xml是Maven工程的核心配置文件，控制着构建过程。
+project object model-项目对象模型。pom.xml是Maven工程的核心配置文件，控制着构建过程。
 
 ### 依赖
 
@@ -124,23 +135,23 @@ Maven解析依赖信息时会到本地仓库查找所依赖的jar包，那么当
 
 直接上表：
 
-| 范围     | 编译 | 测试 | 运行 | 打包 | 例子        |
-| -------- | ---- | ---- | ---- | ---- | ----------- |
-| compile  | 是   | 是   | 是   | 是   | spring-core |
-| test     |      | 是   |      |      | junit       |
-| provided | 是   | 是   |      |      | servlet-api |
-| runtime  |      | 是   | 是   | 是   | jdbc driver |
+| 范围/环节 | 编译 | 测试 | 打包 | 运行 | 例子        |
+| --------- | ---- | ---- | ---- | ---- | ----------- |
+| compile   | 是   | 是   | 是   | 是   | spring-core |
+| test      |      | 是   |      |      | junit       |
+| provided  | 是   | 是   |      |      | servlet-api |
+| runtime   |      | 是   | 是   | 是   | jdbc driver |
 
-稍微对表头这四个阶段作一番说明：
+个人理解四个环节：
 
-- 编译指编译除测试文件以外自己写的源文件，一个简单的判定法是看包里的东西是否出现在这些源文件中。
-- 测试指对测试类的编译与运行，就包括对测试类及自己写的源文件的编译。参与编译的就一定会参与测试。
-- 运行指除测试运行以外在生产环境中项目的运行。如servlet-api就不参与运行，因为tomcat提供了。
-- 打包指生产环境中没有的依赖被打进当前项目的jar包或war包。
+- 编译：编译主程序，即编译`src/main/java`路径下的所有源文件、编译import进来的源文件或检查import进来的字节码。
+- 测试：编译测试程序，即编译`src/test/java`路径下的所有源文件、编译import进来的源文件或检查import进来的字节码，然后从main方法运行。
+- 运行：在生产环境中运行打好的jar包或war包。
+- 打包：将编译环节的结果打成jar包或war包。
 
-部署的前提是存在jar包或war包。
+表中的”是“代表有效，各个范围下的依赖有不同的生效环节，结合例子自行分析。
 
-maven官网有更为详细的介绍：
+maven官网官方介绍：
 
 > - scope:
 >
@@ -247,7 +258,7 @@ maven官网有更为详细的介绍：
 <!-- 路径：org/springframework/spring-core/4.0.0.RELEASE/spring-core-4.0.0.RELEASE.jar -->
 ```
 
-jar包名由artifactid与version拼接而成，前两个名字可以灵活地去起。
+可见jar包名由artifactid与version拼接而成。
 
 ### 仓库
 
@@ -261,18 +272,9 @@ jar包名由artifactid与version拼接而成，前两个名字可以灵活地去
 
 ### 插件
 
-构建过程中的各个环节的执行顺序不能打乱。
+理解构建生命周期的有关概念，参考[菜鸟教程](https://www.runoob.com/maven/maven-build-life-cycle.html)。
 
-Maven定义了抽象的生命周期，生命周期中各个阶段的具体任务是由插件来完成的。
-
-为了更好地实现自动化管理，Maven核心程序不论执行哪个命令都会从生命周期的最初位置开始执行，如要执行install就得从执行compile开始。
-
-生命周期的各阶段分别具有特定任务，任务由插件完成。有些任务相似，故由同一插件完成，例如：
-
-| 阶段    | 插件目标    | 插件                  |
-| ------- | ----------- | --------------------- |
-| compile | compile     | maven-compiler-plugin |
-| test    | testCompile | maven-compier-plugin  |
+构建过程主要是由插件完成的。有的插件支持多个环节。
 
 ### 继承
 
@@ -325,27 +327,26 @@ Maven定义了抽象的生命周期，生命周期中各个阶段的具体任务
 
 想安装子工程模块，直接用父模块的pom.xml文件安装即可。maven会智能地调整各模块的安装顺序以保证工程间的依赖。
 
-## 常用命令
+## 命令
 
-注意：执行与构建过程相关的命令，必须进入pom.xml所在目录。
+执行与构建过程相关的命令，必须进入pom.xml所在目录。
 
 ```shell
-#清理
-mvn clear
-#编译主程序
+# 移除上一次构建产生的所有文件
+mvn clean
+# 编译主程序
 mvn compile
-#编译测试程序
+# 编译测试程序
 mvn test-compile
-#执行测试
+# 编译并运行测试程序
 mvn test
-#打包
+# 打包
 mvn package
-#安装
+# 安装
 mvn install
-#生成站点
-mvn site
-#清理x命令产生的东西并重新一路进行到x
-mvn clean x
+# 部署
+mvn deploy
+# 移除并打包
 mvn clean package
 ```
 

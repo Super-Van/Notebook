@@ -20,11 +20,11 @@ SHOW TABLES; -- 含表及视图
 
 DESC dept_sal_view;
 
-SHOW TABLE STATUS LIKE 'emp_view' \G -- \G使得行列转置
+SHOW TABLE STATUS LIKE 'emp_view' \G; -- \G使得行列转置
 
 SHOW CREATE VIEW emp_view;
 
--- 更新视图
+-- 更新视图-通过视图增删改原数据
 CREATE VIEW dept_sal_view
 AS
 SELECT department_id, AVG(salary) avg_sal
@@ -54,3 +54,5 @@ FROM emp;
 
 -- 删除视图
 DROP VIEW IF EXISTS emp_view, dept_sal_view;
+
+DROP VIEW emp_view CASCADE; -- 级联删除由它导出的视图

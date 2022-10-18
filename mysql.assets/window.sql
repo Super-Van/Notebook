@@ -23,14 +23,14 @@ VALUES
 (2, '户外运动', '运动外套', 799.90, 500, '2020-11-10 00:00:00'),
 (2, '户外运动', '滑板', 499.90, 1200, '2020-11-10 00:00:00');
 
--- 序号函数 按category_id分组，组内按价格排序
--- ROW_NUMBER()：给组内记录标序号，序号递增不重复
+-- 序号函数 按category_id分组，组内按price排序
+-- ROW_NUMBER()：给组内记录标序号，序号单调递增
 SELECT
 	ROW_NUMBER() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num, -- 因为是组内序号，故函数与操作都在派生列上
 	id, category_id, category, `name`, price, stock
 FROM goods;
 
--- RANK()：像ROW_NUMBER()，但对相等排序分量，标相同的序号，且后续若干号将空缺
+-- RANK()：像ROW_NUMBER()，但对相等排序分量，标相同的序号，且后续若干序号空缺
 SELECT
 	RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num, -- 于是存在相等的row_num分量
 	id, category_id, category, `name`, price, stock
@@ -38,12 +38,12 @@ FROM goods;
 
 -- DENSE_RANK()：像RANK()，但无空缺
 SELECT
-	DENSE_RANK()() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num, -- 于是存在相等的row_num分量
+	DENSE_RANK()() OVER(PARTITION BY category_id ORDER BY price DESC) AS row_num,
 	id, category_id, category, `name`, price, stock
 FROM goods;
 
 -- 分布函数
--- PERCENT_RANK()：(RANK - 1) / (rows - 1)
+-- PERCENT_RANK()：(RANK()结果 - 1) / (总记录数 - 1)
 SELECT
 	RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS r,
 	PERCENT_RANK() OVER(PARTITION BY category_id ORDER BY price DESC) AS pr,

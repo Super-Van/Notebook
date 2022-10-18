@@ -21,14 +21,18 @@ SELECT @@character_set_client; -- 先找会话，找不到再找系统
 
 -- 修改系统变量 一是通过my.ini修改，但重启才生效代价太大，于是用SET命令
 -- 针对本次服务实例有效，重启就重置
-SET @@global.commit = false;
+SET @@global.autocommit = false;
 
 SET GLOBAL max_connections = 171;
 
--- 改会话不影响全局 针对本次会话有效
-SET @@session.commit = true;
+-- 改会话不影响全局，仅针对本次会话有效
+SET @@session.autocommit = true;
 
-SELECT SESSION character_set_client = 'gbk';
+SET SESSION character_set_client = 'gbk';
+
+-- 缺省GLOBAL/SESSION，改的是会话
+SET autocommit = 0;
+
 
 -- 声明会话用户变量，作用域为当前会话
 SET @nick_name = 'van';

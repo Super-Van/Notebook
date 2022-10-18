@@ -37,7 +37,7 @@ BEGIN
 	DECLARE mgr_sal DOUBLE;
 	SELECT salary INTO mgr_sal
 	FROM emp
-	WHERE NEW.manager_id = employee_id;
+	WHERE employee_id = NEW.manager_id;
 	IF NEW.salary > mgr_sal
 		THEN SIGNAL SQLSTATE 'HY000' MESSAGE _TEXT = '薪资不能高于领导'
 	END IF;

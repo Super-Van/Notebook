@@ -3,7 +3,7 @@
 -- table：表名，涉及到几张表就有几条记录，临时表（Extra分量会带有Using temporary）也算
 EXPLAIN SELECT * FROM employees;
 
--- employees因在结果中靠上叫驱动表，departments叫被驱动表，连接时哪个表当驱动表看优化器的处理
+-- employees因在结果中靠上叫驱动表，departments叫被驱动表，连接时哪个表当驱动表看优化器的选择
 EXPLAIN SELECT * FROM employees JOIN departments;
 
 -- 有时是有多少个SELECT子句（一个SELECT子句对应一趟独立查询）就有多少个id
@@ -26,7 +26,7 @@ EXPLAIN SELECT * FROM employees WHERE salary > (SELECT AVG(salary) FROM employee
 -- DEPENDENT UNION-带UNION的相关子查询的右查询
 
 -- DERIVED-FROM子句里的子查询
-	EXPLAIN SELECT MIN(salary) 	FROM (SELECT department_id, AVG(salary) AS "salary"	FROM employees WHERE department_id IS NOT NULL GROUP BY department_id) AS tmp;
+EXPLAIN SELECT MIN(salary) 	FROM (SELECT department_id, AVG(salary) AS "salary"	FROM employees WHERE department_id IS NOT NULL GROUP BY department_id) AS tmp;
 	
 -- MATERIALIZED-被优化器物化了的子查询
 
@@ -48,18 +48,18 @@ EXPLAIN SELECT * FROM employees WHERE manager_id = 100;
 ALTER TABLE employees ADD INDEX idx_mgr_id(manager_id);
 -- fulltext
 
--- ref_or_null：承接ref，等值匹配时可能有NULL值
+-- ref_or_null：承接ref，等值匹配的值可取NULL
 EXPLAIN SELECT * FROM employees WHERE department_id = 80 OR department_id IS NULL;
 
 -- index_merge：使用多个索引
 EXPLAIN SELECT * FROM employees WHERE employee_id = 100 OR department_id = 50;
 
--- unique_subquery，IN所接子查询被优化器转为EXISTS所接的子查询，且子查询用唯一索引做等值匹配
+-- unique_subquery，IN接子查询被优化器转为EXISTS接的子查询，且对子查询表用唯一索引做等值匹配
 
--- range：范围查询-用索引进行离散或连续元素集合（IN、OR、BETWEEN、比较运算符）的匹配
+-- range：范围查询-用索引进行非等值-集合（IN、OR、BETWEEN、比较运算符）的匹配
 EXPLAIN SELECT * FROM employees WHERE department_id IN (30, 50, 90);
 
--- index：用到索引，但仍做全表扫描
+-- index：用到索引，但遍历整个索引
 
 -- ALL：全表扫描
 EXPLAIN SELECT * FROM employees;
@@ -68,7 +68,7 @@ EXPLAIN SELECT * FROM employees;
 
 -- possible_keys与key：可能用上的索引实际用到的索引，由优化器选定，成本最低不一定时间最短，可用的越多则甄选的开销越大
 
--- key len（重要）：针对联合索引，用到的列的长度之和，长度越大越好，说明用到的列越多
+-- key len（重要）：针对联合索引，用到的列的长度之和，长度越大越好，说明用到的列越充分
 
 -- ref：与索引列做等值匹配的另一方，常量值、字段名或func等
 EXPLAIN SELECT * FROM employees WHERE last_name = 'king';
@@ -76,7 +76,7 @@ EXPLAIN SELECT * FROM employees WHERE last_name = 'king';
 EXPLAIN SELECT * FROM employees e JOIN jobs j ON e.job_id = j.job_id;
 EXPLAIN SELECT * FROM employees WHERE last_name = LOWER('king');
 
--- rows（重要）：预估需要读取的记录数，当然越小越好
+-- rows（重要）：预估读取的记录数，当然越小越好
 
 -- filtered：?/rows，当然越大越好
 

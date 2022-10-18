@@ -44,6 +44,7 @@ AS
 SELECT id, emp_name
 FROM emp;
 
+-- 基于查询，仅建表
 CREATE TABLE emp_simple
 AS
 SELECT id, emp_name
@@ -85,6 +86,6 @@ DROP TABLE IF EXISTS emp_simple;
 -- 清空表 先删除然后以原结构重建
 TRUNCATE TABLE emp;
 
--- 8.0才有DDL的原子化
+-- 删除多表 8.0才有DDL的原子化
 DROP TABLE emp, emp_simple; -- 只要有一个失败前面的就回滚
 

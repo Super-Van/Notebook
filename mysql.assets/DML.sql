@@ -37,7 +37,7 @@ WHERE id = 3;
 DELETE FROM emp
 WHERE id = 200;
 
--- 8.0新特性-计算列，建表时声明，然后在插入记录时分量自动计算、修改时自动更新
+-- 8.0新特性-计算列，建表时声明，然后在插入记录时分量自动计算、修改时分量自动更新
 CREATE TABLE calc (
 	a INT,
 	b INT,

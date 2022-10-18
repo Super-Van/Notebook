@@ -2409,7 +2409,7 @@ module.exports = {
 
 对scripts里配置的命令，webpack优先从局部模块开始找而非全局模块，故上述build属性值可改为`webpack`。
 
-注：package.json里的devDependencies存放的是开发期依赖，生产期环境中有，故不需要额外提供，开发期则需要。而dependencies属性存放的是生产期依赖，生产期开发期都需要自行提供。
+注：package.json里的devDependencies存放的是开发期依赖，生产期环境中有，故不需要额外提供，开发期则需要，好比maven里的provided范围依赖。而dependencies属性存放的是生产期依赖，生产期开发期都需要自行提供。
 
 #### loader
 

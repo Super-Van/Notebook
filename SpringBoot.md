@@ -4,9 +4,9 @@
 
 ## 概述
 
-spring生态圈内有Data、Cloud、Security等如此多的成员，组装得越多就越靠近配置地狱，那么spring技术栈一站式框架springboot（boot：开机）专攻这一问题，快捷方便地整合生态圈里的任何成员，简化繁杂的配置与构建，让我们更专注于业务逻辑的开发。
+spring生态圈内有Data、Cloud、Security等如此多的成员，组装得越多就越接近配置地狱。一站式框架springboot（boot：开机）专攻这一问题，快捷方便地整合生态圈里的任何成员，简化繁杂的配置与构建，让我们更专注于业务逻辑的开发。
 
-随着spring 5的问世，spring技术栈分为两拨-原有的servlet技术栈与响应式技术栈，后者号称占用少量资源就能处理大量并发。为配合Java 8的新特性，源码层面spring 5也有一些改革。
+随着spring 5的问世，spring技术栈分为两拨-servlet技术栈与新的响应式技术栈，后者号称占用少量资源就能处理大量并发。为配合Java 8的新特性，源码层面spring 5也有一些改革。
 
 援引[官网](https://spring.io/projects/spring-boot)对它的定义：
 
@@ -38,7 +38,7 @@ spring生态依托于重要的时代背景，主要包括[微服务](https://mar
 </dependencies>
 ```
 
-当前做web开发就用web场景启动器。
+当前做web开发故用web场景启动器。
 
 创建主程序类：
 
@@ -87,18 +87,18 @@ public class MyController {
 </build>
 ```
 
-idea中，在Maven选项卡Lifecycle下拉列表中选中package命令点击Run Maven build按钮打包，最好一并选中clean命令先重新编译一下。
+idea中，在Maven选项卡Lifecycle下拉列表中选中package命令点击Run Maven build按钮打包，最好一并选中clean命令。
 
 ## 依赖管理
 
 ### 版本仲裁
 
-上例POM里的parent标签表示本项目级联继承父项目的POM配置，既然级联，那么点开spring-boot-starter-parent，它也有个parent标签，父项目叫spring-boot-dependencies，再点开，其中的properties标签声明了许多常用jar包的版本。
+上例POM里的parent标签表示本项目级联继承父项目的POM配置，既然级联，那么点开spring-boot-starter-parent，它也有个parent标签，父项目叫spring-boot-dependencies，再点开，其中的properties标签声明了许多常用依赖的版本。
 
-父项目已经帮我们做好了开发中常用依赖的管理，见于spring-boot-dependencies的dependencyManagement标签，它做的是版本号的管理，即并不导入依赖，而是等自己添加依赖时，就自动指定预设的版本号。我们想改版本号的话，或是在version标签体里指定，或是定义properties标签去覆盖父项目对应依赖的版本号，例如：
+父项目已经帮我们做好了开发中常用依赖的管理，见于spring-boot-dependencies的dependencyManagement标签，它做的是版本号的管理，即并不导入依赖，而是等自己添加依赖时，就自动指定预设的版本号。我们想改版本号的话，或是在version标签体里指定，或是定义properties标签去覆盖父项目中对应依赖的版本号，例如：
 
 ```xml
-<!--就近优先原则-->
+<!--就近原则-->
 <properties>
     <mysql.version>5.1.43</mysql.version>
 </properties>
@@ -106,17 +106,17 @@ idea中，在Maven选项卡Lifecycle下拉列表中选中package命令点击Run 
 
 ### 场景启动器
 
-场景启动器是一系列以`spring-boot-starter-`开头的依赖，针对任何场景开发，都无需费尽心力考虑导哪些包，因为相关依赖都在场景启动器里声明了，比如点开spring-boot-starter-web，就发现所需的dependency标签，还有级联的，详情可在POM.xml中右键点开Diagram。
+场景启动器是一系列以`spring-boot-starter`开头或结尾的依赖，针对任何场景开发，都无需费尽心力考虑导哪些包，因为相关依赖都在场景启动器里声明了，比如点开spring-boot-starter-web，就发现必需的dependency标签（还有级联的），详情可在pom.xml中右键点开Diagram。
 
-[Starters](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.build-systems.starters)罗列了所有spring支持的场景启动器，都不满意甚至可以自定义场景启动器，这是后话了，还有一些第三方的。
+[Starters](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.build-systems.starters)罗列了所有spring内置的场景启动器，都不满意甚至可以自定义场景启动器，这是[后话](#自定义starter)了，还有一些第三方的。
 
-所有场景启动器都有一个依赖叫spring-boot-starter，它的依赖spring-boot-autoconfigure是springboot自动配置的核心依赖。
+所有场景启动器共有的依赖叫spring-boot-starter，它的依赖spring-boot-autoconfigure是springboot自动配置的核心依赖。
 
 ## 自动配置
 
 ### 概述
 
-springboot自动配置了场景常见功能，那么运行起来后IOC容器中就有相关的组件对象，可通过run方法的返回值查看：
+springboot自动配置了某场景下的常见功能，那么运行起来后IOC容器中就有相关的组件对象，可通过run方法的返回值查看：
 
 ```java
 ConfigurableApplicationContext context = SpringApplication.run(MainApplication.class, args);
@@ -125,7 +125,7 @@ for (String name:context.getBeanDefinitionNames()){
 }
 ```
 
-包扫描也不用配，[默认](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.structuring-your-code)主程序类所在包及其子包被扫描。不想用默认的话，或是这样：
+包扫描也不用配，[默认](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.structuring-your-code)主程序类所在包及其子包被扫描。不想用默认的话，可以这样：
 
 ```java
 @SpringBootApplication(scanBasePackages="com.van")
@@ -139,15 +139,15 @@ for (String name:context.getBeanDefinitionNames()){
 @ComponentScan("com.van")
 ```
 
-大多数默认配置是容器中的组件，它们由容器中的其他一类组件-配置类自动注册，基于Configuration、Bean等注解，我们点开spring-boot-autoconfigure包发现admin、amqp、aop等一个个场景目录，其下大多数类即配置类。
+大多数默认配置与容器中的组件有关，它们由容器中的其他一类组件-配置类自动注册，基于Configuration、Bean等注解，我们点开spring-boot-autoconfigure包发现admin、data、aop等一个个场景目录，其下大多数类是配置类。
 
-默认配置都能在统一的配置文件中更改，其他配置也能在此文件中编写，每一个配置项均与容器中某组件的属性相映射。
+默认配置都能在统一的配置文件中更改，其他配置也能在此文件中添加，每一个配置项均与容器中某组件的属性相映射。
 
 ### 底层注解
 
 #### Configuration
 
-用Configuration注解标注的类取代XML配置文件，用Bean注解+方法取代bean标签。
+Configuration注解标注的类等价于XML配置文件，Bean注解+方法等价于bean标签。
 
 ```java
 /**
@@ -156,7 +156,7 @@ for (String name:context.getBeanDefinitionNames()){
 @Configuration(proxyBeanMethods = true)
 public class ContextConfig {
     /**
-     * 注册 对照bean标签，以方法名为id值，返回值类型为class值，返回值为容器中生成的组件实例
+     * 注册 对照bean标签，以方法名为id值，返回值类型为class值，返回值作组件实例
      *
      * @return
      */
@@ -165,7 +165,8 @@ public class ContextConfig {
         return new Student(1, "欧阳询");
     }
 
-    @Bean("teacher") // 注解值作底层映射中的键
+    // 注解值作底层映射中的键
+    @Bean("teacher") 
     public Teacher getTeacher() {
         return new Teacher(1, "王羲之");
     }
@@ -182,16 +183,16 @@ System.out.println(context.getBean("student"));
 System.out.println(context.getBean("teacher", Teacher.class));
 //单实例
 System.out.println(context.getBean("teacher") == context.getBean("teacher"));
-//cglib代理，com.van.config.ContainerConfig$$EnhancerBySpringCGLIB$$950dfb57@2da66a44
+//cglib代理 com.van.config.ContainerConfig$$EnhancerBySpringCGLIB$$950dfb57@2da66a44
 ContextConfig contextConfig = context.getBean(ContextConfig.class);
 System.out.println(contextConfig);
-//显式调用注册方法，返回值是单实例与否取决于proxyBeanMethods属性，与其同真假
+//显式调用注册方法，返回值是单实例与否取决于proxyBeanMethods属性
 System.out.println(contextConfig.student() == contextConfig.student());
 ```
 
-proxyBeanMethods属性的原理是：用代理对象则扩充注册方法原本的逻辑，即判断容器是否已有该类对象，有则不返回新对象，返回已有对象，否则返回新对象，不用代理对象则每次调用均返回新对象。
+proxyBeanMethods属性作用：用代理对象（true）则扩充注册方法原本的逻辑，即判断容器是否已有该类对象，有则不返回新对象，返回已有对象，否则返回新对象，不用代理对象（false）则每次调用均返回新对象。
 
-这个属性值为true与false分别对应springboot的两种模式-full与lite（轻量级）。所谓轻量，就是跳过了容器中是否含某组件对象的检查，效率会更高。lite模式适合没有组件关联的情况，牺牲空间换时间；full模式适合有组件关联的情况，牺牲时间换空间。
+true与false分别对应springboot的两种模式-full与lite（轻量级）。所谓轻量，就是跳过了容器中是否含某组件对象的检查，效率会更高。lite模式适合没有组件关联的情况，牺牲空间换时间；full模式适合有组件关联的情况，牺牲时间换空间。
 
 #### Import
 
@@ -201,7 +202,7 @@ proxyBeanMethods属性的原理是：用代理对象则扩充注册方法原本�
 @Import({Student.class})
 ```
 
-有趣的是，这里通过Import注解又注册了Student类，对照bean标签，id值是全限定类名，与前面注册的id值为student的同类组件区分开，如此随着容器启动当中就恒有两个Student对象。
+有趣的是，这里通过Import注解又注册了Student类，对照bean标签，id值是全限定类名，如此容器启动后就有两个Student对象。
 
 #### Conditional
 
@@ -216,17 +217,18 @@ public @interface ConditionalOnBean {}
 
 #### ImportResource
 
-一旦使用springboot，原先的容器配置文件就不起作用了，一点点地对里面的配置进行重构太麻烦，于是以此注解包含旧有配置。
+一旦使用springboot，原先的容器配置文件就不起作用了，一点点地对里面的配置进行重构太麻烦，于是以此注解导入旧有配置。
 
 ```java
-@ImportResource("classpath:beans.xml") // 打给配置类
+// 打给配置类
+@ImportResource("classpath:beans.xml") 
 ```
 
 #### ConfigurationProperties
 
-配置文件的配置项映射到某组件的属性，前提就是此组件被纳入容器且标有ConfigurationProperties注解。
+配置文件的配置项映射到某类的属性，前提就是此类被注册为组件且标有ConfigurationProperties注解。
 
-那么对自定义组件，标注@Component或其他几种外加ConfigurationProperties即可。
+比如对自定义组件：
 
 ```java
 @Component
@@ -240,17 +242,19 @@ cat.name=小白
 cat.age=2
 ```
 
-那么对非自定义组件，像场景目录下的一些组件，源码动不了，就只能去配置类用EnableConfigurationProperties注解一箭双雕-注册传入的组件同时将让它绑定配置文件，且组件还是得有@ConfigurationProperties，因为必须指明配置项前缀。
+或者给配置类打上EnableConfigurationProperties注解，一箭双雕-注册传入的组件同时允许它绑定配置文件，常用于第三方类。
 
 ```java
-@EnableConfigurationProperties({Cat.class}) // 打给配置类
+@EnableConfigurationProperties({Cat.class})
 ```
 
-@ConfigurationProperties大量出现在源码中，标志着组件（属性）与配置文件（配置项）相绑定。
+且这个组件自己还是得标有@ConfigurationProperties，因为必须指明配置项前缀。如此那么@EnableConfigurationProperties不必要了，注册就行了。
+
+我们观察到@ConfigurationProperties大量出现在源码中，标志着属性与配置项相绑定。
 
 ### 源码解读
 
-@SpringBootApplication相当于这三个注解的合体，因此我们拆开来看。
+@SpringBootApplication合成于这三个注解，因此我们拆开来看。
 
 ```java
 @SpringBootConfiguration
@@ -266,7 +270,7 @@ cat.age=2
 )
 ```
 
-我们看@SpringBootConfiguration标有@Configuration，说明这也是个配置类。@ComponentScan没什么好说的，这里有内置的排除规则。最重要的就是@EnableAutoConfiguration。
+我们看@SpringBootConfiguration被@Configuration所标，说明它标注的类是配置类。@ComponentScan没什么好说的，这里看出默认的排除规则。最重要的就是@EnableAutoConfiguration。
 
 它相当于这两个注解的合体：
 
@@ -283,11 +287,11 @@ AutoConfigurationPackages.register(registry, (String[])(new AutoConfigurationPac
 
 仔细观察可知这些组件就是主程序类所属包及其子包下的组件：metadata是被@Import标注的@AutoConfigurationPackage的相关信息，就包括它标注的类MainApplication，接着getPackageNames方法返回的就是MainApplication所处包名。
 
-看另一个注解Import传入了ImportSelector接口的实现类AutoConfigurationImportSelector的Class实例，在实现方法selectImports体内批量注册组件，它调用getAutoConfigurationEntry方法。后者体内又调用getCandidateConfigurations方法，这个方法返回了所有可能注册的配置类。体内用SpringFactoriesLoader类调用loadFactoryNames方法。体内调用loadSpringFactories方法。这个方法体内，发现会扫描当前项目内匹配`META-INF/spring.factories`路径的文件，恰好spring-boot-autoconfigure包下面就有这个文件，点开发现所有内置场景相关的所有配置类的全类名，尤以名字以AutoConfiguration结尾的最多。那么对第三方场景启动器，其自动配置类的加载也体现于jar包META-INF目录下的spring.factories文件中。
+看另一个注解Import传入了ImportSelector接口的实现类AutoConfigurationImportSelector的Class实例，在实现方法selectImports体内批量注册组件，它调用getAutoConfigurationEntry方法。后者体内又调用getCandidateConfigurations方法，这个方法返回了所有可能注册的配置类。体内用SpringFactoriesLoader类调用loadFactoryNames方法。体内调用loadSpringFactories方法。这个方法体内，发现会扫描当前项目内匹配`META-INF/spring.factories`路径的文件，恰好spring-boot-autoconfigure包下面就有这个文件，点开发现所有内置场景相关的所有配置类的全类名，尤以名字以AutoConfiguration结尾的为最多。那么对第三方场景启动器，其自动配置类的加载也体现于jar包META-INF目录下的spring.factories文件中。
 
-这些配置类都会被加载（不一定进容器），但是依靠条件注解按需注册管理的其他组件，如ConditionalOnClass-缺少依赖的类就不注册、ConditionalOnMissingBean-用户注册了就不重复注册。点开它们，有的标有@Configuration，类体内存在@Bean、条件注解等标注的方法，存在条件注解等标注的内部类等等。典例如配置类DispatcherServletAutoConfiguration的dispatcherServlet方法。
+这些配置类都会被加载，但是依靠条件注解按需注册自身及管理的其他类，如ConditionalOnClass-缺少依赖的类就不注册、ConditionalOnMissingBean-用户注册了就不重复注册。典例如配置类DispatcherServletAutoConfiguration的dispatcherServlet方法-注册springmvc的前端控制器。
 
-联系配置文件，配置类常标有@EnableConfigurationProperties，运行时获取它指定的组件对象传入注册方法或构造器，指定组件的名字通常以Properties结尾，而我们已知此组件与配置文件相绑定，所以我们理解了配置项影响着配置类，进而影响配置类注册的组件即默认配置。例如配置类HttpEncodingAutoConfiguration在调用characterEncodingFilter方法注册CharacterEncodingFilter时，基于properties属性给CharacterEncodingFilter对象的encoding属性赋值，而properties属性是靠@EnableConfigurationProperties的值`ServerProperties.class`初始化的，这个ServerProperties又与前缀为server的配置项相绑定。
+联系配置文件，配置类常标有@EnableConfigurationProperties，获取它指定的组件对象传入注册方法或构造器，指定组件的名字通常以Properties结尾，而已知此组件与配置文件相绑定，所以配置项影响着配置类，进而影响配置类注册的组件即默认配置。例如配置类HttpEncodingAutoConfiguration在调用characterEncodingFilter方法注册CharacterEncodingFilter时，基于properties属性给CharacterEncodingFilter对象的encoding属性赋值，而properties属性是靠@EnableConfigurationProperties的值`ServerProperties.class`初始化的，这个ServerProperties又与前缀为server的配置项相绑定。
 
 所以除了文档给的Application Properties，自己也可去源码中找所需的prefix属性。
 
@@ -295,28 +299,33 @@ AutoConfigurationPackages.register(registry, (String[])(new AutoConfigurationPac
 
 引入场景依赖。
 
-查看自动配置。一个直观的办法是添加`debug=true`配置项，打印出的Negative matches（Did not match）就指没注册的配置类，Positive matches就指注册了的配置类。
+查看自动配置。一个直观的办法是添加`debug=true`配置项，打印出的Negative matches（Did not match）指没注册的类，Positive matches指注册了的类。
 
 可能需要修改默认配置或新增配置：
 
 - 添加配置项。
-- 自定义配置类并注册对应某配置的组件。
-- 自定义实现一批类名以Customizer结尾的接口。
+- 自定义配置类并注册对应某配置的组件。如后面的[注册WebMvcConfigurer](#WebMvcConfigurer)。
+- 自定义实现一批名字以Customizer结尾的接口。
 
 ## 便捷开发
 
 ### Lombok
 
-它提供的注解使得JavaBean在编译时自动生成getter、setter、构造器，源代码只留属性。还提供注解使得类体自动添加类型源自slf4j、log4j等日志的Logger属性。
+它提供的注解使得JavaBean在编译时自动生成getter、setter等，源代码只见属性。还提供注解使得类体自动添加来自slf4j、log4j等日志的Logger类型的属性。
 
 添加依赖；idea安装插件。
 
 ```java
-@Data //getter、setter
-@AllArgsConstructor //全参构造器
-@NoArgsConstructor //无参构造器
-@ToString //toString方法
-@EqualsAndHashCode // equals与hashCode方法
+//getter、setter
+@Data
+//全参构造器
+@AllArgsConstructor 
+//无参构造器
+@NoArgsConstructor 
+//toString方法
+@ToString 
+//equals与hashCode方法
+@EqualsAndHashCode 
 public class Student {
     private Integer no;
     private String name;
@@ -335,7 +344,7 @@ public class MyController {
 
 即项目初始化向导，标题是idea里的叫法，eclipse里叫spring starter project。
 
-它提供了界面供我们选择场景，随后自动导入相关依赖、自动创建主程序类、自动在resources目录下创建：
+它提供了场景选择界面，随后自动导入相关依赖、自动创建主程序类、自动在resources目录下创建：
 
 ```
 static：存放css、js、图像等静态资源
@@ -382,8 +391,6 @@ idea中yml文件对自定配置项即自己打的@ConfigurationProperties指定�
 spring.mvc.static-path-pattern: /static/**
 ```
 
-一般是要改的，便于让拦截器放行静态资源请求或转发。
-
 可修改默认的静态资源根目录：
 
 ```properties
@@ -392,7 +399,7 @@ spring.resources.static-locations[0]: classpath:/rain/
 spring.resources.static-locations[1]: classpath:/sun/
 ```
 
-对于纯项目根路径如`localhost:8080`的请求，会找index.html：先去静态资源目录下找，没有则去找控制器的处理方法。
+对于单纯项目根路径如`localhost:8080`的请求，会找index.html：先去静态资源目录下找，没有则去找控制器的处理方法。
 
 应用图标要放在静态资源目录下，名字必须是favicon.ico。
 
@@ -423,11 +430,9 @@ matchIfMissing为false，意思是没有这个配置项就不注册，所以还�
 spring.mvc.hiddenmethod.filter.enabled=true
 ```
 
-点开HiddenHttpMethodFilter，ALLOWED_METHODS属性表示过滤器能将POST请求过滤为PUT、DELETE、PATCH请求。
+点开HiddenHttpMethodFilter，`ALLOWED_METHODS`属性表示过滤器能将POST请求过滤为PUT、DELETE、PATCH请求。
 
-跟浏览器不同，Postman等工具能直接发PUT或DELETE请求，即直接将请求头里的方法设为PUT或DELETE，那么过滤器成了摆设。
-
-迎合前后端分离、后端作仅返回JSON数据的接口、springboot常用于分布式微服务的趋势，此配置项就没有默认开启。
+跟浏览器相比，Postman等工具能直接发PUT或DELETE请求，即直接将请求头里的方法设为PUT或DELETE，那么过滤器成了摆设。
 
 冗长的`@RequestMapping(value = "/user", method = RequestMethod.XXX)`可等价简化为：
 
@@ -453,11 +458,11 @@ public HiddenHttpMethodFilter getHiddenMethodFilter(){
 
 源码在springmvc笔记里分析过了，这里谈一些不同之处。
 
-在getHandler方法体内，handlerMappings属性有5个元素，依次是：
+在getHandler方法体内，handlerMappings属性有5个元素，类型依次是：
 
 ```
-requestMappingHandlerMapping
-welcomePageHandlerMapping
+RequestMappingHandlerMapping
+WelcomePageHandlerMapping
 BeanNameUrlHandlerMapping
 RouterFunctionMapping
 SimpleUrlHandlerMapping
@@ -522,9 +527,10 @@ URI规范-RFC 3986定义了一种别致的URL形式，即一组以分号分隔�
 比如我们发送一个请求，路径是`/matrix/2;id=2;hobby=volleyball,run,badminton`，对应处理方法如下：
 
 ```java
-@RequestMapping("/matrix/{student}") // 须绑定在路径变量上，这里可看出路径变量并不依赖@PathVariable，假如用@PathVariable获取路径变量值，发现不包括矩阵变量（第一个分号连同后面的内容），即仅2
+//须绑定在路径变量上，这里可看出路径变量并不单靠@PathVariable发挥作用
+@RequestMapping("/matrix/{student}")
 @ResponseBody
-public String matrixVariable(@MatrixVariable("id") Integer id, @MatrixVariable("hobby") List<String> hobby) {
+public String matrixVariable(@MatrixVariable("id") Integer id, @MatrixVariable("hobby") List<String> hobby) { //假如用@PathVariable获取路径变量值，发现不包括矩阵变量（第一个分号连同后面的内容），即仅2
     System.out.println(id);
     hobby.forEach(System.out::println);
     return "student";
@@ -533,13 +539,9 @@ public String matrixVariable(@MatrixVariable("id") Integer id, @MatrixVariable("
 
 默认矩阵变量是不生效的。找到WebMvcAutoConfigurationAdapter的configurePathMatch方法，它依赖UrlPathHelper类，关注此类的removeSemicolonContent属性，默认值是true，看其setter的注释-URL里分号连同后面的内容会被删掉。
 
-想让它生效，可惜没有相关配置项，于是只能自己另注册WebMvcConfigurer接口组件，实现configurePathMatch方法，覆盖WebMvcAutoConfigurationAdapter的实现逻辑：
+想让它生效，可惜没有相关配置项，<span id="WebMvcConfigurer">于是只能自己另注册WebMvcConfigurer接口组件</span>，实现configurePathMatch方法，覆盖WebMvcAutoConfigurationAdapter的实现逻辑：
 
 ```java
-/**
- * 配置类或实现此接口作此它的bean，或用注册方法注册匿名实现类
- * @return
- */
 @Bean
 public WebMvcConfigurer getWebMvcConfigurer(){
     return new WebMvcConfigurer() {
@@ -555,7 +557,7 @@ public WebMvcConfigurer getWebMvcConfigurer(){
 
 另行注册WebMvcConfigurer组件后，容器中就有两个WebMvcConfigurer的bean，另一个是默认注册的WebMvcAutoConfigurationAdapter的bean。
 
-来看复杂的写法，一个矩阵变量绑定一个路径变量，那么多个矩阵变量对应各自路径变量，应分别获取：
+来看复杂的写法。一个矩阵变量绑定一个路径变量，那么多个矩阵变量绑定各自路径变量，应分别获取：
 
 ```java
 @RequestMapping("/matrix/{student}/{teacher}")
@@ -573,7 +575,7 @@ springmvc笔记中提到RequestMappingHandlerAdapter元素取代AnnotationMethod
 
 处理方法参数解析器的顶层接口是HandlerMethodArgumentResolver，含两个方法：
 
-- supportsArgument：当前参数解析器（实现类）对象支不支持对当前参数的解析。
+- supportsArgument：当前参数解析器对象支不支持对当前参数的解析。
 - resolveArgument：上一方法返回true，才调用此方法解析参数。
 
 目标方法对象handlerMethod被包装为ServletInvocableHandlerMethod类型的invocableMethod对象，它调用setter收纳了argumentResolvers属性，后来它调用invokeAndHandle方法，传入ServletWebRequest对象与ModelAndViewContainer对象。体内调用invokeForRequest方法，继续传入两个对象。方法体内，调用getMethodArgumentValues方法，继续传入两个对象，解析得到实参数组，然后将其传入doInvoke方法即执行目标方法，得到目标方法返回值并作返回值。那就得看getMethodArgumentValues方法如何解析参数，先调用getMethodParameters方法得到目标方法形参详情，赋给名为parameters的MethodParameter数组，准备空的实参数组args，遍历parameters数组，循环体内resolvers属性调用resolveArgument方法，传入当前元素、ModelAndViewContainer对象、请求对象、WebDataBinderFactory类型的属性。此方法体内，先调用<span id="argumentResolvers">getArgumentResolver方法</span>得到能解析当前参数的解析器对象，传入MethodParameter对象。体内遍历argumentResolvers属性即全体解析器对象，逐对象调用前面提到的supportsArgument，传入MethodParameter对象，而且某参数首次解析之后将MethodParameter对象与对应的解析器对象组成键值对缓存入映射，提升后续执行效率，最后返回匹配的解析器对象。回到resolveArgument方法体，后用拿到的解析器对象调用resolveArgument方法，传入MethodParameter对象、ModelAndViewContainer对象、NativeWebRequest对象、WebDataBinderFactory对象，返回的实参对象作返回值。回到getMethodArgumentValues方法体，将resolveArgument方法返回的实参对象填入args数组，最后返回arg数组。
@@ -582,14 +584,14 @@ springmvc笔记中提到RequestMappingHandlerAdapter元素取代AnnotationMethod
 
 譬如自定义类型的参数。它由ServletModelAttributeMethodProcessor对象解析，关注其父类ModelAttributeMethodProcessor覆盖的resolveArgument方法，逻辑在springmvc笔记里的数据绑定一章梳理过，需要补充的是WebMvcAutoConfiguration的getConfigurableWebBindingInitializer方法，注册了ConfigurableWebBindingInitializer，它实现了WebBindingInitializer接口，覆盖initBinder方法，传入WebDataBinder对象，体内调用此对象的相应setter将conversionService属性注入，这个conversionService属性已经保存了所有转换器对象。
 
-关注一个新东西叫返回值解析器，参见invokeHandlerMethod方法体内出现的HandlerMethodReturnValueHandlerComposite类型的returnValueHandlers属性，它又有个returnValueHandlers列表属性，存放着10多个返回值解析器对象，它们的顶层接口是HandlerMethodReturnValueHandler，含两个方法：
+相应地有返回值解析器，参见invokeHandlerMethod方法体内出现的HandlerMethodReturnValueHandlerComposite类型的returnValueHandlers属性，它又有个returnValueHandlers列表属性，存放着10多个返回值解析器对象，它们的顶层接口是HandlerMethodReturnValueHandler，含两个方法：
 
 - supportsReturnValue：当前返回值处理器对象支不支持处理当前返回值。许多实现类覆盖此方法的逻辑就是判断返回值类型跟自己指定的匹不匹配。又如RequestResponseBodyMethodProcessor覆盖此方法的逻辑是检查有无@ReponseBody。
 - handleReturnValue：上一方法返回true，才调此方法处理返回值。
 
 进入ServletInvocableHandlerMethod的invokeAndHandle方法体，returnValueHandlers属性调用handleReturnValue方法，传入invokeForRequest方法的返回值即目标方法的返回值、此返回值的类型、ModelAndViewContainer对象、ServletWebRequest对象。方法体内，调用selectHandler方法找出合适的HandlerMethodReturnValueHandler对象，传入返回值及其类型，随后用此对象调用handleReturnValue方法，继续传入四个对象。在selectHandler方法体内，遍历returnValueHandlers属性，逐解析器对象调用supportsReturnType方法，传入返回值类型，一旦结果为true就返回当前解析器对象。
 
-关于handleReturnValue方法，以RequestResponseBodyMethodProcessor覆盖的逻辑为例，顺便理解HttpMessageConverter\<T>的相关知识。方法体内，关注writeWithMessageConverters方法，传入返回值、返回值类型、请求对象、响应对象。此方法体内，先看isResourceType方法，判断返回值是否为流数据，是则将其写入响应体，再看到MediaType类型（封装内容类型及其权重）的content对象，这涉及到内容协商的知识，HTTP规定浏览器用请求头的Accept一项告诉服务器自己可接受的内容类型即响应体类型，接着调用getAcceptableMediaTypes方法，传入请求对象得到MediaType列表，就是浏览器制定的Accept项，接着调用getProducibleMediaTypes方法，传入请求对象、返回值、返回值类型，得到MediaType列表，即可生成的内容类型-容器内所有HttpMessageConverter实现类支持的内容类型的累加，下面就是服务器做的内容协商的过程，双层循环遍历两个MediaType列表，相当于对两端各自的内容类型作笛卡尔积再比对，见于isCompatibleWith方法，匹配则加入一个MediaType列表，然后经过一顿筛选得到最精确的内容类型-selectedMediaType对象，后面遍历HttpMessageConverter列表类型的messageConverters属性，看谁能处理这个内容类型外加返回值类型，依据是GenericHttpMessageConverter接口中定义的canWrite方法，它判断当前实现类是否能将传入的Class实例（返回值类型）转为传入的Media对象（内容类型），像本例中是AbstractJackson2HttpMessageConverter元素符合条件，后面用这个实现类对象调用write方法，将返回值对象转为JSON字符串，再写出到响应体中，只要有一个符合就返回。
+关于handleReturnValue方法，以RequestResponseBodyMethodProcessor覆盖的逻辑为例，顺便理解HttpMessageConverter的相关知识。方法体内，关注writeWithMessageConverters方法，传入返回值、返回值类型、请求对象、响应对象。此方法体内，先看isResourceType方法，判断返回值是否为流数据，是则将其写入响应体，再看到MediaType类型（封装内容类型及其权重）的content对象，这涉及到内容协商的知识，HTTP规定浏览器用请求头的Accept一项告诉服务器自己可接受的内容类型即响应体类型，接着调用getAcceptableMediaTypes方法，传入请求对象得到MediaType列表，就是浏览器制定的Accept项，接着调用getProducibleMediaTypes方法，传入请求对象、返回值、返回值类型，得到MediaType列表，即可生成的内容类型-容器内所有HttpMessageConverter实现类支持的内容类型的累加，下面就是服务器做的内容协商的过程，双层循环遍历两个MediaType列表，相当于对两端各自的内容类型作笛卡尔积再比对，见于isCompatibleWith方法，匹配则加入一个MediaType列表，然后经过一顿筛选得到最精确的内容类型-selectedMediaType对象，后面遍历HttpMessageConverter列表类型的messageConverters属性，看谁能处理这个内容类型外加返回值类型，依据是GenericHttpMessageConverter接口中定义的canWrite方法，它判断当前实现类是否能将传入的Class实例（返回值类型）转为传入的Media对象（内容类型），像本例中是AbstractJackson2HttpMessageConverter元素符合条件，后面用这个实现类对象调用write方法，将返回值对象转为JSON字符串，再写出到响应体中，只要有一个符合就返回。
 
 具体看getAcceptableMediaTypes方法如何拿到浏览器可接受的内容类型。体内出现一个ContentNegotiationManager类型的属性，叫内容协商管理器，它调用resolveMediaTypes方法，传入请求对象，遍历ContentNegotiationStrategy列表类型的strategies属性，调用元素的resolveMediaTypes方法，传入请求对象，得到MedieType列表，只要列表不是`[*/*]`（无法解析也得到`[*/*]`列表），就直接返回，否则继续考察下一个元素，那么所有元素解析出的都是`[*/*]`，才返回它，默认只有一个HeaderContentNegotiationStrategy类型的元素即基于请求头的内容协商策略。其resolveMediaTypes方法体内就调用请求对象的getHeaderValues方法，传入HttpHeaders的ACCEPT枚举。
 
@@ -625,15 +627,15 @@ public WebMvcConfigurer getWebMvcConfigurer() {
 
 ### HttpMessageConverter
 
-针对客户端要求接收自创内容类型的场景，尝试自定义HTTP消息转换器并加入各处messageConverters属性。
+针对客户端要求接收自创内容类型的场景，尝试自定义HTTP消息转换器。
 
-springboot自动检索HttpMessageConverter实现类并创建对象，见于WebMvcAutoConfigurationAdapter覆盖的configureMessageConverters方法底层逻辑，详见HttpMessageConverters类的构造器、WebMvcConfigurationSupport类的getMessageConverters方法及静态代码块。
+springboot自动检索HttpMessageConverter实现类、创建对象（但并不视其作组件）、将它们装进各处messageConverters属性，见于WebMvcAutoConfigurationAdapter覆盖的configureMessageConverters方法的底层逻辑，详见HttpMessageConverters类的构造器、WebMvcConfigurationSupport类的getMessageConverters方法及静态代码块。
 
 准备好自定义的实现类：
 
 ```java
 /**
- * 自定义HTTP消息转换器，只做输出转换，将Student对象转为分号分隔的键值对组字符串，内容类型命名为application/x-semicolon
+ * 自定义HTTP消息转换器，只做输出转换，将Student对象转为分号分隔的键值对组字符串，对应内容类型命名为application/x-semicolon
  */
 public class SemicolonMessageConverter implements HttpMessageConverter<Student> {
     @Override
@@ -642,7 +644,7 @@ public class SemicolonMessageConverter implements HttpMessageConverter<Student> 
     }
 
     /**
-     * 是否能将clazz（返回值类型）转为mediaType（内容类型）
+     * 是否能将clazz（处理方法的返回值类型）转为mediaType（内容类型）
      *
      * @param clazz
      * @param mediaType
@@ -689,7 +691,7 @@ public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
 
 ### 内容协商
 
-尝试内容协商的应用实例：针对不同客户端不同的Accept请求信息，使用不同的HttpMessageConverter实现类，将Java对象转换为不同类型响应体。
+尝试内容协商的应用实例：针对不同客户端不同的Accept请求信息，使用不同的HttpMessageConverter实现类，将Java对象转换为不同响应体。
 
 自己不用写任何额外代码，底层已经实现了，只需用postman更改Accept信息来测试。
 
@@ -755,7 +757,7 @@ public void configureContentNegotiation(ContentNegotiationConfigurer configurer)
 
 主要知识在springmvc笔记里已经讨论过，这里补充一些基于引入了返回值解析器的新源码的试图解析原理。
 
-已知处理方法返回的是字符串且不带@ResponseBody。进入HandlerMethodReturnValueHandlerComposite类的handleReturnValue方法，看selectHandler方法返回HandlerMethodReturnValueHandler的哪个实现类的对象（像RequestResponseBodyMethodProcessor就专门处理带@ResponseBody的目标方法的返回值），发现结果是ViewNameMethodReturnValueHandler，从其覆盖的supportsReturnValue方法可看出它支持的返回值类型是void及字符序列，再关注其覆盖的handleReturnValue方法。体内调用ModelAndViewContainer对象的setViewName方法将返回值设为视图名。
+已知处理方法返回的是字符串且没有@ResponseBody等的影响。进入HandlerMethodReturnValueHandlerComposite类的handleReturnValue方法，看selectHandler方法返回HandlerMethodReturnValueHandler的哪个实现类的对象（像RequestResponseBodyMethodProcessor就专门处理带@ResponseBody的目标方法的返回值），发现结果是ViewNameMethodReturnValueHandler，从其覆盖的supportsReturnValue方法可看出它支持的返回值类型是void及字符序列，再关注其覆盖的handleReturnValue方法。体内调用ModelAndViewContainer对象的setViewName方法将返回值设为视图名。
 
 看RequestMappingHandlerAdapter的invokeHandlerMethod方法体末尾，调用getModelAndView方法，传入ModelAndViewContainer对象、ModelFactory对象、ServletWebRequest对象，得到ModelAndView对象，里面就封装了视图名与隐含模型里的数据，然后往上层层返回，最终作handle的返回值。
 
@@ -763,11 +765,11 @@ doDispatch方法体内调用到applyDefaultViewName方法，传入请求对象�
 
 我们发现spring 4九大组件之一的viewResolvers属性默认仅含一个InternalResourceViewResolver类型的元素，
 
-而spring 5目前而言有5个，依次是：
+而就spring 5而言目前有5个，依次是：
 
 ```
 ContentNegotiatingViewResolver
-BeanNameViewResolver 以视图名作键，去容器中找bean
+BeanNameViewResolver
 ThymeleafViewResolver
 ViewResolverComposite
 InternalResourceViewResolver
@@ -820,7 +822,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
 ### 文件上传
 
-直接上例子，跟springmvc笔记的差不多，新接触RequestPart注解。
+直接上例子，跟springmvc笔记的差不多，接触新注解RequestPart-大概是RequestParam的兄弟。
 
 ```java
 @PostMapping("/upload")
@@ -853,7 +855,7 @@ spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=100MB
 ```
 
-再就是了解处理方法的MultipartFile类型实参是怎么由底层得到的。关注MultipartAutoConfiguration的注册方法multipartConfigElement及multipartResolver，两个都标有@ConditionalOnMissingBean。接着还是看doDispatch方法体，调用到checkMultipart方法，传入请求对象，将其包装成一个新的请求对象。此方法体内，用九大组件之一的multipartResolver属性调用isMultipart方法，传入请求对象，判断请求头内容类型是否以`multipart/`开头，随后multipartResolver属性调用resolveMultipart方法，传入请求对象。体内将请求对象传入StandardMultipartHttpServletRequest构造器，返回包装得到的新的请求对象。往后进入[前面](#argumentResolvers)接触过的getArgumentResolver方法，看用到哪种参数解析器，即argumentResolvers列表属性中哪种类型的元素，结果是RequestPartMethodArgumentResolver类型，找到其覆盖的resolveArgument方法，主要逻辑是形成以文件表单域的name值作键、以流数据（MultipartFile接口是InputStreamSource的子接口）作值的映射，随后依据@RequestPart值或参数名从映射取值并赋给参数，这个流数据是从HttpInputMessage对象中得来的，转换自然是由HttpMessageConverter对象完成，见于readWithMessageConverters方法。
+再就是了解处理方法的MultipartFile类型实参是怎么得到的。关注MultipartAutoConfiguration的注册方法multipartConfigElement及multipartResolver，两个都标有@ConditionalOnMissingBean。接着还是看doDispatch方法体，调用到checkMultipart方法，传入请求对象，将其包装成一个新的请求对象。此方法体内，用九大组件之一的multipartResolver属性调用isMultipart方法，传入请求对象，判断请求头内容类型是否以`multipart/`开头，随后multipartResolver属性调用resolveMultipart方法，传入请求对象。体内将请求对象传入StandardMultipartHttpServletRequest构造器，返回包装得到的新的请求对象。往后进入[前面](#argumentResolvers)接触过的getArgumentResolver方法，看用到哪种参数解析器，即argumentResolvers列表属性中哪种类型的元素，结果是RequestPartMethodArgumentResolver类型，找到其覆盖的resolveArgument方法，主要逻辑是形成以文件表单域的name值作键、以流（MultipartFile接口是InputStreamSource的子接口）作值的映射，随后依据@RequestPart值或参数名从映射取值并赋给参数，这个流对象是从HttpInputMessage对象中得来的，转换自然是由HttpMessageConverter对象完成，见于readWithMessageConverters方法。
 
 ### 异常处理
 
@@ -861,7 +863,7 @@ spring.servlet.multipart.max-request-size=100MB
 
 首先看自动配置。关注ErrorMvcAutoConfiguration配置类，它依赖了绑定配置文件的ServerProperties、ResourceProperties、WebMvcProperties这几个类。
 
-注册了BasicErrorController组件，依赖ErrorProperties类，其模板路径值是`server.error.path`配置项的值，默认是`/error`，往下看到errorHtml与error方法，分别浏览器与非浏览器客户端返回ModelAndView对象与ResponseEntity对象。在errorHtml方法体内，调用resolveErrorView方法，传入请求对象、响应对象、错误状态码、其他错误信息映射。体内遍历ErrorViewResolver列表属性，运行时仅有[后面](#unique)的DefaultErrorViewResolverConfiguration类型（其实也是唯一的实现类）元素，它调用resolveErrorView方法，传入响应对象以外的三个对象并往上层层返回。
+注册了BasicErrorController组件，依赖ErrorProperties类，其模板路径值是`server.error.path`配置项的值，默认是`/error`，往下看到errorHtml与error方法，分别浏览器与非浏览器客户端返回ModelAndView对象与ResponseEntity对象。在errorHtml方法体内，调用resolveErrorView方法，传入请求对象、响应对象、错误状态码、其他错误信息映射。体内遍历ErrorViewResolver列表属性，运行时仅有[后面](#unique)的DefaultErrorViewResolverConfiguration类型（其实就这一个实现类）元素，它调用resolveErrorView方法，传入响应对象以外的三个对象并往上层层返回。
 
 同为配置类的内部类WhitelabelErrorViewConfiguration注册了View组件，@Bean的name值为`error`，又注册了BeanNameViewResolver组件，点开其实现的resolveViewName方法可知会按照视图名从容器中检索View对象，这就跟前面相呼应了-根据视图名`error`检索底层映射中键为`error`的View对象，这个视图对象隶属StaticView类，其实现的render方法体内就有默认错误页面内容的拼接。
 
@@ -880,7 +882,7 @@ HandlerExceptionResolverComposite 它下面又包含一个resolvers属性，也�
 		DefaultHandlerExceptionResolver
 ```
 
-逐元素调用resolveException方法，继续传入四个对象，返回ModelAndView对象，只要不为null就退出循环，DefaultErrorAttributes元素的实现逻辑是将异常信息保存到请求域对象中，返回null，HandlerExceptionResolverComposite元素实现的逻辑是遍历其resolvers属性，同样逐元素调用resolveException方法，联系springmvc笔记，这三种类型的实现逻辑均概括于概述一节。这些元素调用此方法都返回null的话，就继续往上抛，由doDispatch方法体内更外层的catch语句捕获，结果看不出特别的处理，那么遵循servlet的规范，会由tomcat内部转发到`/error`，携带错误状态码等数据，后续过程就落到本章开头了。
+逐元素调用resolveException方法，继续传入四个对象，返回ModelAndView对象，只要不为null就退出循环，DefaultErrorAttributes元素的实现逻辑是将异常信息保存到请求域对象中，返回null，HandlerExceptionResolverComposite元素实现的逻辑是遍历其resolvers属性，同样逐元素调用resolveException方法，联系springmvc笔记，这三种类型的实现逻辑概括于概述一节。这些元素调用此方法都返回null的话，就继续往上抛，由doDispatch方法体内更外层的catch语句捕获，结果看不出特别的处理，那么遵循servlet的规范，会由tomcat内部转发到`/error`，携带错误状态码等数据，后续过程就落到本章开头了。
 
 ```java
 @ControllerAdvice
@@ -912,9 +914,9 @@ public class RepeatLoginException extends Exception {
 @ServletComponentScan(basePackages = "com.van")
 ```
 
-然后指定包下的这些组件应标有相应注解，等价于以前web.xml里的配置，有@WebServlet、@WebListener、@WebFilter。
+然后指定包下的这些类应标有注解WebServlet、WebListener、WebFilter，如此才既被纳入IOC容器，又进入servlet容器。
 
-也可以在配置类中注册RegistrationBean，替代这三个注解：
+也可以在配置类中注册RegistrationBean的子类，替代这三个注解：
 
 ```java
 @Configuration
@@ -942,7 +944,7 @@ public class NativeComponentConfig {
 
 比如发送`/my`请求，发现只有这原生的servlet和filter拦截了，springmvc的DispatcherServle无动于衷，来探究一下原理。
 
-先看DispatcherServlet是怎么注册的，对照以前的XML配置。来到DispatcherServletAutoConfiguration类，注意到注册方法dispatcherServlet，依赖WebMvcProperties类，下面是同为配置类的DispatcherServletRegistrationConfiguration类，其下有注册DispatcherServletRegistration的方法，这个类继承了ServletRegistrationBean，故刚才那个注册方法是将DispatcherServlet纳入IOC容器，这个方法是将其纳入服务器环境，并且在后者体内发现创建DispatcherServletRegistrationBean对象时构造器传入的路径模板是`webMvcProperties.getServlet().getPath()`，点开发现默认值是`/`，所以遵循精确优先原则，发送`/my`请求时，MyServlet对象优先处理，过滤器也有用，而DispatcherServle的doDispatch方法引发的拦截器等功能当然全都失效。
+没有web.xml了，DispatcherServlet是怎么进入servlet容器的？来到DispatcherServletAutoConfiguration类，注意到注册方法dispatcherServlet，依赖WebMvcProperties类，下面是同为配置类的DispatcherServletRegistrationConfiguration类，其下有注册DispatcherServletRegistration的方法，这个类继承了ServletRegistrationBean，故刚才那个注册方法是将DispatcherServlet纳入IOC容器，这个方法是将其纳入服务器，并且在后者体内发现创建DispatcherServletRegistrationBean对象时构造器传入的路径模板是`webMvcProperties.getServlet().getPath()`，点开发现默认值是`/`，所以遵循精确优先原则，发送`/my`请求时，MyServlet对象优先处理，过滤器也有用，而DispatcherServle的doDispatch方法引发的拦截器等功能当然全都失效。
 
 ### 嵌入式容器
 
@@ -977,7 +979,7 @@ public class NativeComponentConfig {
 
 #### 定制
 
-关于服务器的相关配置，我们看ServletWebServerFactoryAutoConfiguration依赖了ServerProperties类，映射配置项起始于`server`，纵览其属性。
+关于服务器的相关配置，我们看ServletWebServerFactoryAutoConfiguration依赖了ServerProperties类，映射的配置项起始于`server`，纵览其属性。
 
 其他方式请参考[Customizing Embedded Servlet Containers](https://docs.spring.io/spring-boot/docs/2.3.7.RELEASE/reference/html/spring-boot-features.html#boot-features-customizing-embedded-containers)。
 
@@ -986,7 +988,7 @@ public class NativeComponentConfig {
 - 修改配置文件。
 
 - 自定义配置类：@Configuration+@Bean。
-- 只针对web场景，实现WebConfigurer接口并注册。
+- 只针对web场景，实现并注册WebMvcConfigurer接口。
 
 - 实现xxxCustomizer接口。
 
@@ -994,11 +996,11 @@ public class NativeComponentConfig {
 
 ### 概述
 
-数据访问层相关的场景依赖以`spring-boot-starter-data-`开头，最基本的就是spring-boot-starter-data-jdbc了。导入后发现级联导入了spring关于jdbc、事务等的相关依赖以及Hikari（一种数据源）依赖。另外自己别忘了导数据库驱动。
+数据访问层相关的场景依赖以`spring-boot-starter-data-`开头，最基本的就是spring-boot-starter-data-jdbc了。导入后发现级联导入了spring关于jdbc、事务等的相关依赖以及Hikari（一种数据源）依赖。另外别忘了导数据库驱动。
 
 导了依赖之后就多了数据源、事务相关的自动配置。有DataSourceAutoConfiguration类、DataSourceTransactionManagerAutoConfiguration类、JdbcTemplateAutoConfiguration类、XADataSourceAutoConfiguration类等。DataSourceAutoConfiguration依赖DataSourceProperties类，映射的配置项以`spring.datasource`开头。
 
-既然有数据库连接池，免不了那连接相关的配置：
+既然有数据库连接池，免不了连接相关的配置：
 
 ```properties
 spring.datasource.url=jdbc.mysql://localhost:3306/boot_admin
@@ -1008,7 +1010,7 @@ spring.datasource.password=root
 #spring.datasource.type=com.zaxxer.hikari.HikariDataSource
 ```
 
-默认只导了Hikari，留心Hikari类的dataSource方法，且注意类头上有@ConditionalOnMissingBean。
+默认只导了Hikari，留心Hikari类的dataSource方法，以及类头上有@ConditionalOnMissingBean。
 
 ### Druid
 
@@ -1065,19 +1067,19 @@ public class DataSourceConfig {
 
 ```
 
-可以访问`/druid`，查看druid监控到的的数据库连接池使用情况。这第一种虽不常用，但毕竟活学活用了前导知识，领会原生配置向springboot配置演化的套路。
+可以访问`/druid`，查看druid监控到的的数据库连接池使用情况。这第一种虽不常用，但毕竟活学活用了前导知识，领会原生配置向springboot配置演变的套路。
 
 第二种方式：打开官方文档，就看到有[druid-spring-boot-starter](https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter)，文档详细介绍了如何配置。
 
 然后看看自动配置。druid-spring-boot-starter已经依赖了druid。DruidDataSourceAutoConfigure类标有	`@AutoConfigureBefore({DataSourceAutoConfiguration.class})`，意即在DataSourceAutoConfiguration之前配置，如此触发后者头上的@ConditionalOnMissingBean，使后者不被注册，再就是依赖了DruidStatProperties类，对应配置项以`spring.datasource.druid`开头，然后是头上的@Import注册了DruidSpringAopConfiguration类、DruidStatViewServletConfiguration类、DruidWebStatFilterConfiguration类、DruidFilterConfiguration类，它们的逻辑跟上一种方式我们自己写的基本一致，只是更详尽。
 
-参考这些类的信息或[文档](https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter)，修改配置文件。
+参考这些类的源码或[文档](https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter)，修改配置文件。
 
 ### Mybatis
 
 整合mybatis，参考github上mybatis提供的[spring-boot-starter](https://github.com/mybatis/spring-boot-starter)。
 
-首先自然导入场景启动器mybatis-spring-boot-starter，有了它就看SqlSessionFactory、SqlSession、Mapper对象如何自动生成的。来到MybatisAutoConfiguration类，依赖了MybatisProperties类，它映射的是以`mybatis`开头的配置项，另见涉及SqlSessionFactory、SqlSessionFactoryBean、DataSource等组件的几个条件注解，往下翻就能看到SqlSessionFactory的注册方法，再往下有SqlSessionTemplate类的注册方法，内含SqlSession属性，在后面用@Import注册了内部类AutoConfiguredMapperScannerRegistrar，其下registerBeanDefinitions方法负责@Mapper的扫描，此注解依赖BeanFactory属性负责dao层接口的自动注入，等价于SSM配置里的mybatis-spring标签。
+首先自然导入场景启动器mybatis-spring-boot-starter，有了它就得看SqlSessionFactory、SqlSession、Mapper对象如何自动生成的。来到MybatisAutoConfiguration类，依赖了MybatisProperties类，它映射的是以`mybatis`开头的配置项，另见涉及SqlSessionFactory、SqlSessionFactoryBean、DataSource等组件的几个条件注解，往下翻就能看到SqlSessionFactory的注册方法，再往下有SqlSessionTemplate的注册方法，内含SqlSession属性，在后面用@Import注册了内部类AutoConfiguredMapperScannerRegistrar，其下registerBeanDefinitions方法负责@Mapper的扫描，此注解依赖BeanFactory属性，负责dao层接口的自动注入，等价于SSM配置里的`mybatis-spring:scan`标签。
 
 就相关配置给个例子：
 
@@ -1085,7 +1087,7 @@ public class DataSourceConfig {
 # 全局配置文件与映射文件的位置
 mybatis.config-location=classpath:mybatis/mybatis-config.xml
 mybatis.mapper-locations=classpath:mybatis/mappers/*.xml
-# 全局配置文件的所有东西都能在这里配，那么最好上2行都注掉
+# 全局配置文件的所有东西都能在configuration下配，那么最好上2行都注掉
 mybatis.configuration.map-underscore-to-camel-case: true
 ```
 
@@ -1097,7 +1099,7 @@ mybatis.configuration.map-underscore-to-camel-case: true
 
 ### Mybatis Plus
 
-[Mybatis Plus](https://baomidou.com/)是mybatis的增强工具，目的是简化开发、提高效率。IDEA建议安装MybatisX插件。
+[Mybatis Plus](https://baomidou.com/)是mybatis的增强工具，目的是简化开发、提高效率。使用IDEA建议安装MybatisX插件。
 
 提前导入mybatis-plus-boot-starter，那么之前的mybatis场景启动器不需要了。
 
@@ -1109,14 +1111,15 @@ mybatis.configuration.map-underscore-to-camel-case: true
 public interface UserMapper extends BaseMapper<User> {}
 ```
 
-又如，SQL语句是底层帮我们生成的，实体类名与表名相映射，属性名与字段名相映射，那么可能有映射不了的情况，可靠如下注解排除：
+又如SQL语句是自动生成的，实体类名与表名相映射，属性名与字段名相映射，那么可能有映射不了的情况，可靠如下注解排除：
 
 ```java
 //其他省略
-//解决表驼峰名，默认映射首字母小写类名
+//默认映射首字母小写类名，自动驼峰转分隔符，必要时带反引号
 @TableName("user")
 public class User {
-    @TableField(exist = false) //不映射了
+    //取消字段与属性间的映射
+    @TableField(exist = false) 
     private String username;
     @TableField(exist = false)
     private String password;
@@ -1141,7 +1144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 redis是典型的NoSQL，[官网](https://redis.io/docs/)对它进行了详细介绍。
 
-有redis场景启动器spring-boot-starter-data-redis与spring-boot-starter-data-redis-reactive（针对响应式编程）。
+有redis场景启动器spring-boot-starter-data-redis与spring-boot-starter-data-redis-reactive（适合响应式编程）。
 
 点开RedisAutoConfiguration类，发现其依赖映射起始于`spring.redis`配置项的RedisProperties类，@Import注册了LettuceConnectionConfiguration与JedisConnectionConfiguration组件，注意到它们体内的一些方法-lettuceClientResources、redisConnectionFactory等，Lettuce、Jedis均是客户端，再看RedisTemplate与StringRedisTemplate的注册方法。
 
@@ -1246,7 +1249,7 @@ void testFail() {
 }
 ```
 
-项目上线之前，来到Maven选项卡中Lifecycle一栏下的test选项，点击Run Maven Build按钮，即运行所有测试类，控制台就会产生结果报告。
+项目上线之前，来到Maven选项卡中Lifecycle一栏下的test选项，点击Run Maven Build按钮运行所有测试类，控制台产生结果报告。
 
 ### 前置条件
 
@@ -1256,7 +1259,7 @@ void testFail() {
 @Test
 @DisplayName("测试前置条件")
 void testAssumptions() {
-    //只有前置条件通过了才向后执行，但测试结果并不是失败
+    //只有前置条件通过了才向后执行
     Assumptions.assumeTrue(2 == 1, "结果非true");
     System.out.println("顺利继续");
 }
@@ -1266,7 +1269,7 @@ void testAssumptions() {
 
 ### 嵌套
 
-嵌套测试落实为类的嵌套，即存在内部类，进而存在@BeforeEach等所标方法的内外层关系。[Nested Tests](https://junit.org/junit5/docs/current/user-guide/#writing-tests-nested)给了说明与例子。
+嵌套测试落实为类的嵌套，即存在内部类，进而存在@BeforeEach等所标方法的内外层关系。[Nested Tests](https://junit.org/junit5/docs/current/user-guide/#writing-tests-nested)给了解读与例子。
 
 规律有：外层测试方法的执行不触发内层@BeforeEach等生效，但内层测试方法的执行触发外层@BeforeEach等生效。
 
@@ -1373,7 +1376,7 @@ public class MyHealthIndicator extends AbstractHealthIndicator {
 
 于是访问health端点，页面展示出的components对象就多出个my属性。
 
-可定制info端点，直接通过配置文件（可能需要额外照此[文档](https://blog.csdn.net/pyhkobe/article/details/98862353?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-98862353-blog-80762056.pc_relevant_aa&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-98862353-blog-80762056.pc_relevant_aa&utm_relevant_index=4)操作）：
+可定制info端点，直接通过配置文件（可能需要参考此[文档](https://blog.csdn.net/pyhkobe/article/details/98862353?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-98862353-blog-80762056.pc_relevant_aa&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-3-98862353-blog-80762056.pc_relevant_aa&utm_relevant_index=4)）：
 
 ```yaml
 info:
@@ -1448,7 +1451,7 @@ public class MyEndpoint {
 
 它相当于另一个服务器，故首先另立一个项目，文档里给了相关要求，然后依照文档对被监控项目即监控可视化的客户端进行配置。
 
-详细代码参考项目。
+关于代码参考项目。
 
 ## 环境切换
 
@@ -1461,18 +1464,18 @@ public class MyEndpoint {
 spring.profiles.active=prod
 ```
 
-原理是默认配置文件永远加载，再根据其中的环境配置连带加载另一个配置文件，即两文件里的配置项都生效，同名的话后者优先。
+配置文件永远加载，再根据其中的环境配置连带加载另一个配置文件，即两文件里的配置项都生效，同名的话后面的覆盖前面的。
 
 若项目已经打包，则可通过命令行更改环境：
 
 ```shell
-#其他配置项也都可在此更改
+#其他配置项也可在此更改
 java -jar boot-admin-0.0.1-SNAPSHOT.jar --spring.profiles.active=test --person.name=testing
 ```
 
 控制台会显示当前环境。
 
-另一种做法是@Profile配合@Bean、@Component等注册注解，其所含标识与激活标识相匹配，由此决定哪些组件被注册。环境标识的激活同上。
+还可以用@Profile配合Bean、Component等注解来决定哪些配置生效，spring笔记中讲过了。环境标识的激活同上。
 
 可以融合多个环境下的配置：
 
@@ -1486,9 +1489,9 @@ spring.profiles.group.testgroup[0]=test
 
 参考[Externalized Configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config)。
 
-yaml文件、properties文件、环境变量、命令行参数等可作外部配置源，像`$`符就从它们中检索目标属性。文档里按优先级顺序罗列了十几条，后面的同名配置系项会覆盖前面的。
+yaml文件、properties文件、环境变量、命令行参数等可作外部配置源，像`$`符就从它们中检索配置项。文档里按优先级顺序罗列了十几条，后面的同名配置项会覆盖前面的。
 
-文档第三节按优先级顺序罗列了配置文件的查找路径，同样后面的同名配置项会覆盖前面的。由此不难想到一个提升效率的技巧，在项目依然打包后，在jar包同级目录等目录中创建配置文件，覆盖前置配置，而无需重新打包部署。
+文档第三节按优先级顺序罗列了配置文件的查找路径，同样后面的同名配置项会覆盖前面的。由此不难想到一个提升效率的技巧，在项目依然打包后，在jar包同级目录等目录中创建配置文件，覆盖前面的配置，而无需重新打包部署。
 
 ## 自定义starter
 
@@ -1539,7 +1542,7 @@ public class VanServiceAutoConfigure {
 ```
 
 ```factories
-# 后者的src/main/resources/META-INF/spring.factories
+# 摘录后者的src/main/resources/META-INF/spring.factories
 # Auto configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.van.config.VanServiceAutoConfigure
@@ -1549,7 +1552,7 @@ com.van.config.VanServiceAutoConfigure
 
 ### 概述
 
-结合源码探究springboot项目的启动原理，尤关注回调机制，即ApplicationContextInitializer、ApplicationListener、SpringApplicationRunListener对象出现的地方。
+结合源码探究springboot项目的启动原理，尤其关注回调机制，即ApplicationContextInitializer、ApplicationListener、SpringApplicationRunListener对象出现的地方。
 
 入口是主程序类，点进静态方法run，体内调用重载的run方法。体内创建SpringApplication对象并返回其run方法的结果。
 
@@ -1565,9 +1568,9 @@ run方法体内往下就有了经典的refreshContext方法，传入容器对象
 
 ### 自定义监听器
 
-上一节开头的三个接口及ApplicationRunner、CommandLineRunner接口均属于广义上的监听器或回调机制范畴，从上一节源码解读可看出它们定义的方法贯穿项目的启动过程，因此可自定义它们的实现类。
+上一节开头的三个接口及ApplicationRunner、CommandLineRunner接口均属于广义上的监听器，从上一节源码解读可看出它们定义的方法贯穿项目的启动过程，因此可自定义它们的实现类。
 
-实现类的代码参见项目，别忘了头三个接口对象的产生基于spring.factories文件的加载，后两个的对象则由作组件而产生。
+实现类代码参见项目，别忘了头三个接口的对象的产生基于spring.factories文件的加载，后两个由于作组件对象由容器创建。
 
 ```factories
 org.springframework.context.ApplicationContextInitializer=\

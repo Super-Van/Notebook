@@ -12,7 +12,7 @@ CREATE TABLE book (
 	INDEX idx_bname(book_name)
 );
 
--- 查看索引
+-- 查看索引，结果不含唯一约束隐式创建的索引，含主键（聚簇）索引
 SHOW INDEX FROM book;
 
 SHOW CREATE TABLE book;
@@ -27,7 +27,7 @@ CREATE TABLE book (
 	info VARCHAR(100),
 	`comment` VARCHAR(100),
 	year_publication YEAR,
-	-- 创建唯一索引字段组就必须保持唯一性
+	-- 创建唯一索引字段组就必须保持唯一性，即附带产生唯一约束
 	UNIQUE INDEX idx_bname_cmt(book_name, `comment`)
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE book (
 	INDEX mul_bid_bname_pub(book_name, `comment`, year_publication)
 );
 
--- 像这样查索引就会失效，key分量为NULL
+-- 像这样查索引就会失效
 EXPLAIN SELECT * FROM book WHERE `comment` = '热销中';
 
 -- 全文索引（对FULLTEXT）、空间索引（对GEOMETRY）略
@@ -70,13 +70,12 @@ CREATE UNIQUE INDEX uk_idx_bname ON book(book_name);
 CREATE INDEX mul_bid_bname_info ON book(book_id, book_name, info);
 
 -- 删除索引，比如某时间段内进行大规模增删改，完了再添回来
--- 因唯一约束依赖唯一索引，删索引就是删约束，故若有AUTO_INCREMENT，则会阻止
 ALTER TABLE book
 DROP INDEX idx_cmt;
 
 DROP INDEX uk_idx_bname ON book;
 
--- 删除字段，那么联合索引中的此字段也会跟着删除，B+树就会重构
+-- 删除字段，那么联合索引中的此字段也会跟着删除，即B+树重构
 ALTER TABLE book
 DROP COLUMN book_name;
 -- 最极端的是联合索引中的字段都被删了，那么这个B+树也就没了

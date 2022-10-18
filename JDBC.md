@@ -8,9 +8,9 @@
 
 持久化（persistence）：把数据保存到可掉电式（断电之后，数据还在）存储设备。
 
-持久化主要是是将内存中的数据存储在关系型数据库中，当然也可以存储在普通文件、XML文件中，只是不好管理。
+持久化主要是指将内存中的数据存储在关系型数据库中，当然也可以存储在普通文件、XML文件中，只是不好管理。
 
-JDBC（java database connectivity）意即java与数据库的连接，是一套连接、操作数据库的Java API，面向多种关系型数据库，由一组用Java语言编写而成的类和接口组成，位于java.sql及javax.sql下。
+JDBC（java database connectivity）意即java与数据库的连接，是一套连接、操作数据库的Java API，面向多种关系型数据库，由一组用Java语言编写而成的类和接口组成，位于java.sql及javax.sql包下。
 
 这组API要求各数据库厂商实现诸接口形成驱动包，方便程序的编写和项目的可移植性。
 
@@ -24,15 +24,15 @@ JDBC（java database connectivity）意即java与数据库的连接，是一套�
 
 通过连接对象创建语句对象。
 
-调用语句对象的方法执行SQL语句，可能返回结果集。
+调用语句对象的有关方法执行SQL语句，可能返回结果集。
 
 返回结果集则封装成对象。
 
-释放结果集、语句、连接资源。
+释放结果集、语句、连接占用的资源。
 
 ## 获取连接
 
-java.sql.Driver接口是所有厂商提供的驱动程序必须实现的接口，开发者由此接口拿到数据库连接。例如：
+Driver接口是所有厂商提供的驱动程序必须实现的接口，开发者由此接口拿到数据库连接对象。例如：
 
 ```java
 try {
@@ -41,27 +41,21 @@ try {
     // jdbc：主协议；mysql：子协议
     String url = "jdbc:mysql://localhost:3306/jdbc_learn";
     Properties info = new Properties();
-    // 可直接设键值对
     info.setProperty("user", "root");
     info.setProperty("password", "root");
-    // connect源码提示至少要有一个user和password
     Connection connection = driver.connect(url, info);
-    // com.mysql.cj.jdbc.ConnectionImpl@693fe6c9
-    System.out.println(connection);
 } catch (SQLException e) {
     e.printStackTrace();
 }
 ```
 
-注：一般普通项目导入的jar包置于lib目录下，lib与src同级，分别对应外来的编译好的字节码与源文件的字节码。
-
-我们希望驱动包类与源文件解耦（针对第3行），提升项目可移植性，于是利用反射绕过编译，在运行时才确定具体的实现类。
+我们希望驱动包类与源文件解耦（针对第3行），于是利用反射绕过编译，在运行时才确定具体的实现类。
 
 ```java
 @Test
 void testConnection2() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException,
         IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-    // 运行时才得到具体实现类对应的Class对象，编译器不知道具体实现类 这里还没有完全解耦
+    // 运行时才得到对应具体实现类的Class对象，编译器不知道具体实现类 这里还没有完全解耦，参数字符串还是写死的
     Class<?> driverCls = Class.forName("com.mysql.cj.jdbc.Driver");
     // 由Class对象造本类实例
     Driver driver = (Driver) driverCls.getConstructor().newInstance();
@@ -69,11 +63,10 @@ void testConnection2() throws InstantiationException, IllegalAccessException, Cl
     info.setProperty("user", "root");
     info.setProperty("password", "root");
     Connection connection = driver.connect("jdbc:mysql://localhost:3306/jdbc_learn", info);
-    System.out.println(connection);
 }
 ```
 
-更优雅地通过驱动程序管理器类java.sql.DriverManager注册实现类，然后由管理器非实现类获取连接：
+更优雅地通过驱动程序管理器类DriverManager注册实现类，然后由管理器非实现类获取连接：
 
 ```java
 @Test
@@ -86,7 +79,6 @@ void testConnection3() throws SQLException, ClassNotFoundException, Instantiatio
     DriverManager.registerDriver(driver);
     // 由DriverManager拿连接
     Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/jdbc_learn", "root", "root");
-    System.out.println(connection);
 }
 ```
 
@@ -97,13 +89,12 @@ void testConnection3() throws SQLException, ClassNotFoundException, Instantiatio
 void testConnection4() throws ClassNotFoundException, SQLException {
     Class.forName("com.mysql.cj.jdbc.Driver");
     Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/jdbc_learn", "root", "root");
-    System.out.println(connection);
 }
 ```
 
-因为第3行相当于加载实现类（把字节码放进内存），而加载的时候这个类的一段静态代码块会执行，具体干的就是实例化并注册。
+因为第3行意味着加载实现类的字节码，而加载的时候这个类的一段静态代码块会执行，具体干的就是实例化并注册。
 
-最后将用户名、密码等信息抽离到配置文件中，好处是让源代码与配置数据相分离，从而提升项目可移植性-避免源代码的修改，避免web项目的重新编译打包（开销蛮大）。
+最后将用户名、密码等信息抽离到配置文件中，好处是让源代码与配置数据相分离，从而提升项目可移植性-避免源代码的修改，即避免web项目的重新编译（开销蛮大）。
 
 ```properties
 driver=com.mysql.cj.jdbc.Driver
@@ -114,15 +105,14 @@ password=root
 
 ```java
 try {
-    // 使用文件流 相对路径起始于项目根目录，这里出现src证明了路径是在编译的时候解析的，因为运行时连src目录都没有
+    // 使用文件流 相对路径起始于项目根目录，这里出现src证明编译器解析得到文件的绝对路径，运行时类路径下是没有src目录的
     // FileInputStream fis = new FileInputStream("src\\jdbc.properties");
-    // 使用类加载器，相对路径起始于classpath（源码包）
+    // 使用类加载器，相对路径起始于classpath
     InputStream is = ConnectionTest.class.getClassLoader().getResourceAsStream("jdbc.properties");
     Properties info = new Properties();
     info.load(is);
     Class.forName(info.getProperty("driver"));
     Connection connection = DriverManager.getConnection(info.getProperty("url"), info);
-    System.out.println(connection);
 } catch (ClassNotFoundException | SQLException | IOException e) {
     e.printStackTrace();
 }
@@ -135,7 +125,7 @@ CRUD：create-创建、read-读取（查询）、update-更新（修改）、del
 有了Connection对象之后，就能向数据库发送SQL语句及其他命令，并接收返回结果。对数据库的操作由三个接口担纲：
 
 - Statement：执行静态SQL语句并返回结果。
-- PreparedStatement：Statement的子接口，预编译SQL语句并存于实现类实例中，从而更高效地执行此语句。
+- PreparedStatement：Statement的子接口，预编译SQL语句，从而更高效、安全地动态执行。
 - CallableStatement：执行存储过程。
 
 Statement很少用了，因为有弊端，主要是SQL注入的问题。我们看下面这个例子：
@@ -226,10 +216,11 @@ public <T> T get(String sql, Class<T> cls) {
 }
 ```
 
-参考JDBC 4.3规范，着重理解关闭资源的含义。关闭资源实际是释放DBS里被占用的资源，不要误解为释放应用端这几个Java对象占用的资源，应用端有GC（garbage collection-垃圾回收机制）在管理着，具体地：
+参考JDBC 4.3规范及JDK 源码，理解各对象关闭方法的含义，具体地：
 
-- 连接对象调用close方法，将通知DBS释放当前连接及此连接产生的所有语句占用的资源（主要是内存空间），尽管如此，仍提倡手动调用语句对象的close方法以立即释放占用资源，因为有的语句很早执行完，到连接对象关闭期间在无谓占用资源。
-- 语句对象调用close方法，将通知DBS释放当前语句占用的资源，至于查询结果占用的资源则等到GC下一次执行时再通知DBS去释放，因此提倡手动调用结果集对象的close方法在得到结果后立即释放占用资源，不然同样有一段时间的白白占用。
+- 连接对象调用close方法，立即通知DBS释放当前连接占用的资源（主要是内存空间）及释放本地JDBC资源，还关闭衍生的语句对象（即下一条）。尽管如此，仍提倡在成功执行后手动调用语句对象的close方法，因为有的语句很早就执行完了，到连接对象关闭期间无谓地占用资源。
+- 语句对象调用close方法，立即通知DBS释放当前语句占用的资源及释放本地JDBC资源，还让衍生的结果集对象关闭、失效。但是跟下一条对比，释放后者占用的JDBC资源要等到GC下一次回收时进行，因此提倡在得到结果后手动调用结果集对象的close方法，不然同样有一段时间资源被白白占用。
+- 结果集对象调用close方法，立即通知DBS释放当前结果集占用的资源及释放本地JDBC资源。
 
 注：get方法可是理解反射的绝佳例子，须细细品味。
 
@@ -349,7 +340,7 @@ public static int dml(String sql, Object... args) {
 }
 ```
 
-注：表名跟关键字冲突的话，可以包上反引号以区分，如：
+注：表名列名跟关键字冲突的话，可以包上反引号以区分，如：
 
 ```sql
 update `order` set order_name = 'J' where order_id = 2;
@@ -385,7 +376,7 @@ public static <T> List<T> query(String sql, Class<T> cls, Object... args) {
         while (rs.next()) {
             t = cls.getConstructor().newInstance();
             for (int i = 0; i < metaData.getColumnCount(); i++) {
-                // getColumnLabel比getColumnName更好，配合as关键字解决域名字段名不匹配的问题
+                // getColumnLabel比getColumnName更好，前者动态获取列别名，后者只能获取原列名
                 String columnLabel = metaData.getColumnLabel(i + 1);
                 Field field = cls.getDeclaredField(columnLabel);
                 field.setAccessible(true);
@@ -422,7 +413,7 @@ select user, password from user_table where user = `'AABB'` and password = `'123
 
 相较于Statement，PreparedStatement还有其他优点：
 
-- 批量处理的效率更高。
+- 批量操作的效率更高。
 - 可往占位符里填流，以适应数据库中的Blob类型。
 
 插入带图像分量的一条记录：
@@ -542,20 +533,20 @@ try {
 
 从上段代码看出：发了1次带占位符的语句，填充参数2万次，发了2万次明确的语句，DBMS仅编译1次、执行2万次。
 
-进一步，我们可充分利用TCP报文的空间批量发送明确语句。
+进一步，我们可充分利用报文的空间批量发送明确语句。
 
 ```properties
-# 先要DBMS支持语句批处理，具体来说是批量发送
+# 先要DBMS支持语句批处理
 url=jdbc:mysql://localhost:3306/jdbc_learn?rewriteBatchedStatements=true
 ```
 
 ```java
 for (int i = 1; i <= 20000; i++) {
     ps.setString(1, "" + i);
-    // 累积一堆明确的语句
+    // 累加明确的语句
     ps.addBatch();
     if (i % 500 == 0) {
-        // 语句批量发送给DBMS，让其执行，它执行还是一条条执行，不过我们发是成批发的
+        // 语句被批量发送给DBMS
         ps.executeBatch();
         // 清空当前这一堆语句
         ps.clearBatch();
@@ -564,7 +555,7 @@ for (int i = 1; i <= 20000; i++) {
 // 其他省略 时长848
 ```
 
-再进一步改进，将数据从事务缓存更新到原库的自动提交是花费一定时间的，上段代码含若干次提交，我们压缩成一次：
+再进一步改进，上段代码含若干次提交，我们压缩成一次：
 
 ```java
 // 关闭自动提交
@@ -574,7 +565,7 @@ for (int i = 1; i <= 20000; i++) {
     ps.setString(1, "" + i);
     ps.addBatch();
     if (i % 500 == 0) {
-        // 中途这里就不提交了
+        // 中途就不提交了
         ps.executeBatch();
         ps.clearBatch();
     }
@@ -586,7 +577,7 @@ connection.commit();
 
 ## 事务
 
-事务概念就不详讲了，补充一些东西：数据库的自动提交只增删改操作支持，那么即使MySQL认为查询算DML，它也不可作事务的结束，因为不引发自动提交。广义上认为提交或回滚标志着上一个事务的结束兼下一个事务的开始。
+事务理论就不详讲了，补充一些东西：数据库的自动提交只由增删改操作支持，SELECT不支持，故SELECT也不可作事务的结束。SELECT算不算DML意见尚不统一，如MySQL认为算，Oracle认为不算。一种说法是提交或回滚标志着上一个事务的结束兼下一个事务的开始。
 
 数据一旦提交，就不可回滚。所以我们要避免隐式提交的情况，包括执行DDL、DCL、DML、关闭连接。
 
@@ -628,7 +619,9 @@ public static int dmlBetter(Connection connection, String sql, Object... args) {
 
 附带讲，这样改一并解决了重复建立、关闭连接增大开销的问题，由此通用查询方法也得改。
 
-然后还得关闭DML的自动提交。注意对比：MySQL默认开启，Oracle默认关闭，MySQL的关闭阻止执行DML与关连接时的隐式提交，但阻止不了执行DDL、DCL时的隐式提交，Oracle的默认关闭则仅能阻止DML的自动提交（像关命令行窗口属于异常退出哦）。
+然后还得关闭自动提交。注意对比：MySQL默认开启，Oracle默认关闭，MySQL的关闭阻止执行DML与关连接时的隐式提交，但阻止不了执行DDL、DCL时的隐式提交，Oracle的默认关闭则仅能阻止DML的自动提交。
+
+注：关命令行窗口属异常断开连接；命令行窗口内输exit或navicat内点关闭连接属正常关闭连接。
 
 ```java
 Connection connection = null;
@@ -653,9 +646,9 @@ try {
     closeResource(connection, null);
 }
 
-// 插一句，后面要学的数据库连接池为保持连接复用的纯洁性，在关闭连接前把自动提交恢复为true
 finally {
     try {
+        // 插一句，后面要学的数据库连接池为保持连接复用的纯洁性，在回收连接前自动把自动提交恢复为true
         connection.setAutoCommit(true);
     } catch (SQLException e) {
         e.printStackTrace();
@@ -664,9 +657,7 @@ finally {
 }
 ```
 
-关于事物四大特性及隔离性相关的并发问题，参阅[Oracle笔记](Oracle.md)。四种隔离级别对并发性与同步性做了权衡。
-
-注：MySQL支持SQL99标准定义的全部四种隔离级别，默认隔离级别为repeatable read。
+关于事物四大特性及隔离性相关的并发问题，参阅Oracle笔记。
 
 下面通过JDBC验证MySQL默认的隔离级别：
 
@@ -706,7 +697,7 @@ void testTransactionB() throws Exception {
     List<UserTable> userTables2 = queryBetter(connection, selectSQL, UserTable.class, "CC");
     System.out.println("事务B第二次查：" + userTables2.get(0));
     connection.commit();
-    // 连接不手动关闭的话，此连接会一直在DMBS中占着，导致内存泄漏，除非重启DBMS
+    // 连接不手动关闭的话，DBS中的相关资源一直被占用，导致内存泄漏，除非重启DBS
 }
 ```
 
@@ -1083,31 +1074,29 @@ class CustomerDaoImplTest {
 
 ### 概述
 
-此前随意的连接的获取与关闭存在以下问题：
+此前连接的建立与关闭存在以下问题：
 
-- 每次DBMS建立连接包括加载连接到内存、验证用户等一些工作，断开连接也需要一些工作，合起来需要花费一定时间。那么巨大的数据库访问量就带来大量的时间与空间的开销。
+- 每次DBS建立连接包括分配线程等一些工作，关闭连接包括回收线程等一些工作，合起来花费不少时间。那么巨大的数据库访问量就带来大量的时间与空间的开销。
 
-- 若没有手动关闭连接，就会导致DBS的内存泄漏（DBS不能自动回收连接对象，手动关闭连接就是通知DBS销毁连接对象），数据库就得重启。
+- 若忘记手动关闭连接，就会导致DBS的内存泄漏（DBS不能自动回收连接占用的资源，手动关闭连接就是通知DBS去回收），数据库不得不重启。
 
-- 连接对象数不能被控制，没有上限，系统资源毫不顾惜地分配出去，最终造成资源耗尽，DBS崩溃。
+- 连接（对象）数不能被控制，没有上限，DBS的系统资源毫不顾惜地分配出去，最终造成资源耗尽，DBS崩溃。
 
-为了解决这些问题，引入数据库连接池技术。即在应用程序这一端为数据库连接准备一个缓冲池，早早地在里面放置一定数量的连接，需要时就被分配，用完之后就被回收。
-
-它负责管理连接，包括分配、回收等。详见[此文章](https://blog.csdn.net/weixin_39537680/article/details/110510140)。
+为了解决这些问题，引入数据库连接池技术。即在Java程序这一端准备一个缓冲池，程序启动时它实例化并在初始化时创建并长期保存一定数量的连接对象（非原驱动包中实现的对象，而是经过包装的），需要时就被分配，用完之后就被回收，详见[此文章](https://blog.csdn.net/weixin_39537680/article/details/110510140)。
 
 优点梳理：
 
-- 提高程序响应时间。由于连接池初始化过程中已创建了若干连接备用，故节省了频繁创建、释放连接引起的时间开销。
-- 降低资源消耗。由于连接得以重用，故避免了频繁创建、释放连接引起的大量资源开销。
-- 便于连接的管理。比如通过一些配置控制某应用程序（多线程）最多占用多少个连接、连接的最大空闲时间等。
+- 提高程序响应时间。连接可以重用，节省了DBS频繁建立、关闭连接带来的时间开销。
+- 降低资源消耗。连接可以重用，故避免了不断建立连接带来的资源开销。
+- 便于连接的管理。比如通过相关配置控制某应用程序最多占用多少个连接、连接的最大空闲时间等，又如自动释放资源。
 
 ### 使用
 
-JDBC里用javax.sql.DataSource表示数据库连接池，DataSource只是一个接口，已经由各开源组织实现，如DBCP、C3P0、Proxool、BoneCP、Druid。
+JDBC里用DataSource接口表示数据库连接池，它由诸第三方实现，成品有DBCP、C3P0、Proxool、BoneCP、Druid。
 
-DataSource通称为数据源，包含连接池和连接池管理两部分，习惯上直接等同于连接池。它取代了DriverManager。
+DataSource译为数据源，包含连接池和连接池管理两部分，习惯上直接等同于连接池。它取代了DriverManager。
 
-这里只演示Druid的使用，这是[文档](https://github.com/alibaba/druid)。
+这里只演示Druid的使用，这是[官方文档](https://github.com/alibaba/druid)。
 
 ```properties
 # 基本配置
@@ -1150,10 +1139,10 @@ try {
 } catch (SQLException e) {
     e.printStackTrace();
 } finally {
-    // 这里的关闭不是关闭与数据库建立的TCP连接，而是释放连接（或者说将连接置为可用），因为连接池重写了原生close方法
+    // 底层包装的连接对象调用close方法，工作有释放相关资源、将本对象置为空闲即回收等
     DBUtils.closeResource(connection, null);
 }
-// 如果不在手动释放则连接池会根据最大空闲时间自动释放，最好手动
+// 如果不手动释放资源则连接池会根据连接的最大空闲时间自动释放，最好手动
 ```
 
 其他数据源的使用及怎么导包请参考项目。
@@ -1173,7 +1162,6 @@ try {
     String sql = "select from customers where id = ?";
     // 专门针对Customer的BeanHandler
     ResultSetHandler<Customer> handler = new ResultSetHandler<Customer>() {
-
         /**
          * 相当于自行加工结果集，本方法的返回值作query方法的返回值
          */
@@ -1188,7 +1176,6 @@ try {
             }
             return customer;
         }
-
     };
     Customer customer = runner.query(connection, sql, handler, 19);
     System.out.println(customer);
@@ -1197,3 +1184,4 @@ try {
 }
 ```
 
+后面有了mybatis、MP，这个就废了。

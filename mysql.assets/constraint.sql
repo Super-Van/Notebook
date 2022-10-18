@@ -31,9 +31,9 @@ ADD CONSTRAINT UQ_sno UNIQUE(sno, last_name);
 ALTER TABLE tmp
 MODIFY last_name VARCHAR(20) UNIQUE;
 
--- 添加唯一约束时会自动产生唯一索引，约束实际由这个索引控制，那么删约束就得靠删索引，索引名同约束名，多列时默认取首列名
+-- 添加唯一约束时会自动产生唯一索引，约束实际由这个索引控制，那么删约束就得靠删索引，索引名同约束名，缺省取列名，多列则取首列名
 ALTER TABLE tmp
-DROP INDEX sno;
+DROP INDEX UQ_sno;
 
 -- 一个表只能有一个主键PRIMARY KEY，要么列级要么表级，主键约束比UNIQUE更进一步，禁止NULL
 CREATE TABLE tmp (
@@ -50,7 +50,7 @@ CREATE TABLE tmp (
 ALTER TABLE tmp
 ADD PRIMARY KEY(id);
 
--- 删除主键（实际开发中不要删，删主键就是删索引，破坏底层数据的存储结构B+，导致重新组织数据，没事找事）
+-- 删除主键（实际开发中不要删，删主键就是删聚簇索引，破坏底层数据的存储结构B+树，导致重新组织数据，没事找事）
 ALTER TABLE tmp
 DROP PRIMARY KEY;
 
@@ -59,16 +59,16 @@ CREATE TABLE tmp (
 	id INT PRIMARY KEY AUTO_INCREMENT, -- 默认初值是1
 	last_name VARCHAR(20)
 );
--- 插入时对应字段就不用填，若实在是填了，填了0或NULL，则实际填的是自增值，否则按包括自己填的值及已删值（裂缝问题）在内的所有分量里的最大值继续自增。5.7版本重启服务可解决裂缝问题，即内存刷新了，只能去现有的所有分量中找最大值，而8.0有重做日志，关服务前会把自增值持久化到外存，启动时又读回来
+-- 插入时对应字段就不用填，若实在是填了，填了0或NULL，则实际填的是自增值，否则比较自己填的值与现有最大值（包括已删的-裂缝问题），取最大值继续自增。5.7版本重启服务可去除裂缝，即刷新内存，只能跟可见分量中的最大值比较，而8.0有重做日志，关服务前会把现有最大值持久化到外存，启动时又读回来
 
 ALTER TABLE tmp
 MODIFY id INT AUTO_INCREMENT;
 
 -- 删除自增功能
 ALTER TABLE tmp
-MODIFY id INT AUTO_INCREMENT;
+MODIFY id INT;
 
--- 添加外键FOREIGN KEY 主表、父表、被参考表、被引用表；外键定义在从表、子表、参考表、引用表。引用的列必须有索引，即是主键或带唯一约束，因为引用的分量在主表内必须是唯一的，引用只能引唯一值。先创建主表，再创建从表；先删除从表（记录），再删除主表（记录）。创建外键时会为该列自动创建一个索引，名同列名，删除外键时须手动删除对应索引
+-- 添加外键FOREIGN KEY 主表、父表、被参考表、被引用表；外键定义在从表、子表、参考表、引用表。引用的列必须有唯一约束（索引）。先创建主表，再创建从表；先删除从表（记录），再删除主表（记录）。创建外键时会为该列自动创建一个索引，名同列名，删除外键时须手动删除对应索引
 
 CREATE TABLE sc (
 	sno INT,

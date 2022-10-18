@@ -159,7 +159,7 @@ readFilePromise("poem.txt", "utf-8").then(value => {
 - 要么是从pending变为resolved。
 - 要么是从pending变为rejected。
 
-那么无论任务成功还是失败，最终都会产生一个结果数据，对应成功的一般叫作value，对应失败的一般叫作reason，只有resolve或reject函数才能以它为参数。这个结果数据还保存于promise对象的PromiseResult属性。
+那么无论任务成功还是失败，最终都会产生一个结果数据，对应成功的一般叫作value，对应失败的一般叫作reason，resolve或reject函数以它为参数。结果数据另保存为promise对象的PromiseResult属性。
 
 ## API解读
 

@@ -19,10 +19,10 @@ linux的分支有很多，有名的有：Ubuntu、Debian、CentOS、Redhat、SUS
 
 安装OS的方式有两种：
 
-- 真机安装：对于真机，如果不搞双系统，安装新系统后旧系统就被替换了；如果搞双系统，管理起来很麻烦，如两个系统盘。
-- 虚拟机安装：推荐。
+- 依托真机：对于真机，不搞双系统，安装新系统后旧系统就被替换了；搞双系统，管理起来很麻烦，如存在两个系统盘。
+- 依托虚拟机：推荐。
 
-虚拟机安装是在毫不影响旧系统的条件下嵌入新系统。虚拟机是一款承载OS并能使其模拟真实OS运作的软件。著名的有VMware出品的VMware workstation、Oracle出品的Virtual Box。
+依托于虚拟机是指在毫不影响旧系统的条件下嵌入新系统。虚拟机是一款承载OS并能使其模拟真实OS运作的软件。著名的有VMware出品的VMware workstation、Oracle出品的Virtual Box。
 
 先安装虚拟机软件，装完后要检查是否装有2个虚拟网卡，没有说明安装失败。它们影响主系统和虚拟系统间的网络通信。
 
@@ -39,12 +39,12 @@ linux的分支有很多，有名的有：Ubuntu、Debian、CentOS、Redhat、SUS
 
 ### 概述
 
-终端（terminal）是我们使用linux的主工具，要掌握。
+终端（terminal）是我们使用linux的主工具，必须掌握。
 
 先以一些关机命令了解命令行的基本结构：
 
 ```sh
-# 最常用的 还具有定时等选项 -h是某个选项，now是此选项值 不过这里van用户没有执行shutdown命令的权限
+# 最常用的，还具有定时等选项，-h即定时选项，now是选项值 不过这里van用户没有执行shutdown命令的权限
 [ van@localhost 桌面 ]$ shutdown -h now
 # 关闭内存，间接造成关机
 [ van@localhost 桌面 ]$ halt
@@ -59,28 +59,28 @@ linux的分支有很多，有名的有：Ubuntu、Debian、CentOS、Redhat、SUS
 
 ### 文件系统
 
-我们的命令行操作极大部分是针对文件的。
+我们的命令行操作绝大部分是针对文件的。
 
-文件含于文件夹，但本质上linux将文件与文件夹都视作文件，且对软件、硬件也都视作文件。
+文件含于文件夹，但本质上linux将文件与文件夹都视作文件，且将软件、硬件也都视作文件。
 
 > linux中一切皆文件。
 
-围绕文件的操作不外乎创建、编辑、保存、关闭、重命名、删除、恢复。
+围绕文件的操作不外乎创建、删除、恢复、编辑、保存、打开、关闭、重命名。
 
-有些目录是极为重要的，不能删的，熟悉一下：
+有些目录是极为重要的、不能删的，熟悉一下：
 
 ```
 bin：即binary，里面全是二进制文件，全是可以运行的
-dev：存放外接设备如磁盘、光盘，外设尚不能直接使用，要先手动挂载（联想盘符的分配）。
+dev：存放外接设备如磁盘、光盘，使用外设前要先手动挂载。
 etc：存放一些配置文件。
 home：存放root之外诸用户的个人文件
 mnt：联系dev，外设就挂载到此目录
-proc：存放OS上正在运行的程序
+proc：存放当前进程相关文件
 root：存放root用户的个人文件，root以外的用户无权访问
 sbin：即super binary，存放一些可执行程序（二进制文件），不过这些程序（指令）的执行权限仅root拥有
 tmp：即temporary，存放OS运行时产生的一些临时文件，如日志
 usr：存放用户安装好的软件
-var：存放日志文件
+var：杂项
 opt：软件安装包
 ```
 
@@ -98,13 +98,13 @@ opt：软件安装包
 
 下面学习一些具体的指令。说明：
 
-- tab键可帮助补全文件名，要常用tab键。
+- tab键可帮助补全文件名，常用。
 - 大量指令有权限，就不一一说明了。
-- 有的指令不具有普适性，即不同的linux分支可能支持不同的一套指令系统。
+- 有的指令不具有普适性，随不同的linux分支、同分支的不同版本变化。
 
 #### ls
 
-即list，列出本目录下所有文件和文件夹，再根据选项展示具体信息。
+即list，列出本目录下所有文件和文件夹。
 
 ```sh
 # 绝对路径
@@ -119,7 +119,7 @@ initramfs-2.6.32-431.el6.x86_64.img  vmlinuz-2.6.32-431.el6.x86_64
 ```
 
 ```sh
-# 带上-l，以列表形式展现诸文件详细信息，等价于ll 当前在根目录（文件系统）
+# 带上-l，以列表形式展现诸文件详细信息，等价于ll
 [van@localhost /]$ ls -l /boot
 总用量 23948
 -rw-r--r--. 1 root root   105195 11月 22 2013 config-2.6.32-431.el6.x86_64
@@ -157,7 +157,7 @@ drwx------.  2 root root    12288 3月   5 01:51 lost+found
 -rw-r--r--.  1 root root  2518236 11月 22 2013 System.map-2.6.32-431.el6.x86_64
 -rwxr-xr-x.  1 root root  4128368 11月 22 2013 vmlinuz-2.6.32-431.el6.x86_64
 -rw-r--r--.  1 root root      166 11月 22 2013 .vmlinuz-2.6.32-431.el6.x86_64.hmac
-# 更人性化的列表 -lah也可用 容量单位灵活变化 展示出来的文件夹的容量不由内部文档多少决定即非真实容量
+# 更人性化的列表 容量单位灵活变化 展示出来的文件夹的容量不由内部文档多少决定即非真实容量
 [van@localhost /]$ ls -lh /boot
 总用量 24M # 同理总容量也不准确
 -rw-r--r--. 1 root root 103K 11月 22 2013 config-2.6.32-431.el6.x86_64
@@ -170,12 +170,11 @@ drwx------. 2 root root  12K 3月   5 01:51 lost+found
 -rwxr-xr-x. 1 root root 4.0M 11月 22 2013 vmlinuz-2.6.32-431.el6.x86_64
 ```
 
-我们可以由列出来的名称的颜色得到一些信息：
+我们可以由列出来的名称的颜色得到一些信息，例如：
 
 - 蓝色的表示文件夹。
 - 黑色的表示文件。
-- 绿色的表示当前用户对其拥有全部权限。
-- 红色的表示？
+- 绿色的表示当前用户对其拥有全部权利。
 
 #### pwd
 
@@ -243,10 +242,10 @@ cp dog.txt /home/van/dog.txt
 cp boot/duck.txt /home/van/duck.txt
 # 拷贝目录时要加-r选项 -r表示递归（recursion），穷尽目录里面的文档，其他一些命令也有此选项
 cp -r monkey root/monkey # 执行前无monkey，执行后有了
-cp -r monkey root/monkey # 执行前有了money，执行后就得到root/monkey/monkey
-# 同名称的话也可不写名称
-cp -r paper-master/* pre-training/ # 要求执行前有pre-training，复制文件不能帮我们创建新目录
-cp -r paper-master pre-training # 上一行的等价写法，执行前无pre-training，复制单级路径可顺带创建新目录，多级不行
+# 要求执行前有pre-training，因为它后面跟了/表它已经存在
+cp -r paper-master/* pre-training/
+# 上一行的等价写法，执行前无pre-training，自动创建
+cp -r paper-master pre-training 
 ```
 
 #### mv
@@ -269,11 +268,11 @@ mv root/a.txt root/b.txt
 rm a.txt
 # 针对文件，带-f，即force-强制，不会冒出提示
 rm -f boot/b.txt
-# 带-rf，即递归且强制，不会冒出任何提示，针对目录则一并删除其下所有东西，仅-r会递归询问是否删除，啥都不带会冒出无法删除
+# 带-rf，即递归且强制，不会冒出任何提示，针对目录则一并删除其下所有东西，仅-r会递归询问是否删除，无-r会冒出无法删除
 rm -rf boot/animal
 # 删除多个文件
 rm -f boot/animal/duck.txt boot/animal/dog.txt
-# 删除多个 文件并目录
+# 删除多个文件并目录
 rm -rf boot/animal root/a.txt root/animal
 # 借助通配符，删除linux开头的所有文件或目录
 rm -r ~/linux*
@@ -348,7 +347,7 @@ tmpfs                         491M   80K  491M   1% /dev/shm
 查看内存使用：
 
 ```shell
-# 本例中已用600，剩余672，实际可用380, 26+265是已分配而未使用的空间 因单位影响，存在舍入情况，380+26+265=671约等于672, 671+308=979约等于980
+# 本例中已用600，剩余672，实际可用380, 26+265是缓存缓冲 因单位影响，存在舍入情况，380+26+265=671约等于672, 671+308=979约等于980
 [van@localhost 桌面]$ free -m
              total       used       free     shared    buffers     cached
 Mem:           980        600        380          0         26        265
@@ -357,7 +356,7 @@ Swap:         1983          0       1983
 # 最后一行指交换空间，把部分外存临时用作内存，当然不宜过大
 ```
 
-`m`指单位MB，同理可用`g`等，但一般用`m`，因为最合适。
+选项中`m`指单位MB，同理可用`g`等，但一般用`m`，因为最合适。
 
 #### head
 
@@ -382,7 +381,7 @@ head -5 article.txt
 less temp/log.txt
 ```
 
-与Vim类似，窗口末端显示的是`:`，非命令行模式，用q键退回到命令行模式。
+与Vim类似，窗口末端显示的是`:`，意思是处非命令行模式，用q键退回到命令行模式。
 
 #### wc
 
@@ -452,23 +451,23 @@ cal -y 2018
 sys
 ```
 
-用于构造复杂命令：
+用于构造复杂命令，前一个命令的输出作后一个命令的输入：
 
 ```sh
-# 统计/目录下的文件数 以-l结尾更严谨，怕有的文件名含空格
-[root@localhost ~]# ls -a / | wc -w
+# 统计/目录下的文件数
+[root@localhost ~]# ls -la / | wc -l
 28
 ```
 
 #### hostname
 
-读取及临时修改主机名。windows上的主机名见于此电脑->属性里的计算机名，安装系统后自动生成，可更改。
+读取及临时修改主机名。windows上的主机名见于此电脑->属性里的计算机名，安装OS后自动生成，可更改。
 
 ```sh
-# 完整（广义）的主机名
+# 主机名
 [root@localhost ~]# hostname
 localhost.localdomain
-# 完整主机名里的FQDN（全限定域名、狭义的主机名）
+# FQDN-全限定域名
 [root@localhost ~]# hostname -f
 localhost
 ```
@@ -493,14 +492,15 @@ cat /etc/group
 
 #### whoami
 
-指代当前（登录的）用户：
+指代执行此命令的用户：
 
 ```sh
+# 不能说是登录的用户，因为可能多用户登录
 [root@localhost ~]# whoami
 root
 ```
 
-从命令行来看多此一举了，所以它一般用于shell脚本。
+从命令行来看多此一举了，它一般参与shell脚本。
 
 #### ps
 
@@ -516,7 +516,7 @@ root       3076   3074  0 Jul18 pts/0    00:00:00 /bin/bash
 root      13888   3076  0 02:25 pts/0    00:00:00 ps -f
 # 全行全列
 ps -ef
-# 全行全分量参与匹配
+# 全行全列参与匹配
 ps -ef | grep firefox
 ```
 
@@ -527,7 +527,7 @@ ps -ef | grep firefox
 - PPID：parent process id。
 - C：占用CPU的比率，隐藏%。
 - STIME：start time-进程的启动时间。
-- TTY：发起此进程的终端设备的标识符，?值表示此进程并非由终端发起而由OS发起。
+- TTY：发起此进程的终端设备的标识符，`?`值表示此进程并非由终端发起而由OS发起。
 - TIME：进程的执行时间。
 - CMD：进程对应的原始程序的路径或发起进程的命令
 
@@ -535,7 +535,7 @@ ps -ef | grep firefox
 
 #### top
 
-每隔3秒刷新系统的状况及诸进程对其他一些资源的占用情况：
+每隔3秒刷新OS的状况及诸进程对系统资源的占用情况：
 
 ```sh
 # 同样按q退回到命令行模式
@@ -581,11 +581,11 @@ Swap:  2031608k total,        0k used,  2031608k free,   282824k cached
 - TIME+：进程执行时间。
 - COMMAND：同前面的CMD。
 
-运维人员着重关注S及其后两个百分比，外加COMMAND。关注高占用率进程，可通过快捷键M对实时结果就%MEM列进行降序排，通过快捷键P对实时结果就%CPU列进行降序排列，通过快捷键1展示多核CPU每个核的状况。
+运维人员着重关注S及其后两个百分比，外加COMMAND。关注高占用率进程，可通过快捷键M对实时结果就%MEM列进行降序排列，通过快捷键P对实时结果就%CPU列进行降序排列，通过快捷键1展示多核CPU每个核的状况。
 
 #### du
 
-即directory usage，往往配合以几个选项查看目录的真实的外存占用大小。
+即directory usage，往往配合以几个选项查看目录的真实外存空间占用情况。
 
 ```sh
 # summarize
@@ -603,7 +603,7 @@ Swap:  2031608k total,        0k used,  2031608k free,   282824k cached
 # 从当前目录中找名字以.log结尾的文件 可见支持通配符，f表文件、d表目录
 [root@localhost ~]# find ./ -name *.log -type f
 ./install.log
-# 允许深层查找
+# 允许多级查找
 [root@localhost ~]# find /etc -type d | wc -l
 281
 ```
@@ -671,7 +671,7 @@ lo        Link encap:Local Loopback
 
 #### shutdown
 
-关机，对单位自己维护的服务器而言慎用。
+关机，对单位的服务器慎用。
 
 ```sh
 # 立即关，加提示
@@ -743,15 +743,13 @@ man man
 
 清空光标前的内容：CTRL+U。
 
-清空光标前的内容：CTRL+U。
-
 清空光标后的内容：CTRL+K。
 
 ## Vim
 
 ### 概述
 
-号称编辑器之神。Vi编辑器是Unix和Linux上的标准通用编辑器。Vim是Vi的升级版，后者仅适用于普通文本，后者擅长写代码，后者命令集是前者的子集。
+号称编辑器之神。Vi编辑器是Unix和Linux上的标准通用编辑器。Vim是Vi的升级版，后者仅适用于普通文本，适合写代码，命令集是前者的子集。
 
 一般来说vim对文件的操作有三种模式：命令（默认）、末行、编辑。
 
@@ -835,7 +833,7 @@ vim ./User.java Student.java
 调用外部命令：
 
 ```sh
-# 临时执行编辑器以外的命令，执行完后按任意键回到vim操作界面
+# 临时退回到命令行执行命令，执行完后按任意键回到vim操作界面
 ! ls . -ah
 ```
 
@@ -920,7 +918,7 @@ vim ./User.java Student.java
 
 就比如为clear命令取别名cls。
 
-当前用户给命令起别名依靠其home目录下的`.bashrc`配置文件。
+对同一命令不同用户各取各的别名，依靠home下各人个人文件夹下的`.bashrc`配置文件。
 
 ```sh
 # .bashrc
@@ -980,7 +978,7 @@ id:5:initdefault:
 5. 图形化界面模式。
 6. 重启级别。
 
-可见首尾都不建议，一个是一开机就关机，一个是一开机就重启。它俩作init命令的选项有用。
+可见首尾都不建议作id值，一个是一开机就关机，一个是一开机就重启。它俩作init命令的选项有用。
 
 ```sh
 # 重启
@@ -989,7 +987,7 @@ init 6
 init 3
 ```
 
-init命令调用的即是init进程，选项值即是上述级别，调用时会读配置文件。
+执行init命令即是调用init进程，选项值即是上述7个级别，调用时会读配置文件。
 
 那么后续将永久用命令行，须改配置文件中的id值为3。
 
@@ -1012,9 +1010,9 @@ linux是多用户多任务系统，须对用户进行管理，不外乎账号管
 添加用户：
 
 ```sh
-# -g：将用户归入一个已有的主组，只能属于一个主组，默认系统为此创建一个名同用户名的主组
-useradd -g 2 Bob
-useradd -g CN Bob
+# -g：将用户归入一个已有的主组，必须且只能属于一个主组，默认OS创建一个名字同此用户名的主组并让其归入
+useradd -g 2 Bob # 主组号
+useradd -g CN Bob # 主组名
 # -G：将用户归入多个已有的附加组，主组以外的组均为附加组
 useradd -G UN Bob
 # -u：uid-标识符，默认系统分配500之后的某个数
@@ -1025,19 +1023,19 @@ useradd -g 2 -G UN -u 521 -c "a good friend" Bob
 
 执行完毕可查看三个文件验证新账号是否创建成功。
 
-比如执行了`useradd -g 500 -G 72 -u 666 Bob`，查看passwd文件：
+比如执行了`useradd -g 500 -G 72 -u 666 Bob`。查看passwd文件：
 
 <img src="D:\chaofan\typora\专业\Linux.assets\image-20220721095654768.png" alt="image-20220721095654768" style="zoom:80%;" />
 
-仅截取了一部分，梳理冒号分割的每一项：用户名、密码占位符x、uid、主组号、注释、个人文件夹路径、解释器。解释器负责解释此用户输入的指令后传递给内核去处理。
+仅截取了一部分。梳理冒号分割的每一项：用户名、密码占位符、uid、主组号、注释、个人文件夹路径、解释器。解释器负责解释此用户输入的指令，随后将结果传递给内核去处理。
 
 查看group文件：
 
 <img src="D:\chaofan\typora\专业\Linux.assets\image-20220721100458327.png" alt="image-20220721100458327" style="zoom:80%;" />
 
-可见此文件内看不了主组，上一文件内看不了附加组。
+可见此文件存了Bob的附加组，没存主组，上一文件没存附加组。
 
-修改用户：
+修改用户的相关设定：
 
 ```sh
 usermod -G 42 Bob
@@ -1053,7 +1051,7 @@ passwd Bob
 切换当前用户。从root切到别的用户无需输密码。
 
 ```sh
-# switch user 默认切换到超级管理员root
+# switch user 缺省用户名则切换到超级管理员root
 su Bob
 ```
 
@@ -1063,21 +1061,21 @@ su Bob
 # -r：连带删除个人文件夹
 userdel Bob
 userdel -r Bob
-# 当前用户删自己是删不掉的，可借助kill，杀死匹配用户名进程的父进程
+# 当前用户删自己是删不掉的，可借助kill，杀死名字匹配用户名的进程的父进程
 kill 3151
 userdel -r Bob
 ```
 
 ### 用户组管理
 
-任何用户必须归属一个用户组，组的增删改均与group文件相关。
+组的增删改均与group文件相关。某个组可能是这个用户的主组而是另一个用户的附加组。
 
-分析上一张group截图的配置项结构：组名、密码（一般不设）、组号，有的带组内用户名，这表示此组是此用户的附加组。
+分析上一张截图的配置项：组名、密码（一般不设）、组号，组内用户名（有的组带有的不带）-表示此组是此用户的附加组。
 
 添加组：
 
 ```sh
-# -g：组号，默认从500之后累加
+# -g：组号，缺省从500之后累加
 groupadd -g 626 Administrator
 ```
 
@@ -1088,7 +1086,7 @@ groupadd -g 626 Administrator
 groupmod -n admin Administrator
 ```
 
-删除组。当改组是某用户的主组，删不了，得先清空-修改里面用户的主组。
+删除组。当被改组是某用户的主组，删不了，得先清空用户-修改组内用户的主组。
 
 ```sh
 groupdel admin
@@ -1099,12 +1097,12 @@ groupdel admin
 linux将操作文件的权限分为三种：  read、write、execute。
 
 - 读权限影响查看文件夹内的结构、查看文件内容。
-- 写权限影响在文件夹内操作（创建、删除、移动、重命名等）文件、编辑文件内容。
+- 写权限影响在文件夹内操作（创建、删除、移动、重命名文件（夹）等）文件、编辑文件内容。
 - 执行权限影响文件的执行，尤其是脚本。
 
-linux将将操作文件的身份分为三种：owner、group、others：
+linux将将操作文件的身份分为以下三个：
 
-- owner：文件所有者，从文件创建伊始到手动修改所有者之前指创建者。
+- owner：文件所有者。从文件创建伊始到手动修改所有者之前指创建者。
 - group：与owner同组的用户。
 - others：与owner不同组的用户。
 
@@ -1119,7 +1117,6 @@ root其实也算一种身份，凌驾于一切权限之上。
 -rw-r--r--. 1 root root 47276 3月   5 01:57 install.log
 -rw-r--r--. 1 root root 10033 3月   5 01:56 install.log.syslog
 drwxr-xr-x. 2 root root  4096 3月   5 16:26 公共的
-# 
 ```
 
 之前这第一列没详细说，就是等在这里交待。我们看除了首字符文档类型外，还有9个位子，分析如下：
@@ -1128,7 +1125,7 @@ drwxr-xr-x. 2 root root  4096 3月   5 16:26 公共的
 - 又三个指group的权限。
 - 后三个指others的权限。
 
-各位可取四种值：`r`-read（可写）、`w`-write（可读）、`x`-execute（可执行）、`-`-以上三种的替换值，表不允许。上述各组三个位子均有序地由`rwx`填充，附带讲只要存在一组`rwx`此文件被列出来时名称就呈绿色。文件创建后初始的权限是`-rw-r--r--`。
+各位可取四种值：`r`-read（可写）、`w`-write（可读）、`x`-execute（可执行）、`-`-以上三值的替换值，表不允许。上述各组三个位子均有序地由`rwx`填充，附带讲只要存在一组`rwx`此文件被列出来时名称就呈绿色。文件创建后初始的权限是`-rw-r--r--`。
 
 设置文件权限。设置者要么是root，要么是owner。
 
@@ -1141,24 +1138,24 @@ chmod a=--- # 剥夺所有身份的所有权利 a=可省略
 chmod -R a=rwx animals # 使下辖各级文件、目录权限同此目录
 ```
 
-字母方式之外，还有数字方式，分别将r、w、x、-表示为4、2、1、0，由此得到$(C_2^1)^3=8$个值如下表：
+字母方式之外，还有数字方式，分别将`r`、`w`、`x`、`-`表示为4、2、1、0，由此得到$(C_2^1)^3=8$个值如下表：
 
-| 数值    | 权限          |
-| ------- | ------------- |
-| 0=0+0+0 | ---           |
-| 1=0+0+1 | --x           |
-| 2=0+2+0 | -w-（不合理） |
-| 3=0+2+1 | -wx（不合理） |
-| 4=4+0+0 | r--           |
-| 5=4+0+1 | r-x           |
-| 6=4+2+0 | rw-           |
-| 7=4+2+1 | rwx           |
+| 数值    | 权限            |
+| ------- | --------------- |
+| 0=0+0+0 | `---`           |
+| 1=0+0+1 | `--x`           |
+| 2=0+2+0 | `-w-`（不合理） |
+| 3=0+2+1 | `-wx`（不合理） |
+| 4=4+0+0 | `r--`           |
+| 5=4+0+1 | `r-x`           |
+| 6=4+2+0 | `rw-`           |
+| 7=4+2+1 | `rwx`           |
 
 例如`chmod 777 num.txt`。
 
 上述2、3是不合理的，能写但不能读，就只能是追加的情况了，我们应避免设置这两个值。
 
-上面讨论的是文件相关的权限，命令也有权限，像reboot、shutdown、init、halt、用户管理这些很要命的命令普通用户是执行不了的，而有时他们又需要用，又不能泄露root的密码，由此引出sudo（switch user do）指令。
+上面讨论的是文件相关的权限，命令也有权限，像reboot、shutdown、init、halt、用户管理这些很要命的命令普通用户是执行不了的，而有时他们又需要用，且不能泄露root的密码，由此引出sudo（switch user do）指令。
 
 root事先将某些命令的执行权赋给特定用户，通过修改`/etc/sudoers`配置文件：
 
@@ -1167,7 +1164,7 @@ root事先将某些命令的执行权赋给特定用户，通过修改`/etc/sudo
 visudo
 # 赋权 格式：a b=(c) d a：赋给谁，取用户名或组名，b：允许登录此服务器的主机的域名，ALL表所有，c：以何种身份执行，ALL表root，d：命令，建议写命令的原路径（可用which获取），ALL表所有
 van ALL=(ALL) /usr/sbin/useradd,!/user/sbin/passwd,/user/sbin/passwd *,!/user/sbin/passwd root # 不能修改root的密码
-# 特定用户执行获执行权的命令
+# 切换到特定用户，执行获执行权的命令
 sudo useradd tiger
 sudo passwd tiger
 ```
@@ -1180,12 +1177,12 @@ sudo -l
 
 ### 属主与属组
 
-见ls结果的第三、四列，分别指属主-文件的所有者和属组-所有者所属的主组。
+见ls结果的第三、四列，分别指属主-文件的所有者和属组-所有者的主组。
 
-任一文件的这两个分量在创建时生成。当文件的owner被删，其这两个分量就都不对了，就得改，相当于把这个文件托付给下一家。
+任一文件的这两个分量在创建时生成。当文件的owner被删，这两个分量都不对了，就得改，相当于把这个文件托付给下家。
 
 ```sh
-# -R：级联影响子文件，托付给van用户及van主组
+# -R：级联影响子文件，托付给van用户及van组
 chown -R van ./codes
 chgrp -R van ./codes
 # 合二为一
@@ -1205,7 +1202,33 @@ ls /etc/sysconfig/network-scripts
 
 发现有两个：ifcfg-eth0与ifcfg-lo，分别打开它们。
 
-<img src="D:\chaofan\typora\专业\Linux.assets\image-20220721152404445.png" alt="image-20220721152404445" style="zoom:80%;" />
+```sh
+[root@supervan network-scripts]# cat ifcfg-eth0 
+DEVICE=eth0
+TYPE=Ethernet
+UUID=cad2c8c2-4d51-4965-8bb1-641f80112ab5
+ONBOOT=yes
+NM_CONTROLLED=yes
+BOOTPROTO=dhcp
+HWADDR=00:0C:29:79:21:5F
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+IPV4_FAILURE_FATAL=yes
+IPV6INIT=no
+NAME="System eth0"
+
+[root@supervan network-scripts]# cat ifcfg-lo
+DEVICE=lo
+IPADDR=127.0.0.1
+NETMASK=255.0.0.0
+NETWORK=127.0.0.0
+# If you're having problems with gated making 127.0.0.0/8 a martian,
+# you can change this to something else (255.255.255.255, for example)
+BROADCAST=127.255.255.255
+ONBOOT=yes
+NAME=loopback
+```
 
 可见以太网技术、随开机启动、基于DHCP的IP地址分配、MAC地址等要素。
 
@@ -1253,9 +1276,9 @@ service sshd restart
 
 #### 远程终端
 
-前面的联系基于的OS都在虚拟机上，本机是可以直接访问的，而开发中OS是在远程服务器上，那么需要遵循SSH协议的远程终端来帮我们访问。常见的工具有XShell、secureCRT、Putty等，这里用最轻便的Putty。
+前面的联系基于的OS都在虚拟机上，本机是可以直接访问的，而开发中OS是在远程服务器上，那么需要遵循SSH协议的远程终端来帮我们访问。常见的工具有XShell、secureCRT、Putty等。
 
-我们看到，用虚拟机登录同时用Putty登录，这就证明了linux的多用户性，甚至可以都用root登录。像windows的远程连接同一时刻仅允许一个用户进行。
+我们看到，用虚拟机登录同时用XShell登录，这就证明了linux的多用户性，甚至可以都用root登录。像windows的远程连接同一时刻仅允许一个用户占用。
 
 #### 文件传输
 
@@ -1273,22 +1296,20 @@ hostname supervan
 su
 ```
 
-永久修改（广义）主机名。找到主机名所处配置文件`/etc/sysconfig/network`，然后改配置项，最后重启生效。
+永久修改主机名。找到主机名所处配置文件`/etc/sysconfig/network`，然后改配置项，最后重启生效。
 
 ```properties
 HOSTNAME=supervan
 ```
 
-回顾hostname命令得到广义主机名与全限定域名-狭义主机名，默认后者是前者的子串，但是带`-f`查全限定域名并不是从广义主机名中截取，而是从`etc/hosts`文件中读取。有必要把修改后的主机名当作域名，故修改此文件里的对应配置项。
+回顾hostname命令得到主机名与全限定域名，后者是从`etc/hosts`文件中查出来的。像apache等软件就是把主机名当域名，故有必要把修改后的主机名与域名统一，修改此文件。
 
 ```sh
-# 带-f查到的是值的第一列分量
-  1 127.0.0.1   supervan localhost localhost.localdomain localhost4 localhost4.localdomain4 # 首尾加都行
+# 127.0.0.1右边任何一个值都是域名，只是带-f查找域名，仅取第一列分量
+  1 127.0.0.1   supervan localhost localhost.localdomain localhost4 localhost4.localdomain4 # 加哪儿都行
   2 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 # 可用ping验证
 ```
-
-像apache等软件就是把主机名当域名。
 
 ### 指令
 
@@ -1322,7 +1343,7 @@ tcpdump：抓包。
 tcpdump port 22
 # 查看与指定主机交互的数据包
 tcpdump host 192.168.21.1
-# 查看透过指定网卡的数据包
+# 查看通过指定网卡的数据包
 tcpdump -i eth0
 ```
 
@@ -1362,14 +1383,14 @@ chkconfig --add httpd
 修改某服务在某运行级别下随开机启动与否：
 
 ```sh
-# 自添加的默认都是关闭
+# 自己添加的默认在任何级别下都是关闭
 chkconfig --level 35 httpd on
 chkconfig --level 06 httpd off
 ```
 
 ### ntp
 
-这是时间同步服务，解决时间误差问题，时间对服务器而言很重要。
+这是时间同步服务，解决时间误差问题，时间对网站用户而言很重要。
 
 一般让每次开机时OS自动联网同步时间：
 
@@ -1472,7 +1493,7 @@ error: Failed dependencies:
 rpm -e httpd --nodeps
 ```
 
-安装。先得获取安装包，要么去软件官网，要么去ISO文件里读取。附带讲硬盘、光盘等的挂载与解挂，实际中常见的是硬盘的挂载。
+安装。先得有安装包，要么去软件官网下载，要么去ISO文件里读取。附带看硬盘、光盘等的挂载与解挂，前者较为常见。
 
 ```shell
 #查看块状设备的信息-list block devices
@@ -1516,7 +1537,7 @@ rpm -ivh firefox-17.0.10-1.el6.centos.i686.rpm
 crontab -l
 ```
 
-制定任务计划：
+制定任务执行计划：
 
 ```shell
 # 分（0—59） 时（0-23） 日（1-31） 月（1-12） 周几（1-7，星期一到星期天） *：范围内的每个值， -：整数区间， /：隔段时间一次，,：多值
@@ -1528,7 +1549,7 @@ crontab -l
 */1 * * * * date +"%F %T" >> /root/RT.txt # */1等价于*
 ```
 
-`/etc/cron.deny`是黑名单，所记录的用户禁止制定任务计划，`/etc/cron.allow`（自创建）是白名单，权重高于前者。
+`/etc/cron.deny`是黑名单，所记录的用户被禁止制定计划，`/etc/cron.allow`（自创建）是白名单，权重高于前者。
 
 ## Shell
 
@@ -1631,7 +1652,7 @@ else
 	userdel -r $2
 ```
 
-不光能给命令取别名，也可给脚本文件甚至任意可执行文件取别名（相当于环境变量了，真正的环境变量在[后面](#env)）：
+不光能给命令取别名，也可给脚本文件甚至任意可执行文件取别名（像环境变量了，但真正的环境变量在[后面](#env)）：
 
 ```sh
 alias userabout="/root/userabout.sh"
@@ -1672,7 +1693,7 @@ yum search mysql
 yum -y install mysql
 # 不带包名则更新全部
 yum -y update mysql
-# 卸载，看出yum与rpm作用的对象不同，一个是rpm文件，一个是引用文件集合的软件名
+# 卸载，看出yum与rpm作用的对象不同，一个是rpm文件，一个是软件名
 yum -y remove mysql
 yum -y install git
 ```
@@ -1721,7 +1742,7 @@ sh startup.sh
 配置环境变量：
 
 ```ini
-MAVEN_HOME=/user/local/apache-maven-3.3.9
+MAVEN_HOME=/usr/local/apache-maven-3.3.9
 PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
 ```
 
@@ -1740,7 +1761,7 @@ make install
 redis-server
 # 由redis.conf配置文件启动后台服务
 daemonize yes # 修改配置文件，开启守护线程，即在后台运行
-redis-server redis.conf # 带配置文件路径选项
+redis-server ./redis.conf # 带配置文件路径选项
 # 客户端连接，命令
 redis-cli
 # 默认连接服务端没密码限制，打开客户端后可设密码及认证
@@ -1763,7 +1784,7 @@ make && make install
 
 ## 部署
 
-买服务器，要么买断真机、请人看守，要么买云服务器（租赁）、地主一站式服务，前者成本较高。这是从上线角度来看，不上线、供内部使用的话可以的，像导师机房里的服务器。
+买服务器，要么买断真机，维护成本很高，要么买云（租赁）服务器，享受一站式服务。
 
 云服务器的购买与域名注册此处就不赘述了。
 
@@ -1836,7 +1857,7 @@ ps -ef | grep nginx
 ./nginx -s stop
 # 重新加载配置
 ./nginx -s reload
-# 最好给sbin/nginx立别名或环境变量
+# 最好给sbin/nginx建立别名或环境变量
 ```
 
 前后端分离配置：

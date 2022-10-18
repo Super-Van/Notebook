@@ -25,7 +25,7 @@ FROM employees;
 SELECT employee_id, salary AS "月工资", salary * 12 * (1 + IFNULL(commission_pct, 0)) AS "年工资"
 FROM employees;
 
--- 有关键字冲突的时候只能用反引号 反引号也适用于表别名、列别名
+-- 有关键字冲突的时候只能用反引号 反引号也适用于列别名
 SELECT * FROM `order`;
 
 -- 常量
@@ -58,12 +58,11 @@ FROM DUAL;
 SELECT 100 + 'C', 100 + NULL, NULL / 2
 FROM DUAL;
 
--- 比较运算符，有三种结果-真（1）、假（0）、NULL
--- 字符串隐式转换成数值不成功就作0处理
+-- 比较运算符，单等号，有三种结果-真（1）、假（0）、NULL
 SELECT 1 = 1, 1 = 2, 1 != 2, 1 = '1', 1 = 'a', 0 = 'a'
 FROM DUAL;
 
--- 两边都是字符串，就没有隐式转换了，按ANSI编码比较
+-- 两边都是字符串，就没有隐式转换了
 SELECT '1' = '1', 'a' = 'b'
 FROM DUAL;
 
@@ -83,7 +82,7 @@ SELECT last_name, salary, commission_pct
 FROM employees
 WHERE commission_pct <=> NULL; -- 与NULL比，是NULL的返回1，非NULL的返回0
 
--- 关键字
+-- 关键字IS
 SELECT last_name, salary, commission_pct
 FROM employees
 WHERE commission_pct IS NULL;
@@ -158,16 +157,13 @@ SELECT 12 | 5, 12 & 5, 12 ^ 5, 12 & ~ 5, ~ 5, 8 >> 1, 2 << 2
 FROM DUAL;
 
 -- 排序 默认按插入顺序排
-SELECT * 
-FROM employees;
-
 SELECT employee_id, last_name, salary 
 FROM employees
 ORDER BY salary DESC; -- 默认ASC
 
 SELECT employee_id, last_name, salary * 12 AS "ANNUAL_SAL"
 FROM employees
-ORDER BY "ANNUAL_SAL"; -- 列别名可用于ORDER BY、HAVING，不能用于WHERE，因为是筛选出来后才生成列别名，所以不能用列别名构造筛选条件
+ORDER BY "ANNUAL_SAL"; -- 列别名可用于ORDER BY、HAVING，不能用于WHERE，因为是筛选出来后才生成列别名
 
 SELECT employee_id, salary 
 FROM employees
@@ -190,7 +186,7 @@ LIMIT 20, 20;
 SELECT employee_id, last_name
 FROM employees
 ORDER BY salary
-LIMIT 0, 10; -- ORDER BY与LIMIT垫底，且先ORDER BY后LIMIT，这也是常识，比如找出找出总分前三名那肯定先排序后截取
+LIMIT 0, 10; -- ORDER BY与LIMIT垫底，且先ORDER BY后LIMIT，这也是常识，比如找出总分前三名那肯定先排序后截取
 
 -- 连接查询
 -- 从优化角度，建议为每个字段指明所属表，多表情况下
@@ -217,19 +213,19 @@ SELECT emp.employee_id, emp.last_name, mgr.employee_id AS "manager_id", mgr.last
 FROM employees emp, employees mgr
 WHERE emp.manager_id = mgr.employee_id;
 
--- 结果集所有记录均满足连接条件的连接查询就是内连接，否则就是外连接，外连接具体分为左外连接与右外连接及全（满）外连接
+-- 结果集所有记录均满足连接条件的连接查询就是内连接，否则就是外连接，外连接分为左外连接与右外连接及全（满）外连接
 -- 内连接 SQL99 
 SELECT e.last_name, d.department_name, l.city
 FROM employees AS e INNER JOIN departments AS d ON e.department_id = d.department_id JOIN locations AS l ON d.location_id = l.location_id; -- INNER可省略
 
 -- 左外连接特征-保留左表的所有记录（其他条件满足），于是不满足连接条件的记录的右表所有分量一定是NULL
 SELECT e.employee_id, d.department_name
-FROM employees e LEFT OUTER JOIN departments d ON e.department_id = d.department_id; -- OUTER可省略
--- 右外连接特征-保留右表的所有记录，于是不满足连接条件的记录的左表所有分量一定是NULL
+FROM employees e LEFT OUTER JOIN departments d ON e.department_id = d.department_id;
+-- 右外连接特征-保留右表的所有记录，于是不满足连接条件的记录的左表所有分量一定是NULL 
 SELECT e.employee_id, d.department_name
-FROM employees e RIGHT JOIN departments d ON e.department_id = d.department_id;
+FROM employees e RIGHT JOIN departments d ON e.department_id = d.department_id; -- OUTER可省略
 
--- UNION去重，UNION ALL不去重，去重要时间，故实际开发尽量用后者，本来一般不存在多表记录相同的情况，UNION时无需去重
+-- UNION去重，UNION ALL不去重，去重要时间，故实际开发中尽量用后者
 -- SQL99定义了7中UNION，MySQL不支持FULL OUTER JOIN，只好间接通过UNION实现
 -- 1. 内连接 A交B
 SELECT e.employee_id, d.department_name
@@ -270,20 +266,20 @@ SELECT e.employee_id, d.department_name
 FROM employees e RIGHT OUTER JOIN departments d ON e.department_id = d.department_id
 WHERE e.employee_id IS NULL;
 
--- 自然连接，不用写ON子句，自动将同名字段作连接字段，同名字段一多就不灵活了
+-- 自然连接，自动将同名字段作连接字段并在结果中去掉同名两列中的一列，同名字段一多就不好了
 SELECT e.employee_id, d.department_name
-FROM employees e NATURAL JOIN departments d;
+FROM employees e NATURAL JOIN departments d; -- 不用写ON子句，多了个NATURAL
 
 -- 等价于
 SELECT e.employee_id, d.department_name
 FROM employees e INNER JOIN departments d ON e.department_id = d.department_id AND e.manager_id = d.manager_id;
 
--- 自然连接带USING，指定同名字段
+-- 自然连接带USING，指定某组同名字段
 SELECT e.employee_id, d.department_name
 FROM employees e INNER JOIN departments d
 USING (department_id)
 
--- 函数在不同DBMS直接的通用性很差
+-- 函数在不同DBMS之间的通用性很差
 
 -- 单行函数：输入1个，输出多个；多行（聚集或分组）函数：输入多个，输出1个
 
@@ -339,7 +335,7 @@ SELECT *
 FROM employees
 WHERE last_name = LOWER('king'); -- 即便如此，也能查出King，太不严谨了
 
--- 从左（右）取几个字符，越界了就是全取
+-- 从左（右）开始取几个字符，越界了就是全取
 SELECT LEFT('COFFEE', 4), RIGHT('HOME', 2), LEFT('COFFEE', 10)
 FROM DUAL;
 
@@ -386,7 +382,7 @@ FROM employees;
 -- 日期时间相关函数
 -- 获取日期、时间 
 SELECT
-	-- 成对儿相同
+	-- 成对相同
 	CURDATE(), CURRENT_DATE(), -- 仅日期
 	CURTIME(), CURRENT_TIME(), -- 仅时间
 	NOW(), SYSDATE(), -- 日期加时间
@@ -459,7 +455,7 @@ FROM DUAL;
 SELECT last_name, commission_pct, IF(commission_pct IS NOT NULL, commission_pct, 0) "details", salary * 12 * (1 + IF(commission_pct IS NOT NULL, commission_pct, 0)) "annual_salary"
 FROM employees;
 
--- IF条件更灵活，IFNULL只有判断NULL的条件
+-- IF条件更灵活，IFNULL只有判断是否为NULL的条件
 SELECT last_name, commission_pct, IFNULL(commission_pct, 0) "details"
 FROM employees;
 
@@ -490,7 +486,7 @@ SELECT
 FROM employees
 WHERE department_id IN (10, 20, 30);
 
--- SQL天然体现了循环，更高级的循环要等到存储过程再学
+-- SQL天然体现了循环，更高级的循环在存储过程中
 
 -- 加密与解密函数，现在推行尽早加密，在后台就该加密，不用等到数据库来做
 SELECT
@@ -537,7 +533,7 @@ WHERE hire_date >= '1997-01-01';
 
 -- 含指定字段分量的记录数
 SELECT
-	COUNT(salary), COUNT(2 * salary), COUNT(2), -- 这个2就相当于记录的代号，最后统计总共有多少个2
+	COUNT(salary), COUNT(2 * salary), COUNT(2), -- 这个2就相当于每条记录的代号，最后统计总共有多少个2
 	COUNT(commission_pct) -- NULL不会参与计数
 FROM employees;
 -- 哪一种效率高，得看存储引擎
@@ -575,7 +571,7 @@ FROM employees
 GROUP BY department_id HAVING MAX(salary) > 20000;
 -- 聚集函数只能出现在HAVING与SELECT子句中，而不能出现在WHERE子句中，即只能作用于组
 
--- 默认一个组
+-- 默认整表一个组
 SELECT MAX(salary)
 FROM employees
 -- WHERE department_id = 10
@@ -594,7 +590,7 @@ FROM employees
 GROUP BY department_id -- 先分组
 HAVING MAX(salary) > 10000 AND department_id IN (10, 20, 30, 40); -- 后筛选组，不是边分组边筛选
 
--- SQL执行原理：FROM->ON->LEFT|RIGHT JOIN->WHERE->GROUP BY->HAVING->SELECT->DISTINCT->ORDER BY->LIMIT
+-- SQL执行原理（可能）：FROM->ON->LEFT|RIGHT JOIN->WHERE->GROUP BY->HAVING->SELECT->DISTINCT->ORDER BY->LIMIT
 -- 由此顺序可解释列别名不能在WHERE子句中使用
 
 -- 子查询，可出现在除GROUP BY与LIMIT之外的任何子句中
@@ -748,7 +744,7 @@ WHERE 2 <= (
 
 -- 等价的连接查询
 SELECT x.employee_id, x.last_name, x.job_id, COUNT(x.employee_id)
-FROM employees x JOIN job_history y ON x.employee_id = y.employee_idGROUP BY x.employee_id HAVING COUNT(1) >= 2;
+FROM employees x JOIN job_history y ON x.employee_id = y.employee_id GROUP BY x.employee_id HAVING COUNT(1) >= 2;
 
 -- 下面两个关键字以true结果为核心
 -- EXISTS

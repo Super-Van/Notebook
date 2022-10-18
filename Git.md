@@ -871,8 +871,6 @@ $ git push origin master # 推送本地master分支合并到远程同名分支�
 # 其他写法
 $ git pull origin master:develop # 远程master->本地develop
 $ git push origin master:release # 本地master->远程release
-$ git pull # 默认origin，分支名对应合并
-$ git push # 默认origin，分支名对应推送
 
 # 移除连接
 $ git remote rm origin
@@ -1066,5 +1064,5 @@ $ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/no
 
 ## Gitlab服务器环境搭建
 
-暂且不记。
+待续。
 

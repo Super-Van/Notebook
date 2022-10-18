@@ -6,15 +6,15 @@
 
 ### RPC
 
-分布式系统：计算机系统集合，协同工作使用户看起来像是一个完整的系统提供服务。
+分布式系统：计算机系统集合，协同工作使得在用户看来是一个完整的系统在提供服务。
 
 应用架构的演变：
 
-- 单一应用架构：给多台服务器，每台服务器上部署若干完整的应用。
+- 单一应用架构：给定多台服务器，每台服务器上部署若干完整的应用。
 - 垂直应用架构：将应用拆分为多个模块，每个模块又是一个完整的应用，如用户模块、商品模块，每个服务器上部署若干模块。
-- 分布式服务架构：模块之间往往有交互，于是继续进行模块的分离，包括前后端分离、三层的分离，每个服务器上部署若干业务。由此出现跨服务器调用，即远程过程调用（remote process call，RPC）。
+- 分布式服务架构：模块之间往往有交互，于是继续进行模块的分离，包括前后端分离、三层的分离，每个服务器上部署若干业务（服务）。由此出现跨服务器调用，即远程进程调用（remote process call, RPC）。
 
-RPC是理念不是规范，允许进程调用网络上另一台主机上的函数，同时为程序员屏蔽调用细节，即本机调用与远程调用的代码看起来没差别。RPC的效率主要是建立连接的效率与序列化反序列化的效率。
+RPC是理念不是规范，允许进程调用网络上另一台主机上的函数，同时为程序员屏蔽调用细节，即本机调用与远程调用的代码看起来没差别。RPC的效率主要受建立连接与序列化反序列化影响。
 
 ### Dubbo
 
@@ -38,7 +38,7 @@ dataDir=../data
 
 启动bin目录下的zkServer.cmd，端口是2181。
 
-上图里的Monitor（监控中心）可装可不装。下载dubbo提供的[dubbo-admin](https://github.com/apache/dubbo-admin.git)项目然后用maven打jar包，运行boot项目（zookeeper已启动），访问界面（可惜Java11废弃了一些依赖包）。
+上图里的Monitor（监控中心）可装可不装。下载dubbo提供的[dubbo-admin](https://github.com/apache/dubbo-admin.git)项目然后用maven打jar包，运行boot项目（zookeeper已启动），访问界面（可惜Java11废弃了一些依赖）。
 
 ```sh
 # 项目根目录中
@@ -48,9 +48,9 @@ java -jar .\dubbo-admin\target\dubbo-admin-0.0.1.jar
 # 运行监控中心，解压dubbo-monitor-simple-2.0.0-assembly.tar.gz将所得目录拎出来，运行assembly.bin下的start.bat，配置集中于conf下的dubbo.properties文件
 ```
 
-启动zookeeper与此项目可能产生端口号冲突，参考[此文](https://blog.csdn.net/weixin_38232096/article/details/107669775)修改某一方的端口号。
+启动zookeeper与监控中心项目可能产生端口号冲突，参考[此文](https://blog.csdn.net/weixin_38232096/article/details/107669775)修改某一方的端口号。
 
-上图中的Consumer、Provider可用两个service层组件模拟，分属两个项目。再创一个公共依赖存放诸业务接口甚至实体类等。
+上图中的Consumer、Provider可用两个service层组件模拟，分属两个项目。再创建一个公共依赖存放诸业务接口甚至实体类。
 
 导什么依赖，怎么配置、测试项目里都有，这里贴上重要的配置：
 
@@ -100,16 +100,16 @@ dubbo.monitor.address=registry
 ```
 
 ```java
-// 开启基于注解的dubbo功能
+// 开启基于注解的dubbo功能，默认扫描主程序类所在包及子包
 @EnableDubbo
 @SpringBootApplication
-public class BootDubboAddresssApplication
+public class BootDubboAddresssApplication {...}
     
-// 暴露服务，也可在配置文件中配置
+// 暴露服务，dubbo提供的，也可在配置文件中配置
 @Service
 // 注册服务（的实现），再写@Service会冲突的
 @Component
-public class AddressServiceImpl implements AddressService
+public class AddressServiceImpl implements AddressService {...}
 ```
 
 ```properties
@@ -127,6 +127,17 @@ dubbo.monitor.protocol=registry
 public class BootDubboOrderApplication
 ```
 
+```java
+// spring提供的
+@Service
+public class OrderServiceImpl implements OrderService {
+	// 远程引用
+	@Reference
+	private AddressService addressService;
+	// 其他省略
+}
+```
+
 ## 配置
 
 ### 覆盖关系
@@ -137,7 +148,7 @@ public class BootDubboOrderApplication
 
 ### 启动检查
 
-启动时检查指消费者启动时就由注册中心检查提供者是否可用，否则抛异常、阻止容器启动完成。关闭检查意即消费者调用时才检查提供者是否可用，那么提供者的容器是懒加载的或早加载但通过API编程被延迟引用。
+启动检查指的是消费者一启动注册中心就检查提供者是否可用，否则抛异常、阻止容器启动完成。关闭检查意即消费者调用时才检查提供者是否可用。提供者的容器要么懒加载，要么早加载但通过API被延迟引用。
 
 启动检查的开关由check属性控制：
 
@@ -177,8 +188,6 @@ timeout属性可在多处配置，优先级规则总结起来是：
 <dubbo:provider timeout="3000"></dubbo:provider>
 ```
 
-不难列出完整情况：reference method > service method > reference > service > consumer > service。
-
 其他属性均遵从上述优先级规则。
 
 ### 重试次数
@@ -189,9 +198,9 @@ retries属性配合timeout属性，超时抛异常不够人性化，故不报错
 <dubbo:reference interface="com.van.mall.service.AddressService" id="addressService" check="false" retries="3"></dubbo:reference>
 ```
 
-当某个提供者出现超时，重试就可能挑另一个提供者。修改protocol标签的port属性，掌握IDE的多窗口测试，模拟多个提供者，附带讲服务名就不是唯一的，一个服务名可对应多个端口号不同的服务。
+当某个提供者出现超时，重试就可能挑另一个提供者。修改protocol标签的port属性，掌握IDE的多窗口测试，模拟多个提供者。附带讲服务名就不是唯一的，一个服务名可对应多个端口号不同的服务。
 
-删改查方法属幂等操作，即调用一次与重试多次是等效的，而插入方法属非幂等操作，不能由于消费者的等不及而重试-重复插入，故retries属性只能施加于幂等操作上。
+删改查属幂等操作，即调用一次与重试多次是等效的，而插入属非幂等操作，不能由于消费者的等不及而重试，因为很可能造成重复插入（当超时原因是卡在已插入数据之后），故retries属性只能施加于幂等操作上。
 
 ### 多版本
 
@@ -210,16 +219,13 @@ retries属性配合timeout属性，超时抛异常不够人性化，故不报错
 <bean id="addressServiceNew" class="com.van.address.service.impl.AddressServiceImplNew"></bean>
 ```
 
-若不指定version属性，则随机选版本。
+若消费者这边不指定version属性，则随机选版本。
 
 ### 本地存根
 
-为被调用接口做静态代理，在消费者这边不直接注入远程实现对象及调用其方法，而注入代理对象，间接调用，目的是扩充一些逻辑，如参数校验。一般代理类定义在公共接口跟前，因作依赖的一部分导入消费者可叫做本地存根。
+为被调用接口做静态代理，在消费者这边不直接注入远程实现对象及调用其方法，而注入代理对象，间接调用，目的是扩充一些逻辑，如参数校验。一般代理类与公共接口属同一项目，作依赖的一部分导入消费者项目。
 
 ```java
-/**
- * 本地存根
- */
 public class AddressServiceStub implements AddressService {
 	private final AddressService addressService;
 
@@ -247,15 +253,17 @@ public class AddressServiceStub implements AddressService {
 <dubbo:reference interface="com.van.mall.service.AddressService" id="addressService" check="false" version="1.0.0" stub="com.van.mall.service.impl.AddressServiceStub"></dubbo:reference>
 ```
 
+可见这个静态代理类就是本地存根。
+
 ### boot配置
 
 有三种整合dubbo的方式：
 
-- 用@Service暴露服务，用@Reference调用服务，前述属性归这俩注解所有；编写application.properties。
+- 用@Service暴露服务，用@Reference调用服务，前述属性这俩注解都有；编写application.properties。
 
-- 回顾boot中学的@ImportResource，保留xml文件，用此注解引入。
+- 保留xml文件，用@ImportResource引入。
 
-- 注解API，即将文件里的所有配置项等价转为配置类。
+- 用注解API，即将文件里的所有配置项等价转为配置类。
 
 以提供者为例，做第三种：
 
@@ -315,39 +323,39 @@ public class DubboConfig {
 	}
 }
 
-// 注册服务，还是得用dubbo提供的@Service
+// 暴露服务，还是得用dubbo提供的@Service
 @Service
-public class AddressServiceImpl implements AddressService
+public class AddressServiceImpl implements AddressService {...}
 
 // @EnableDubbo和这个都行，后者就标在前者头上
 @DubboComponentScan(basePackages = "com.van.address.service.impl")
-public class BootDubboAddresssApplication
+public class BootDubboAddresssApplication {...}
 ```
 
 ## 高可用
 
 ### 概述
 
-高可用简单来说就是在分布式系统中尽可能减少不能提供服务的时间。不能提供服务原因不外乎提供者宕机、注册中心宕机。
+高可用简单来说就是尽可能减少分布式系统不能提供服务的时间。不能提供服务的原因不外乎提供者宕机、注册中心宕机。
 
 ### 直连
 
-即使全部注册中心宕掉，消费者仍能调用提供者，因为本地缓存了后者的地址信息，注册中心就是收集、分发这些信息的，宕掉并不影响远程调用的过程。
+即使所有注册中心突然宕掉，消费者仍能调用提供者，因为本地缓存了后者的地址信息，信息由注册中心收集、分发得到。
 
 直连就是干脆绕过注册中心，手动指定提供者的地址，直接连接并调用。
 
-给reference标签或注解添加url属性，关掉zookeeper服务端，便产生直连。两项目傻傻一直重连zookeeper。
+给reference标签或注解添加url属性，关掉zookeeper服务端，便产生直连。
 
 ### 负载均衡
 
 有了提供者集群就一定有负载均衡，按一定的策略为消费者的当前调用选择最合适的服务器。有如下策略：
 
-- random load balance：基于权重的随机负载均衡。权重产生概率分布，不能确定当前请求落给哪个服务器，只能确定累积到一定数量的请求满足所设计的分布。
-- roundrobin load balance：既考虑轮询又考虑权重，故当前请求落给哪个服务器是可预测的。
-- least active loadbalance：选择上一次响应时间最短的服务器。
-- consistent hash load balance：指定指标算哈希值，比如为调方法所携带的实参，只要实参一致哈希值就一致，服务器就一致。
+- random load balance：基于权重，权重产生概率分布，不能确定当前请求落到哪个服务器头上，只能确定请求累积到一定数量满足所设计的分布。
+- roundrobin load balance：基于轮询，故当前请求落给哪个服务器是可预测的。
+- least active load balance：选择最近一次响应时间最短的服务器。
+- consistent hash load balance：指定指标算哈希值，比如指标为目标方法的实参，只要实参一致哈希值就一致，服务器就一致。
 
-默认策略请参看dubbo依赖下的LoadBalance接口，其头上SPI注解的值是`RandomLoadBalance.NAME`，该类继承自AbstractLoadBalance类，其四个子类对应上述四个策略，它们的NAME属性值作reference标签或注解的loadbalance的值。
+默认策略请参看LoadBalance接口，其头上SPI注解的值是`RandomLoadBalance.NAME`，该类继承自AbstractLoadBalance类，其四个子类对应上述四个策略，它们的NAME属性值作reference标签或注解的loadbalance的值。
 
 权重是可以自行设计的，体现于service标签或注解的weight属性，不过一般在dubbo-admin中动态设计。
 
@@ -357,8 +365,8 @@ public class BootDubboAddresssApplication
 
 像这样临时改变（或叫覆盖）处理策略就是服务降级，有几种覆盖规则：
 
-- 屏蔽：不发起对指定方法（提供者）的远程调用，直接在消费者一端返回null。
-- 容错：当远程调用失败（提供者逻辑有误、超时等），处理掉异常，返回null。
+- 屏蔽：不发起对指定方法的远程调用，直接在消费者一端返回null。
+- 容错：当远程调用失败（逻辑有误、超时等），处理掉异常，返回null。
 
 一般在dubbo-admin上动态设置屏蔽和容错。
 
@@ -373,7 +381,7 @@ public class BootDubboAddresssApplication
 - forking cluster：并行调用多个服务器。通常用于实时性要求高的操作，但浪费资源。
 - broadcast cluster：逐一调用所有提供者，任意一个报错就报错。通常用于通知所有提供者更新缓存。
 
-集群容错模式的配置见于service、reference标签、注解的cluster属性，但它不够强大，实际开发中一般整合hystrix。
+集群容错模式的配置见于service、reference标签、注解的cluster属性，但它不够强大，实际开发中一般整合hystrix工具。
 
 导入依赖，打EnableHystrix注解。关于容错处理，两端都得做，因为提供者抛异常消费者也会跟着抛，具体参考项目。
 
@@ -386,18 +394,18 @@ public class BootDubboAddresssApplication
 文字描述如下：
 
 1. 消费者（客户端）以本地存根调用服务。
-2. 本地存根将方法签名等调用信息组装成准备在网络上传输的消息体。
+2. 本地存根将方法签名等调用信息组装成准备在网络上传输的消息体（序列化）。
 3. 本地存根找到提供者地址，将消息发给服务端。
-4. 提供者的本地存根解析消息。
+4. 提供者的本地存根解析消息（反序列化）。
 5. 本地存根根据解析结果调用本地服务。
-6. 本地服务执行目标方法并将结果返回给本地存根。
-7. 本地存根将返回值组装成消息体，将消息发回给客户端。
-8. 消费者的本地存根解析消息。
+6. 执行目标方法并将结果返回给本地存根。
+7. 本地存根将返回值组装成消息体（序列化），将消息发回给客户端。
+8. 消费者的本地存根解析消息（反序列化）。
 9. 消费者接收到最终返回值。
 
 那么RPC框架就是将2-8步封装起来，让这些细节对程序员透明。
 
-computerA与computerB的网络通信是由Netty框架支持的，它可视作上图中的network service部件。
+computerA与computerB的网络通信是由Netty框架支持的，对应上图中的network service部件。
 
 ### 框架设计
 

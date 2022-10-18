@@ -8,7 +8,7 @@
 
 [HTTP请求行、请求头、请求体详解](https://www.jianshu.com/p/eb3e5ec98a66)一文对请求报文和响应报文作了充分的解读。
 
-我们一般把端口号到请求字符串之间的这段叫作路径名，如`/server`。
+我们一般把端口号到查询字符串之间的这段叫作路径名。
 
 页面刷新并地址栏变化与否只与客户端发的请求是同步还是异步有关，与服务端响应视图数据还是普通数据无关。比方说同步请求也可以对应JSON字符串响应体，只不过渲染出奇葩页面；异步请求也可以对应视图数据响应体，只不过页面毫无变化。
 
@@ -310,27 +310,26 @@ div.onmouseover = function () {
 axios({
     method: 'post',
     url: 'http://localhost/server',
-    // 请求字符串（显式的请求参数） axios会自动将对象转为参数串
+    // 查询字符串（显式的请求参数） axios会自动将对象转为参数串，也可以通过给url加尾巴替代
     params: {
         name: "bob",
         age: 16
     },
     // 头信息
     headers: {
-        // 令请求体类型为form data
+        // 令请求体格式为form data
         "content-type": "application/x-www-form-urlencoded"
     },
     // 请求体（隐式的请求参数）
     data: "vip=10&level=6"
-}).then(
-    function (response) {
-        if (response.status === 200) {
-            console.log(response.data);
-        }
-    });
+}).then(function (response) {
+    if (response.status === 200) {
+        console.log(response.data);
+    }
+});
 ```
 
-上例验证了post请求既可以通过查询字符串带显式参数又可以通过请求体带隐式参数，但服务端对post请求一般只拿请求体。
+上例验证了post请求既可以通过查询字符串带显式参数又可以通过请求体带隐式参数，但一般只带前者。
 
 借此回顾一下请求体的Content-Type。上例中我们设定了A，那么参数就必须按照A的规定写成参数串，就不能写成对象：
 
@@ -341,7 +340,7 @@ data: {
 }
 ```
 
-同理如设定C，则参数就必须写作对象。当我们不设定格式，axios会灵活地根据data的写法设定内容类型。
+同理如设定C，则参数就必须写作对象。当我们不设定格式，axios根据data的写法灵活设定内容类型。
 
 B多用于文件上传，注意到`req.body`的结果是空对象`{}`，即文件之外的参数是取不到的。又一提，用表单上传文件，就必须将enctype属性改为B，A对文件是束手无策的。关于基于B取不到文件以外参数的问题，下列文章作了更详细的解读。
 
