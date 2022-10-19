@@ -2626,15 +2626,51 @@ public class ExtConfig {
 
 回到refresh方法体，下面是==finishRefresh==方法。体内调用initLifecycleProcessor方法，初始化LifecycleProcessor组件对象，自实现此接口中的onRefresh、onDestroy方法，作容器刷新及销毁的回调，不实现也有默认的实现。接着是链式调用getLifecycleProcessor、onRefresh方法，便是执行刚才谈到的一个回调方法，而后调用publishEvent方法，传入ContextRefreshedEvent对象，即发布容器刷新完成事件，最后LiveBeansView类调用registerApplicationContext方法，暂不多言。
 
-### Web
+### Servlet 3.0
 
-#### Servlet 3.0
+#### 注册组件
+
+##### 概述
 
 servlet3.0属JSR315，tomcat7及以上支持，这是相关[文档](https://jcp.org/en/jsr/detail?id=315)。
 
 WebServlet等3个方便的注解并非重点，阅读文档，关注与后期框架整合息息相关的Shared libraries / runtimes pluggability（共享库及运行时插件）一节，重要内容在二、三段，关注ServletContainerInitializer接口与HandlesTypes注解。
 
-具体使用请参考项目。
+```java
+@HandlesTypes(value = { MyService.class })
+public class MyServletContainerInitializer implements ServletContainerInitializer {
+	/**
+	 * c是感兴趣的所有类；ctx是最大的域对象
+	 */
+	@Override
+	public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+		// 注册servlet
+		Dynamic servletDynamic = ctx.addServlet("userServlet", new UserServlet());
+		servletDynamic.addMapping("/my");
+		// 注册监听器
+		ctx.addListener(UserListener.class);
+		// 注册过滤器
+		FilterRegistration.Dynamic filterDynamic = ctx.addFilter("userFilter", new UserFilter());
+		filterDynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
+	}
+}
+```
+
+上例以源文件方式注册了java web三大组件。其他代码参见项目。
+
+##### springmvc整合
+
+在此基础上就来看springmvc是如何不借助web.xml来注册组件的，就包括前端控制器。
+
+打开spring-web包，发现也有一个`META-INF/services/javax.servlet.ServletContainerInitializer`文件：
+
+```
+org.springframework.web.SpringServletContainerInitializer
+```
+
+进入这个类体，发现它实现了ServletContainerInitializer接口，头上@HandleTypes的值是WebApplicationInitializer接口的Class实例，那么项目一启动，所有WebApplicationInitializer实现类就被加载，各自的Class实例被装进一个集合再传入onStartup方法。这个方法体内，利用反射为集合里非接口非抽象类的运行时类创建对象，并将它们存进一个WebApplicationInitializer列表，后面遍历此列表，逐元素调用onStartup方法。
+
+看实现类AbstractContextLoaderInitializer实现的方法体，调用registerContextLoaderListener方法，这就跟web.xml中定义关于ContextLoaderListener的listener标签异曲同工了。再看其子类AbstractDispatcherServletInitializer实现的方法体，
 
 #### 异步请求
 
