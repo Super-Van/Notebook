@@ -266,7 +266,7 @@ System.out.println(teacher == course.getTeacher());
 
 #### 容器
 
-建一个类，5个实例域的类型分别对应5个容器（此容器指的便是Java容器了）类。
+建一个类，5个实例域的类型分别对应5种容器（此容器指的便是Java容器了）类。
 
 ```java
 // 其他省略
@@ -527,7 +527,7 @@ autowire的值还可取以下这几个：
 针对容器域也有自动装配，且检索类型是所存元素的类型。例如：
 
 ```xml
-<!-- School类含List<Teacher>域teachers -->
+<!-- School类含List<Teacher>类型的域teachers -->
 <bean id="school" class="bean.School" autowire="byType"></bean>
 <!-- 将IOC容器中所有元素类型的bean添加进去，所以基于byType方式检索的不是域类型List，constructor方式同理 -->
 <bean id="teacher1" class="bean.Teacher">
@@ -991,7 +991,7 @@ IOC容器可以从不同角度理解：
 - 一个映射集，有的映射保存内置组件的bean，有的保存自定义组件的bean。
 - BeanFactory或ApplicationContext对象。
 
-spring中最宏观的设计模式是工厂模式，解耦对象的创建与使用。BeanFactory接口负责在方法调用栈底层创建对象并加入映射，ApplicationContext是BeanFactory的子接口，负责容器的管理，包括对象依赖注入的准备工作、AOP等。我们基于调用栈统计上述重要方法与俩接口的关系：
+spring中最宏观的设计模式是工厂模式，解耦对象的创建与使用。BeanFactory接口负责在方法调用栈底层创建对象并加入映射，ApplicationContext是BeanFactory的子接口，负责容器的管理，包括依赖注入的准备工作、AOP等。我们基于调用栈统计上述重要方法与俩接口的关系：
 
 | 方法                            | 直属类与所属接口                                    |
 | ------------------------------- | --------------------------------------------------- |
@@ -1739,7 +1739,7 @@ private BookService bookService = WebUtils.getBean(BookService.class); // 业务
 IOC容器可以两种形式存在：
 
 - xml配置文件。
-- 配置类：标有Configuration注解的类。
+- 配置类：标有Configuration注解的类（须搭配Bean等注解）。
 
 两种形式的IOC容器共存且互不影响。
 
@@ -1772,6 +1772,8 @@ System.out.println(context.getBean("person"));
 根据单例特性，我们首次调用getBean方法时@Bean所标回调才被触发仅被触发这一次，执行对象创建逻辑。
 
 四个注册注解适合自定义组件，Bean注解适合非自定义组件。
+
+@Configuration与@Bean的关系：没有后者前者就相当于@Component，没有前者后者就是聘相的。
 
 ##### ComponentScan
 
@@ -2170,18 +2172,18 @@ public Person getPerson() {
 
 ##### Resource与Inject
 
-响应JSR250定义的Resource注解，也能实现自动装配，按属性名检索bean，同样可按别名检索，于是@Primary失效。
+响应JSR250而定义的Resource注解，也能实现自动装配，按属性名检索bean，同样可按别名检索，于是@Primary失效。
 
 ```java
 @Resource(name = "tom") // 按属性别名检索bean
 private Cat cat;
 ```
 
-响应JSR330定义的Inject注解，也能实现自动装配，检索套路同@Autowired，故支持@Primary与@Qualifier。
+响应JSR330而定义的Inject注解，也能实现自动装配，检索套路同@Autowired，故支持@Primary与@Qualifier。
 
 相较于@Autowired，这两个都不含required属性。
 
-@Autowired是spring定义的，@Resource与@Inject是javax下的，到底用谁见仁见智。它们仨的生效原理见于AutowiredAnnotationBeanPostProcessor类。
+@Autowired是spring定义的，@Resource为JDK内置，@Inject在javax.inject下的，到底用谁见仁见智。它们仨的生效原理见于AutowiredAnnotationBeanPostProcessor类。
 
 ##### Aware
 
@@ -2585,7 +2587,7 @@ public void testApplicationListener() {
 
 这个<span id="multicaster">多播器</span>哪儿来的呢？再进到refresh方法体，有一个initApplicationEventMulticaster方法。在它体内，按bean名称获取ApplicationEventMulticaster组件的bean，没有的话创建SimpleApplicationEventMulticaster对象，要赋给applicationEventMulticaster属性供后续使用。
 
-各<span id="listener">监听器</span>对象又是哪儿来的呢？refresh体内有一个registerListeners方法，在initApplicationEventMulticaster方法之后调用。体内，按ApplicationListener类型从容器中获取诸bean名称保存到多播器对象中，待到这些bean被创建多播器对象也就持有这些bean。
+各<span id="listener">监听器</span>对象又是哪儿来的呢？refresh体内有一个registerListeners方法，在initApplicationEventMulticaster方法之后调用。体内，按ApplicationListener类型从容器中获取诸bean名称保存到多播器对象中，待到这些bean被创建出来多播器对象也就持有它们。
 
 #### EventListener
 
@@ -2618,19 +2620,19 @@ public class ExtConfig {
 
 梳理基于注解配置的IOC容器的较详细创建流程。
 
-进入AnnotationConfigApplicationContext构造器，this与register方法做了预处理与解析的工作。重点看refresh方法-容器的创建（或刷新），开头就是加锁，保证线程安全-项目一启动容器创建且仅创建一次，接着是==prepareRefresh==方法，一些预处理工作。点进去，用一些属性标识容器未关闭、已激活，调用initPropertySources方法初始化上下文中的配置源，一般由所属类AbstractApplicationContext的子类定制配置，链式调用getEnvironment、validateRequiredProperties方法，校验环境中的这些配置，最后用LinkedHashSet承载ApplicationEvent对象赋给earlyApplicationEvents属性作早期事件。接着是==obtainFreshBeanFactory==方法，体内调用refreshBeanFactory方法给子类GenericApplicationContext的beanFactory属性设置序列版本号，调用子类实现的getBeanFactory方法返回其beanFactory属性，并继续作返回，赋给beanFactory变量。接着是==prepareBeanFactory==方法，传入beanFactory变量，体内设置它的类加载器、表达式解析器，注册一些后置处理器，忽略一些接口的自动注入，一些可解析接口的自动注入，最后是一些与环境相关的内置组件的注册。接着是==postProcessBeanFactory==方法，一般由子类重写来定制beanFactory对象创建之后的工作，不然走空方法。以上refresh体内这一段即bean工厂的创建及预处理工作。
+进入AnnotationConfigApplicationContext构造器，this与register方法做了预处理与解析的工作。重点看refresh方法-容器的创建（或刷新），开头就是加锁，保证线程安全-项目一启动创建容器且仅创建一次，接着是==prepareRefresh==方法，一些预处理工作。点进去，用一些属性标识容器未关闭、已激活，调用initPropertySources方法初始化上下文中的配置源，一般由所属类AbstractApplicationContext的子类定制配置，链式调用getEnvironment、validateRequiredProperties方法，校验环境中的这些配置，最后用LinkedHashSet承载ApplicationEvent对象赋给earlyApplicationEvents属性作早期事件。接着是==obtainFreshBeanFactory==方法，体内调用refreshBeanFactory方法给子类GenericApplicationContext的beanFactory属性设置序列版本号，调用子类实现的getBeanFactory方法返回其beanFactory属性，并继续作返回，赋给beanFactory变量。接着是==prepareBeanFactory==方法，传入beanFactory变量，体内设置它的类加载器、表达式解析器，注册一些后置处理器，忽略一些接口的自动注入，最后是一些与环境相关的内置组件的注册。接着是==postProcessBeanFactory==方法，一般由子类重写来定制beanFactory对象创建之后的工作，不然走空方法。以上refresh体内这一段即bean工厂的创建及预处理工作。
 
-接着是==invokeBeanFactoryPostProcessors==方法，传入beanFactory变量，让bean工厂的后置处理器完成标准初始化（即上一段）之后的一些工作，体内调用invokeBeanFactoryPostProcessors方法，其逻辑[前面](#invokeBeanFactoryPostProcessors)提到过。接着是==registerBeanPostProcessors==方法，体内调用PostProcessorRegistrationDelegate类的registerBeanPostProcessors方法，体内按实现PriorityOrdered、Ordered接口、为MergedBeanDefinitionPostProcessor的子接口等情况将所有后置处理器对象分门别类地装进诸BeanPostProcessor列表中，但最终都会存入bean工厂的beanPostProcessors属性，注意注册的顺序影响后续bean创建过程中不同后置处理器对象发挥作用的顺序。接着是==initMessageSource==方法-国际化相关的功能，讨论得不多，主要涉及到MessageSource组件的注册。接着是initApplicationEventMulticaster方法，注册事件多播器，[前面](#multicaster)讨论过了。接着是==onRefresh==方法，一般供子类重写来扩充逻辑。接着是==registerListeners==方法，注册监听器，[前面](#listener)讨论过。
+接着是==invokeBeanFactoryPostProcessors==方法，传入beanFactory变量，让bean工厂的后置处理器完成标准初始化（即上一段）之后的一些工作，体内调用invokeBeanFactoryPostProcessors方法，其逻辑[前面](#invokeBeanFactoryPostProcessors)提到过。接着是==registerBeanPostProcessors==方法，体内调用PostProcessorRegistrationDelegate类的registerBeanPostProcessors方法，体内按实现PriorityOrdered、Ordered接口、为MergedBeanDefinitionPostProcessor的子接口等情况将所有后置处理器对象分门别类地装进诸BeanPostProcessor列表中，但最终都会存入bean工厂的beanPostProcessors属性，注意注册的顺序影响后续bean创建过程中不同后置处理器对象发挥作用的顺序。接着是==initMessageSource==方法-国际化相关的功能，讨论得不多，主要涉及到MessageSource组件的注册。接着是==initApplicationEventMulticaster==方法，注册事件多播器，[前面](#multicaster)讨论过了。接着是==onRefresh==方法，一般供子类重写来扩充逻辑。接着是==registerListeners==方法，注册监听器，[前面](#listener)讨论过。
 
-接着是==finishBeanFactoryInitialization==方法，重中之重，初始化剩下的定制的非懒加载单实例bean，传入beanFactory变量，体内关注bean工厂调用preInstantiateSingletons方法。此方法体内，从beanDefinitionNames属性获取所有bean定义的名称（id），通过调用getBean方法、传入名称逐一创建它们，注意到有所属组件非抽象类、为单实例、非懒加载的要求。getBean又调deGetBean方法，传入名称，后者又调getSingleton方法，再后者又调重载的getSingleton方法，点开，开头是从singletonObjects映射属性（注释为单实例bean的缓存）中获取bean，获取不到便回到doGetBean方法体，往下面看，markBeanAsCreated方法的目的是保持bean的单例性，若当前bean对应注解配有DependsOn注解，则先行创建依赖的bean，随后调用getSingleton方法创建当前bean，传入名称及OjbectFactory接口的匿名实现类的匿名对象，它就调用这个对象重写的getObject方法，后者又调用createBean方法。体内，注意到先调用resolveBeforeInstantiation方法（可作返回），底层执行诸InstantiationAwareBeanPostProcessor对象（联系[AOP](#InstantiationAwareBeanPostProcessor)一节）的postProcessBeforeInstantiation方法（故须知各后置处理器都有特定的活动时机），最后调用doCreateBean方法作非代理对象返回。此方法体内，调用createBeanInstance方法，底层利用[工厂方法](#工厂方法)或组件的构造器创建实例，调用applyMergedBeanDefinitionPostProcessors方法，即让诸MergedBeanDefinitionPostProcessor对象调用postProcessMergedBeanDefinition方法，接着看注释-初始化bean实例，首先是populateBean方法填充属性值。体内先调用诸InstantiationAwareBeanPostProcessor对象的postProcessAfterInstantiation方法，还能见到自动注入的影子-通过名称、通过类型，最后调用applyPropertyValues方法做具体的赋值。紧接着是initializeBean方法。体内调用invokeAwareMethods方法执行bean所属组件实现几个Aware子接口实现的方法，调用applyBeanPostProcessorsBeforeInitialization方法，即执行诸BeanPostProcessor对象的postProcessBeforeInitialization方法（分清instantiation与initialization），调用invokeInitMethods，逻辑在[前面](#invokeInitMethods)讨论过，调用applyBeanPostProcessorsAfterInitialization方法，即执行诸BeanPostProcessor对象的postProcessAfterInitialization方法，调用registerDisposableBeanIfNecessary方法注册bean销毁的回调。回到最后那个getSingleton方法体，往下看到调用addSingleton方法，即将创建出来的bean同步地保存进singletonObjects属性，避免二次创建。回到preInstantiateSingletons方法体，所有bean都获取（创建）完毕，于是后面的逻辑便是[前面](#EventListener)谈过的知识。
+接着是==finishBeanFactoryInitialization==方法，重中之重，初始化剩下的定制的非懒加载单实例bean，传入beanFactory变量，体内关注bean工厂调用preInstantiateSingletons方法。此方法体内，从beanDefinitionNames属性获取所有bean定义的名称（id），通过调用getBean方法、传入名称逐一创建它们，注意到有所属组件非抽象类、为单实例、非懒加载的要求。getBean又调deGetBean方法，传入名称，后者又调getSingleton方法，再后者又调重载的getSingleton方法，点开，开头是从singletonObjects映射属性（注释为单实例bean的缓存）中获取bean，获取不到便回到doGetBean方法体，往下面看，markBeanAsCreated方法的目的是保持bean的单例性，若当前bean对应注解配有DependsOn注解，则先行创建依赖的bean，随后调用getSingleton方法创建当前bean，传入名称及OjbectFactory接口的匿名实现类的匿名对象，它就调用这个对象重写的getObject方法，后者又调用createBean方法。体内，注意到先调用resolveBeforeInstantiation方法（可作返回），底层执行诸InstantiationAwareBeanPostProcessor对象（联系[AOP](#InstantiationAwareBeanPostProcessor)一节）的postProcessBeforeInstantiation方法（故须知各后置处理器都有特定的活动时机），最后调用doCreateBean方法作非代理对象返回。此方法体内，调用createBeanInstance方法，底层利用[工厂方法](#工厂方法)或组件的构造器创建实例，调用applyMergedBeanDefinitionPostProcessors方法，即让诸MergedBeanDefinitionPostProcessor对象调用postProcessMergedBeanDefinition方法，接着看注释-初始化bean实例，首先是populateBean方法填充属性值。体内先调用诸InstantiationAwareBeanPostProcessor对象的postProcessAfterInstantiation方法，还能见到自动注入的影子-通过名称、通过类型，最后调用applyPropertyValues方法做具体的赋值。紧接着是initializeBean方法。体内调用invokeAwareMethods方法执行bean所属组件实现几个Aware子接口实现的方法，调用applyBeanPostProcessorsBeforeInitialization方法，即执行诸BeanPostProcessor对象的postProcessBeforeInitialization方法（分清instantiation与initialization），调用invokeInitMethods，逻辑在[前面](#invokeInitMethods)讨论过，调用applyBeanPostProcessorsAfterInitialization方法，即执行诸BeanPostProcessor对象的postProcessAfterInitialization方法，调用registerDisposableBeanIfNecessary方法注册bean销毁的回调。回到最后那个getSingleton方法体，往下看到调用addSingleton方法，即将创建出来的bean同步地保存进singletonObjects属性，避免二次创建。回到preInstantiateSingletons方法体，所有bean都获取（创建）完毕，剩下的逻辑便在[前面](#EventListener)谈过。
 
-回到refresh方法体，下面是==finishRefresh==方法。体内调用initLifecycleProcessor方法，初始化LifecycleProcessor组件对象，自实现此接口中的onRefresh、onDestroy方法，作容器刷新及销毁的回调，不实现也有默认的实现。接着是链式调用getLifecycleProcessor、onRefresh方法，便是执行刚才谈到的一个回调方法，而后调用publishEvent方法，传入ContextRefreshedEvent对象，即发布容器刷新完成事件，最后LiveBeansView类调用registerApplicationContext方法，暂不多言。
+回到refresh方法体，下面是==finishRefresh==方法。体内调用initLifecycleProcessor方法，初始化LifecycleProcessor组件对象，自实现此接口中的onRefresh、onDestroy方法，作容器刷新及销毁的回调，有默认的实现。接着是链式调用getLifecycleProcessor、onRefresh方法，便是执行刚才谈到的一个回调方法，而后调用publishEvent方法，传入ContextRefreshedEvent对象，即发布容器刷新完成事件，最后LiveBeansView类调用registerApplicationContext方法，暂不多言。
 
 ### Servlet 3.0
 
 #### 注册组件
 
-##### 概述
+##### servlet
 
 servlet3.0属JSR315，tomcat7及以上支持，这是相关[文档](https://jcp.org/en/jsr/detail?id=315)。
 
@@ -2658,9 +2660,9 @@ public class MyServletContainerInitializer implements ServletContainerInitialize
 
 上例以源文件方式注册了java web三大组件。其他代码参见项目。
 
-##### springmvc整合
+##### springmvc
 
-在此基础上就来看springmvc是如何不借助web.xml来注册组件的，就包括前端控制器。
+在此基础上就来看springmvc是如何不借助web.xml来注册java web组件的，就包括前端控制器。
 
 打开spring-web包，发现也有一个`META-INF/services/javax.servlet.ServletContainerInitializer`文件：
 
@@ -2668,11 +2670,240 @@ public class MyServletContainerInitializer implements ServletContainerInitialize
 org.springframework.web.SpringServletContainerInitializer
 ```
 
-进入这个类体，发现它实现了ServletContainerInitializer接口，头上@HandleTypes的值是WebApplicationInitializer接口的Class实例，那么项目一启动，所有WebApplicationInitializer实现类就被加载，各自的Class实例被装进一个集合再传入onStartup方法。这个方法体内，利用反射为集合里非接口非抽象类的运行时类创建对象，并将它们存进一个WebApplicationInitializer列表，后面遍历此列表，逐元素调用onStartup方法。
+进入这个类体，发现它实现了ServletContainerInitializer接口，头上@HandleTypes的值是WebApplicationInitializer接口的Class实例，那么项目一启动，所有WebApplicationInitializer实现类就被加载，这些实现类的Class实例被装进一个集合再传入onStartup方法。此方法体内，利用反射为集合里非接口非抽象类的运行时类创建对象，并将它们存进一个WebApplicationInitializer列表，后面遍历此列表，逐元素调用onStartup方法。
 
-看实现类AbstractContextLoaderInitializer实现的方法体，调用registerContextLoaderListener方法，这就跟web.xml中定义关于ContextLoaderListener的listener标签异曲同工了。再看其子类AbstractDispatcherServletInitializer实现的方法体，
+看实现类AbstractContextLoaderInitializer实现的方法体，调用registerContextLoaderListener方法，这就跟web.xml中定义关于ContextLoaderListener的listener标签异曲同工了。往下调用到createRootApplicationContext方法。再看其子类AbstractDispatcherServletInitializer实现的方法体，调用registerDispatcherServlet方法，创建前端控制器对象并通过ServletContext对象将其注册进tomcat容器。往下调用到createServletApplicationContext方法。最后看子类的子类AbstractAnnotationConfigDispatcherServletInitializer，此前提到的两个方法createRootApplicationContext与createServletApplicationContext都是在这最终重写的，从它们的方法体不难看出共创建两个容器（同时容器对象调用register方法注册配置类），即父子容器-根容器与web容器，正好呼应springmvc笔记-spring整合一章中的两个xml文件，相关理论见官方文档的[Context Hierarchy](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-servlet-context-hierarchy)一节。
 
-#### 异步请求
+```java
+/**
+ * 重写两方法，返回根容器配置类（父）与web容器配置类（子）供上层分别注册进两个容器（方法注册等价于@Component）
+ */
+public class MyWebApplicationInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+	@Override
+	protected Class<?>[] getRootConfigClasses() {
+		return new Class<?>[] { RootConfig.class };
+	}
 
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return new Class<?>[] { WebConfig.class };
+	}
 
+	/**
+	 * 获取前端控制器的路径模板
+	 * 供AbstractDispatcherServletInitializer类的registerDispatcherServlet方法调用
+	 */
+	@Override
+	protected String[] getServletMappings() {
+		return new String[] { "/" };
+	}
+}
+```
+
+其他代码参见项目。
+
+继续关注基于注解的springmvc.xml的等价配置：
+
+```java
+/**
+ * web容器 这里没有Bean等注解，@Configuration不必要
+ */
+//只扫描控制层 注册本配置类的时候扫描到此注解，此注解生效-开启包扫描功能
+@ComponentScan(basePackages = "com.van", includeFilters = { @Filter(type = FilterType.ANNOTATION, classes = {
+		Controller.class, ControllerAdvice.class }) }, useDefaultFilters = false)
+// 打给组件
+@EnableWebMvc
+public class WebConfig extends WebMvcConfigurerAdapter {
+	@Override
+	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+		// 底层自动配置了注解驱动？
+		configurer.enable();
+	}
+
+	@Override
+	public void configureViewResolvers(ViewResolverRegistry registry) {
+		registry.jsp("/WEB-INF/views/", ".jsp");
+	}
+
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new MyInterceptor()).addPathPatterns("/my");
+	}
+}
+```
+
+联系springboot笔记，修改默认配置的方式之一就是定义并注册WebMvcConfigurer的实现类。
+
+#### 异步处理
+
+##### servlet
+
+3.0以前servlet采用thread per request方式处理请求，即围绕当前请求从头到尾的处理都由一条线程负责。缺点不难想到，遇到IO操作线程不得不同步等待，而访问数据库、调用远程服务等IO操作是很慢的，尤其当并发量特别大，性能得不到极大利用。
+
+那么如今的服务器都是多核多线程，何不利用起来，让多个线程参与单个请求的处理，避免无畏等待（不浪费等待的时间），故3.1版本开始引入异步机制使主线程不阻塞。
+
+我们用sleep方法模拟同步无谓等待情况：
+
+```java
+@Override
+protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    System.out.println(Thread.currentThread().getName() + " start");
+    try {
+        greet();
+    } catch (InterruptedException e) {
+        System.out.println(e.getMessage());
+    }
+    System.out.println(Thread.currentThread().getName() + " end");
+    resp.getWriter().write("hello van");
+}
+
+public void greet() throws InterruptedException {
+    System.out.println(Thread.currentThread().getName() + " greeting");
+    Thread.sleep(3000);
+}
+```
+
+servlet 3.0文档的Obtaining an AsyncContext一章异步容器做了阐述。来看改为异步后的代码：
+
+```java
+//允许异步模式
+@WebServlet(value = "/async", asyncSupported = true)
+public class AsyncServlet extends HttpServlet {
+	private static final long serialVersionUID = 4904081632518472224L;
+
+	@Override
+	public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+		System.out.printf("%s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+		// 开启异步模式
+		AsyncContext startContext = req.startAsync();
+		// 委托另一线程执行异步任务
+		startContext.start(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					System.out.printf("%s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+					greet();
+					// 异步上下文
+					AsyncContext asyncContext = req.getAsyncContext();
+					ServletResponse response = asyncContext.getResponse();
+					// 同一个响应对象
+					System.out.println(res == response);
+					// 就从副线程响应
+					response.getWriter().write("hello async");
+					System.out.printf("%s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+					// 通知主线程异步任务完成
+					startContext.complete();
+				} catch (InterruptedException | IOException e) {
+					System.out.println(e.getMessage());
+				}
+			}
+		});
+		// 同时主线程去做别的事
+		System.out.printf("%s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+	}
+
+	public void greet() throws InterruptedException {
+		System.out.println(Thread.currentThread().getName() + " greeting");
+		Thread.sleep(3000);
+	}
+}
+
+// 打印结果
+http-nio-8080-exec-30 1666180299141
+http-nio-8080-exec-30 1666180299144
+http-nio-8080-exec-21 1666180299144
+http-nio-8080-exec-21 greeting
+true
+http-nio-8080-exec-21 1666180302154
+```
+
+##### springmvc
+
+官方文档的[Asynchronous Requests](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-async)一章作了说明。
+
+```java
+@RequestMapping("/async")
+@ResponseBody
+public Callable<String> asnyc() {
+    System.out.printf("主线程开始 %s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+    Callable<String> callable = new Callable<String>() {
+        @Override
+        public String call() throws Exception {
+            System.out.printf("副线程开始 %s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+            Thread.sleep(3000);
+            System.out.printf("副线程结束 %s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+            return "callable async";
+        }
+    };
+    System.out.printf("主线程结束 %s %s\n", Thread.currentThread().getName(), System.currentTimeMillis());
+    return callable;
+}
+
+// 打印结果
+my interceptor preHandle
+http://localhost:8080/springmvc-annotation/async
+主线程开始 http-nio-8080-exec-16 1666181875316
+主线程结束 http-nio-8080-exec-16 1666181875318
+副线程开始 MvcAsync1 1666181875324
+副线程结束 MvcAsync1 1666181878336
+my interceptor preHandle
+http://localhost:8080/springmvc-annotation/async
+```
+
+按文档里的描述，主线程结束响应对象并没有关闭，针对副线程又发了一个请求，前端控制器二次拦截，然后调用doDispatch方法，一级级往下调到处理方法，但此时的处理方法已经不是原来那个了，而是实现的call方法，所以打印显示拦截器拦了两次。
+
+有专门针对异步任务的拦截器，原生的叫AsyncListener，springmvc里的叫AsyncHandlerInterceptor。原理是执行同步、异步任务的线程分属两个线程池。
+
+实际开发中的异步场景就比上面的例子复杂得多，譬如消息中间件的异步功能，这里给个抽象模型，若干个线程分布在两个应用上。
+
+![消息中间件](spring.assets/消息中间件.png)
+
+消息中间件以后会系统地学，所以随便看看下段代码（脱胎于官方文档上的例子）。
+
+```java
+@RequestMapping("/generateOrder")
+@ResponseBody
+public DeferredResult<Order> generateOrder() {
+    // 只打印一次
+	System.out.println(Thread.currentThread().getName());
+    // 要求5秒内生成，否则不等了，响应失败信息
+    DeferredResult<Order> deferredResult = new DeferredResult<>(5000L, "generation failed");
+    // 当前线程并不能生成订单，只能将生成订单的消息保存到消息中间件中，由其他应用上的线程去处理
+    DeferredResultQueue.save(deferredResult);
+    return deferredResult;
+}
+
+/**
+ * 简便起见，就省略监听、远程调用了，直接让此方法充当其他应用上的服务
+ * 
+ * @return
+ */
+@RequestMapping("/createOrder")
+@ResponseBody
+public String createOrder() {
+    Order order = new Order(UUID.randomUUID().toString(), 200.);
+    // 获取生成订单的消息，设置消息结果 这个设置并不是将结果存到中间件里，所以说对上图做了极大简化
+    DeferredResultQueue.get().setResult(order);
+    return "creation success: " + order.getId();
+}
+```
+
+```java
+/**
+ * 模拟消息中间件，存放消息
+ */
+public class DeferredResultQueue {
+	private static Queue<DeferredResult<Order>> queue = new ConcurrentLinkedDeque<>();
+
+	public static void save(DeferredResult<Order> deferredResult) {
+		queue.add(deferredResult);
+	}
+
+	public static DeferredResult<Order> get() {
+		return queue.poll();
+	}
+}
+```
+
+怎么测试呢？先访问`/generateOrder`，处理方法执行完底层最多等5秒。在5秒内访问`/createOrder`，一旦监听到DeferredResult对象（队列里就它一个元素，很简省）有了结果，就又自动访问`/generateOrder`，但响应的是结果对象-Order实例（并没有进原方法）。若在5秒内没有访问`/createOrder`即没有成功执行第21行，则也是又自动访问`/generateOrder`，不过响应的是失败信息。
 

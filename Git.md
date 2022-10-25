@@ -884,10 +884,6 @@ $ git clone 远程仓库地址 别名（可不设，默认是仓库名）
 $ git clone https://github.com/Super-Van/notebook.git (fetch)
 $ git clone https://github.com/Super-Van/notebook.git (fetch) origin
 
-# 必要时取消代理
-git config --global --unset http.proxy
-git config --global --unset https.proxy
-
 # 拉取中央仓库的更新内容
 $ git pull 远程库地址别名 远程分支名
 $ git pull origin master
@@ -988,6 +984,21 @@ $ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/no
 
 关于令牌机制的更多解读，可参见[github开发人员在七夕搞事情](https://blog.csdn.net/weixin_41010198/article/details/119698015)。
 
+#### 代理
+
+有时无法访问github，需要翻墙，即借助代理。
+
+```bash
+# 必要时取消代理
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+
+# 设置clash为代理
+git config --global http.proxy http://127.0.0.1:7890
+git config --global https.proxy http://127.0.0.1:7890
+# 加不加--global看情况
+```
+
 ## 图形化操作
 
 ### eclipse
@@ -1062,7 +1073,7 @@ $ git remote set-url origin https://xxxxxxxxxxxxxxxxxxxx@github.com/Super-Van/no
 
 <img src="D:\chaofan\typora\专业\Git.assets\image-20210619210922557.png" alt="image-20210619210922557" style="zoom:80%;" />
 
-## Gitlab服务器环境搭建
+## Gitlab
 
 待续。
 

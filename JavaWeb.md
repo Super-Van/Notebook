@@ -142,7 +142,7 @@ name：自定义的主机名，协议+主机名+端口号就映射到appBase值�
 
 Context的两个重要属性：
 
-- docBase：web项目的站点路径，实现外链式或<span id="inner">内嵌式</span>部署，推荐前者。
+- docBase：web项目的站点路径，实现外链式或<span id="inner">内嵌式</span>部署。
   - 内嵌式：路径必须在webapps下面，必须是相对的（即不能出现webapps的绝对路径），对应目录是war包解压结果。
 
   - 外链式：路径绝对相对任意，但不能含webapps的绝对路径，对应的目录是原生项目的WebContent目录（呼应[前面](#packa)，打war包其实就是对它打包），服务器启动时webapps内不会产生相应解压目录。
@@ -1268,7 +1268,7 @@ base标签属HTML标签库，其href值充当本页面中所有相对路径（�
 
 ```java
 Properties props = new Properties();
-// 从后例可知经过编译这个WebContent目录不在类路径下，但还是能找到，说明编译器解析得到文件的绝对路径，将其写入字节码，运行时从原生项目下读取
+// 从后例可知经过编译这个WebContent目录不在类路径下，但文件还是能找到，说明编译器解析得到文件的绝对路径，将其写入字节码，运行时从原生项目下读取
 props.load(new FileInputStream("webcontent\\db.properties"));
 
 Properties props = new Properties();
@@ -1500,7 +1500,7 @@ JSP standard tag libray-JSP标准标签库，是一套由Sun公司制定的API�
 
 故一个session的id值或相等的凭证cookie的value值唯一标识一个浏览器与一个项目的一次会话。
 
-相关方法的使用参考项目。
+相关方法的使用参考项目。相关方法体现了就cookie而言服务器对浏览器的控制，关注请求体里的Set-cookie一项。
 
 ## 过滤器
 

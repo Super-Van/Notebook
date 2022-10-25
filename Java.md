@@ -184,18 +184,18 @@ javadoc -d myDoc -author -version HelloWorld.java
 数据类型划分：
 
 ```mermaid
-graph LR;
-	数据类型-->基本类型 & 引用类型;
-	基本类型-->数值型 & 字符型char & 布尔型boolean;
-	数值型-->整型 & 浮点型;
-	整型-->byte & short & int & long;
-	浮点型-->float & double;
-	引用类型-->类 & 接口 & 枚举 & 数组;
+flowchart LR;
+	数据类型---基本类型 & 引用类型;
+	基本类型---数值型 & char["字符型（char）"] & boolean["布尔型（boolean）"];
+	数值型---整型 & 浮点型;
+	整型---byte & short & int & long;
+	浮点型---float & double;
+	引用类型---cls["类（含String）"] & 接口 & 枚举 & 数组;
 ```
 
 
 
-字符串隶属于类。对于八大基本类型，我们可记成顺口溜-byte int short long, double float boolean char。
+对于八大基本类型，我们可记成顺口溜-byte int short long, double float boolean char。
 
 4种整型的信息如下表：
 
@@ -255,9 +255,7 @@ char c = '\u0041'
 
 关于boolean，一般不谈占多少字节和取值范围，因为拢共就取两个值-true和false。
 
-最后谈谈String-字符串，它不是基本数据类型，但怎奈出镜率太高，所以先扯一扯。
-
-String是引用数据类型，属类范畴。看一些例子：
+最后谈谈String-字符串，虽不是基本数据类型，但怎奈出镜率太高，所以先扯一扯。看一些例子：
 
 ```java
 String s1 = "a";
@@ -4307,11 +4305,11 @@ String即字符串，所有字符串字面值都是String类的实例。
 
 查源码可知String是一个final类，即不可被继承。它实现了Serializable接口和Comparable接口。它通过其对象的一个final、char数组类型的实例域value表征字符序列。
 
-字符串对象不可变，即运行时对象状态-value等域不可更改亦即字符内容不可更改-既不能引用别的数组又无法改动当前数组中的字符（前者是由于final的限制，但后者是因为没有渠道）。但String类型的变量可引用不同地址。
+字符串对象不可变的本质就是value由final修饰，致使它不能引用别的字符数组，这是第一层不可变，我们没办法改变数组元素，这是第二层不可变，合起来决定了字符串内容的不可变。但String类型的变量可引用不同地址。
 
 ```java
 String str1 = "123";
-// 引用不同对象实体 对象实体不可变
+// 引用不同对象实体，各对象实体不可变
 str1 = "456";
 String str2 = "456";
 System.out.println(str1);
@@ -4319,7 +4317,7 @@ System.out.println(str1);
 System.out.println(str1 == str2);
 ```
 
-以上段代码为例，认识字符串常量池。在字符串常量池中不允许出现相同内容的两个对象实体-字符数组。
+以上段代码为例，认识字符串常量池。在字符串常量池中不允许出现内容相同的两个对象实体-字符数组。
 
 <img src="java.assets/字符串常量池.png" alt="字符串常量池"  />
 
@@ -4405,14 +4403,37 @@ public void convert() throws UnsupportedEncodingException {
     byte[] bytes1 = "love中国".getBytes();
     byte[] bytes2 = "love中国".getBytes("gbk");
     /* 解码：将看不懂的二进制数译为看得懂的字符 */ 
-    // [108, 111, 118, 101, -28, -72, -83, -27, -101, -67] 按UTF-8，一个字符对应3个字节 这里是逐字节打印的
+    // [108, 111, 118, 101, -28, -72, -83, -27, -101, -67] 逐字节打印相应十进制数，按UTF-8，汉字对应3字节
     System.out.println(Arrays.toString(bytes1));
-    // [108, 111, 118, 101, -42, -48, -71, -6] 按GBK，一个字符对应2个字节
+    // [108, 111, 118, 101, -42, -48, -71, -6] 按GBK，汉字对应2字节
     System.out.println(Arrays.toString(bytes2));
     // 编码解码方式不统一的话解码时就会出现乱码
     String fromBytes = new String(bytes2, "GBK");
     System.out.println(fromBytes);
 }
+```
+
+题外话。后面会学反射，在反射面前final就是渣渣了，对value我们想引谁就引谁，也能改字符数组的内容，请看下例：
+
+```java
+String string = "zhang1998";
+Class<? extends String> cls = string.getClass();
+Field value = cls.getDeclaredField("value");
+value.setAccessible(true);
+value.set(string, new char[] { 'z', 'h', 'a', 'n', 'g' });
+//zhang
+System.out.println(string);
+
+String string = "zhang1998";
+Class<? extends String> cls = string.getClass();
+Field value = cls.getDeclaredField("value");
+value.setAccessible(true);
+char[] chars =(char[]) value.get(string);
+//于是字符串常量池里没有内容相同的数组也不是绝对的了
+System.out.println("zhang1999");
+chars[8]='9';
+//zhang1999
+System.out.println(string);
 ```
 
 #### 可变字符串

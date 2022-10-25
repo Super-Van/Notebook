@@ -270,9 +270,7 @@ cat.age=2
 )
 ```
 
-我们看@SpringBootConfiguration被@Configuration所标，说明它标注的类是配置类。@ComponentScan没什么好说的，这里看出默认的排除规则。最重要的就是@EnableAutoConfiguration。
-
-它相当于这两个注解的合体：
+我们看@SpringBootConfiguration被@Configuration所标，说明它标注的类是配置类。@ComponentScan没什么好说的，这里看出默认的排除规则。最重要的就是@EnableAutoConfiguration，它相当于这两个注解的合体：
 
 ```java
 @AutoConfigurationPackage
@@ -299,7 +297,7 @@ AutoConfigurationPackages.register(registry, (String[])(new AutoConfigurationPac
 
 引入场景依赖。
 
-查看自动配置。一个直观的办法是添加`debug=true`配置项，打印出的Negative matches（Did not match）指没注册的类，Positive matches指注册了的类。
+<span id="tip">查看自动配置。</span>一个直观的办法是添加`debug=true`配置项，打印出的Negative matches（Did not match）指没注册的类，Positive matches指注册了的类。
 
 可能需要修改默认配置或新增配置：
 
@@ -311,7 +309,7 @@ AutoConfigurationPackages.register(registry, (String[])(new AutoConfigurationPac
 
 ### Lombok
 
-它提供的注解使得JavaBean在编译时自动生成getter、setter等，源代码只见属性。还提供注解使得类体自动添加来自slf4j、log4j等日志的Logger类型的属性。
+它提供的注解使得JavaBean在编译时自动生成getter、setter等，源代码只见属性，还使得类体自动添加日志属性。
 
 添加依赖；idea安装插件。
 
@@ -339,6 +337,10 @@ public class MyController {
     //方法体内写 log.info("");
 }
 ```
+
+### devtools
+
+用于热部署。导入spring-boot-devtools依赖，修改源码之后，对IDEA按Ctrl+F9即Build Project，对eclipse保存文件。
 
 ### Spring Initializer
 
@@ -405,16 +407,18 @@ spring.resources.static-locations[1]: classpath:/sun/
 
 #### 源码解读
 
-web场景有哪些默认配置，那就是WebMvcAutoConfiguration类注册了哪些组件。注意到内部类WebMvcAutoConfigurationAdapter也是个配置类，标有@EnableConfigurationProperties，值包含映射`spring.mvc`前缀的WebMvcProperties及映射`spring.resources`前缀的ResourceProperties，这两个类的对象作构造方法的参数，还有一些其他参数，它们均由容器自动注入。
+web场景有哪些默认配置，即看WebMvcAutoConfiguration类注册了哪些组件。注意到内部类WebMvcAutoConfigurationAdapter也是个配置类，标有@EnableConfigurationProperties，值包含映射`spring.mvc`前缀的WebMvcProperties及映射`spring.resources`前缀的ResourceProperties，这两个类的对象作构造方法的参数，还有一些其他参数，它们均被自动注入。
 
 接着看addResourceHandlers方法，开头是几个配置项：
 
-- `spring.resources.add-mappings`：静态资源请求无效与否，设false这个方法就直接返回了，不往后处理静态资源了。
+- `spring.resources.add-mappings`：静态资源请求无效与否。设false这个方法就直接返回了，即不处理静态资源。
 - `spring.resources.cache.period`：缓存时长。
 
-然后是对匹配`/webjars/**`的路径的处理，映射到`classpath:/META-INF/resources/webjars/`下的资源，再是静态资源路径模板匹配的请求的处理，映射到静态资源目录下的资源。
+然后是对匹配`/webjars/**`的路径的处理，获取并响应（并没有转发）`classpath:/META-INF/resources/webjars/`下资源，再是对静态资源路径模板匹配的请求的处理，获取并响应静态资源目录下资源。这些请求由SimpleUrlHandlerMapping支持，请求的处理见于ResourceHttpRequestHandler类下的handleRequest方法。
 
 再看welcomePageHandlerMapping方法，体内创建WelcomePageHandlerMapping对象，传入静态资源路径模板。构造器体内判断index.html在静态资源目录下且这个模板是`/**`，满足则将`/`匹配的请求地址映射到ParameterizableViewController对象，见于其调用的setRootView方法（前提是我们没定义`/`路径模板，不然我们的[先拦下来](#请求映射)），此处理器对象再调用handleRequestInternal方法设视图名为`forward:/index.html`，即从静态资源目录下获取index页面，不满足再判断templates目录中有无index.html，有则同理设视图名为`index`，即让匹配的控制器方法来处理。至于favicon图标，只要访问本站点，浏览器就会发`/favicon.ico`，显然匹配到静态资源路径模板，故去静态资源目录中找favicon.ico。
+
+<span id="default">须知静态资源最终的获取、响应还得靠DefaultServlet，字节码就嵌在内置tomcat内。</span>
 
 ### REST
 
@@ -544,6 +548,7 @@ public String matrixVariable(@MatrixVariable("id") Integer id, @MatrixVariable("
 ```java
 @Bean
 public WebMvcConfigurer getWebMvcConfigurer(){
+    // 注意到源码有改进，响应Java 8，原本的抽象方法都换成了静态方法，就不用继承WebMvcAutoConfigurationAdapter了
     return new WebMvcConfigurer() {
         @Override
         public void configurePathMatch(PathMatchConfigurer configurer) {
@@ -731,7 +736,7 @@ public void configureContentNegotiation(ContentNegotiationConfigurer configurer)
 
 这个模板引擎性能不佳，适合小型应用，不适合高并发项目，高并发得靠其他模板引擎或前后端分离。
 
-有了这玩意儿前后端不分离，主要是后端学的。springboot默认无法支持JSP，虽然默认注册了InternalResourceViewResolver，但底层依赖的JspServlet相关包并没导入。
+有了这玩意儿前后端不分离，主要是后端学的。springboot默认无法支持JSP，虽然默认注册了InternalResourceViewResolver，但底层依赖的JspServlet相关包并没导入，不像[DefaultServlet](#default)，内嵌的tomcat里也没有字节码。
 
 语法类似JSP，自行查找文档。
 
@@ -755,7 +760,7 @@ public void configureContentNegotiation(ContentNegotiationConfigurer configurer)
 
 ### 视图解析
 
-主要知识在springmvc笔记里已经讨论过，这里补充一些基于引入了返回值解析器的新源码的试图解析原理。
+主要知识在springmvc笔记里已经讨论过，这里补充一些基于引入了返回值解析器的新源码的视图解析原理。
 
 已知处理方法返回的是字符串且没有@ResponseBody等的影响。进入HandlerMethodReturnValueHandlerComposite类的handleReturnValue方法，看selectHandler方法返回HandlerMethodReturnValueHandler的哪个实现类的对象（像RequestResponseBodyMethodProcessor就专门处理带@ResponseBody的目标方法的返回值），发现结果是ViewNameMethodReturnValueHandler，从其覆盖的supportsReturnValue方法可看出它支持的返回值类型是void及字符序列，再关注其覆盖的handleReturnValue方法。体内调用ModelAndViewContainer对象的setViewName方法将返回值设为视图名。
 
@@ -1495,7 +1500,7 @@ yaml文件、properties文件、环境变量、命令行参数等可作外部配
 
 ## 自定义starter
 
-大体思路是创建不含源代码而仅含依赖信息的项目作starter，POM里必有spring-boot-starter依赖，后者又依赖spring-boot-autoconfigure。实现过程参考[视频](https://www.bilibili.com/video/BV1Et411Y7tQ?p=194&vd_source=768bca3ca74de2a4a4a3a209b7b1ec86)，此处列出一些关键代码：
+大体思路是创建不含源代码而仅含依赖信息的项目作starter，POM里必有spring-boot-starter依赖，后者又依赖spring-boot-autoconfigure。实现过程参考[视频](https://www.bilibili.com/video/BV1Et411Y7tQ?p=194&vd_source=768bca3ca74de2a4a4a3a209b7b1ec86)及一对项目，此处列出一些关键代码：
 
 ```java
 //向一般starter看齐，与配置文件相绑定的类不在类体内做注册
@@ -1541,8 +1546,9 @@ public class VanServiceAutoConfigure {
 }
 ```
 
+摘录被依赖项目van-spring-boot-autoconfigure的`src/main/resources/META-INF/spring.factories`（即打出的包下的`META-INF/spring.factories`）：
+
 ```factories
-# 摘录后者的src/main/resources/META-INF/spring.factories
 # Auto configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.van.config.VanServiceAutoConfigure
@@ -1570,7 +1576,7 @@ run方法体内往下就有了经典的refreshContext方法，传入容器对象
 
 上一节开头的三个接口及ApplicationRunner、CommandLineRunner接口均属于广义上的监听器，从上一节源码解读可看出它们定义的方法贯穿项目的启动过程，因此可自定义它们的实现类。
 
-实现类代码参见项目，别忘了头三个接口的对象的产生基于spring.factories文件的加载，后两个由于作组件对象由容器创建。
+实现类代码参见项目，别忘了头三个接口的对象的产生基于spring.factories文件的加载，后两个由于作组件，对象由容器创建。
 
 ```factories
 org.springframework.context.ApplicationContextInitializer=\
@@ -1581,3 +1587,98 @@ org.springframework.boot.SpringApplicationRunListener=\
 com.van.listener.MySpringApplicationRunListener
 ```
 
+## 缓存
+
+### 概述
+
+JSR107是关于Java Caching的规范，落实有5个接口，在javax.cache下面，分别是CacheingProvider、CacheManager、Cahce、Entry及Expiry。不过用得不多，spring兼容它们同时设计更为简约的缓存抽象：
+
+- Cache接口：缓存组件，定义缓存相关的操作。
+- CacheManager接口：缓存管理器，管理各种缓存组件。
+
+使用缓存绕不开两个问题：键的生成策略与值（数据）的序列化策略。
+
+下面就几个注解掌握使用及了解原理。
+
+### EnableCaching
+
+### Cacheable
+
+### CacheEvict
+
+### CachePut
+
+### CacheConfig
+
+
+
+## 检索
+
+具体使用请参考官方[文档](https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/)。本章可能要单独开一篇ES。
+
+## 任务
+
+### 异步
+
+联想spring笔记异步处理一章，在控制层用到Callable、DeferredResult返回值。下面在业务逻辑层使用Async注解。
+
+```java
+@SpringBootApplication
+@EnableAsync
+public class BootTaskApplication {...}
+
+@Service
+public class AsyncService {
+    /**
+     * 专门负责异步任务的线程池里的线程来执行
+     */
+    @Async
+    public void doAsync() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println("数据处理中...");
+    }
+}
+
+@RestController
+public class AsyncController {
+    @Autowired
+    private AsyncService asyncService;
+
+    @GetMapping("/async")
+    public String async() {
+        asyncService.doAsync();
+        //主线程立即响应，不等5秒
+        return "success";
+    }
+}
+```
+
+### 定时
+
+定时任务落实为业务逻辑层的方法，使用Scheduled注解，练习cron表达式，写法和linux里的一致。
+
+```java
+@SpringBootApplication
+@EnableScheduling
+public class BootTaskApplication {...}
+
+@Service
+public class ScheduledService {
+    @Scheduled(cron = "0-29 * * * * SUN-FRI")
+    public void doCron() {
+        System.out.println("这是一个定时任务");
+    }
+}
+```
+
+### 邮件
+
+邮件任务比较好做。导入场景启动器spring-boot-starter-mail；配置邮箱地址、授权码、邮件服务器域名；测试普通邮件与带附件等的高级邮件。代码参考项目。
+
+## 安全
+
+常见的安全框架有apache旗下的shiro、spring旗下的[spring-security](https://docs.spring.io/spring-security/reference/index.html)。本章可能要单独开一篇。

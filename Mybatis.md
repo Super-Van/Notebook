@@ -393,7 +393,7 @@ parameterType属性是可选的，SQL方法只有一个参数时它的值是此�
 - 用mybatis提供的名称索引取参数值。不好，原因与上同。
 - 给参数标Param注解，用注解值取参数值。
 - 多参数被封装成映射（表面上看是单参数），用键取参数值。
-- 多参数被封装成有序容器（表面上看是单参数）-Collection对象、列表、数组，用[特定](#wrap)的名称加下标取参数值，名称分别是collection、list、array。
+- 多参数被封装成有序容器（表面上看是单参数）-Collection对象、列表、数组，用[特定](#wrap)的名称加下标取参数值，名称分别是collection、list、array。[foreach](#foreach)一节有例子。
 - 将多参数封装成POJO（表面上看是单参数），用属性名取参数值。
 
 下面我们对每种方式都尝试一下。
@@ -803,11 +803,11 @@ association标签适用于实体类兼表的一对一关联，collection标签�
 System.out.println(deptMapper.getDepts().get(0).getName());
 ```
 
-association、collection标签中可指定fetchType属性为eager，以取消延迟加载，让引用的下一波语句立即执行。
+association、collection标签中可指定fetchType属性为eager，以取消延迟加载，让引用的下一个语句立即执行。
 
 当关联字段不止一个，就该像Param注解那样给每个关联字段起个便于取值的名字，譬如`column{deptNo=dept_no, codeNo=code_no}`。
 
-可看出DBS执行的并不是关联查询也不是相关子查询，而是类相关子查询，体现了相关子查询的原理。
+可看出DBS执行的并不是关联查询也不是相关子查询，能体现相关子查询的原理。
 
 ### discriminator
 
@@ -985,7 +985,7 @@ where标签仍有缺陷，它只能去除第一个满足条件的if标签体里�
 
 ### set
 
-[if](#if)一节开头提到了if标签参与update标签进行按条件更新，那么跟AND多余类似，SET子句中也可能存在逗号多余的问题，可以用trim标签解决，还可以用本节介绍的set标签，删除最后一个满足条件的if标签体里的行末逗号。
+[if](#if)一节开头提到了if标签参与update标签进行按条件更新，那么跟AND多余类似，SET子句中也可能存在逗号多余的问题，可以用trim标签解决，还可以用本节set标签，删除最后一个满足条件的if标签体里的行末逗号。
 
 ```xml
 <update id="updateEmpWithSet">
@@ -1044,7 +1044,7 @@ studentMapper.getStudentsByDept(dept).forEach(System.out::println);
 <insert id="batchInsert" databaseId="mysql">
     INSERT INTO employee(last_name, email, gender)
     VALUES
-    <!-- 参数是对象列表，collection值固定为list，参数处理一节有解释 -->
+    <!-- 参数是对象列表，collection值固定为list -->
     <foreach collection="list" item="emp" separator=",">
         <!-- 相当于把list[i]赋给emp -->
         (#{emp.lastName}, #{emp.email}, #{emp.gender})
@@ -1081,7 +1081,7 @@ depts[1] = new Department(null, "计算机科学", null);
 deptMapper.batchInsert(depts);
 ```
 
-oracle不支持逗号分隔的多VALUES子句，对批量发送要将多语句套上begin、end关键字才行。于是我们看针对oracle的批量插入，包括蠕虫复制与批量发送。
+oracle不支持逗号分隔的多VALUES子句，对批量发送要将多语句套上begin、end关键字。于是我们看针对oracle的批量插入，包括蠕虫复制与批量发送。
 
 ```xml
 <insert id="batchInsert" databaseId="orcl">
@@ -1114,7 +1114,7 @@ mybatis提供两个内置参数：
 - `_parameter`：单参数情况下指这个参数，多参数情况下指参数封装成的映射。
 - `_databaseId`：配置了databaseIdProvider标签的前提下，指当前环境的别名。
 
-譬如利用if标签与`_databaseId`等价实现在select标签体内根据当前环境切换语句。
+譬如利用if标签与`_databaseId`根据当前环境切换语句，等价于使用select标签。
 
 ```xml
 <select id="getCodesByState" resultType="bean.Code">
@@ -1585,7 +1585,7 @@ oracle不支持LIMIT，故借实现oracle的LIMIT功能体验mybatis存储过程
 
 ## 处理枚举
 
-如在插入记录时，默认是把枚举对象的名字赋给对应分量，底层调用枚举对象的父类方法name。设置占位符参数及获取分量时，javaType与jdbcType互转，这个javaType就是枚举类，jdbcType默认是字符串。假使想将jdbcType改为整型，可如下配置typeHandler标签，底层去调用枚举对象的另一个父类方法ordinal-枚举对象的序号。
+如在插入记录时，默认是把枚举对象的名字赋给对应分量，底层调用枚举对象的父类方法name。设置占位符参数及获取分量时，javaType与jdbcType互转，这个javaType就是枚举类，jdbcType默认是文本。假使想将jdbcType改为整型，可如下配置typeHandler标签，底层去调用枚举对象的另一个父类方法ordinal-枚举对象的序号。
 
 ```xml
 <typeHandlers>

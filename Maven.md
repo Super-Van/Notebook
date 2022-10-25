@@ -374,7 +374,7 @@ eclipse已内置maven插件。
 
 ### 使用
 
-#### 创建Java工程
+#### Java工程
 
 <img src="Maven.assets/image-20200211175351625.png" alt="image-20200211175351625" style="zoom: 80%;" />
 
@@ -394,7 +394,7 @@ eclipse已内置maven插件。
 
 注意main和test里包名的一致性，以保证在同一包内。
 
-#### 创建Web工程
+#### Web工程
 
 1. 建工程。
 
@@ -427,7 +427,7 @@ eclipse已内置maven插件。
 
 承接上面的准备工作实现业务逻辑，整个项目写完后就通过package命令打成war包，再把war包放到tomcat服务器的webapp目录中，运行tomcat，就能访问此站点了。
 
-#### Web工程的自动部署
+#### Web工程自动部署
 
 针对上一节弄web项目不方便的问题，可以用web项目的自动部署。
 
