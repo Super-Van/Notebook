@@ -52,13 +52,12 @@ java -jar .\dubbo-admin\target\dubbo-admin-0.0.1.jar
 
 上图中的Consumer、Provider可用两个service层组件模拟，分属两个项目。再创建一个公共依赖存放诸业务接口甚至实体类。
 
-导什么依赖，怎么配置、测试项目里都有，这里贴上重要的配置：
+导什么依赖，怎么配置、测试项目里都有，这里贴上关键代码：
 
 ```xml
 <!-- 当前服务的名称 -->
 <dubbo:application name="address-provider"></dubbo:application>
 <!-- 注册中心（服务器）的地址 -->
-<!-- <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry> -->
 <dubbo:registry protocol="zookeeper" address="127.0.0.1:2181"></dubbo:registry>
 <!-- 通信（消费者远程调用提供者并返回结果）规则，包括协议与端口 -->
 <dubbo:protocol name="dubbo" port="20080"></dubbo:protocol>
@@ -75,14 +74,13 @@ java -jar .\dubbo-admin\target\dubbo-admin-0.0.1.jar
 <dubbo:application name="order-consumer"></dubbo:application>
 <!-- 注册中心地址 -->
 <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry>
-<!-- 欲调用的远程服务（接口） -->
+<!-- 欲调用的远程服务 -->
 <dubbo:reference interface="com.van.mall.service.AddressService" id="addressService"></dubbo:reference>
-<context:component-scan base-package="com.van.order.service"></context:component-scan>
 <!-- 从注册中心发现监控中心地址，否则直连监控中心 -->
 <dubbo:monitor protocol="registry"></dubbo:monitor>
 ```
 
-详细配置参考文档。访问dubbo-admin查看效果。
+详细配置参考文档。访问dubbo-admin查看监控效果。
 
 springboot版代码也请自行参看项目，这里给出配置。
 
@@ -105,9 +103,9 @@ dubbo.monitor.address=registry
 @SpringBootApplication
 public class BootDubboAddresssApplication {...}
     
-// 暴露服务，dubbo提供的，也可在配置文件中配置
+// 暴露服务 由dubbo提供，也可在配置文件中弄
 @Service
-// 注册服务（的实现），再写@Service会冲突的
+// 注册服务（的实现）组件 再写@Service会冲突
 @Component
 public class AddressServiceImpl implements AddressService {...}
 ```
@@ -124,11 +122,9 @@ dubbo.monitor.protocol=registry
 ```java
 @EnableDubbo
 @SpringBootApplication
-public class BootDubboOrderApplication
-```
+public class BootDubboOrderApplication {...}
 
-```java
-// spring提供的
+// 由spring提供
 @Service
 public class OrderServiceImpl implements OrderService {
 	// 远程引用
@@ -148,7 +144,7 @@ public class OrderServiceImpl implements OrderService {
 
 ### 启动检查
 
-启动检查指的是消费者一启动注册中心就检查提供者是否可用，否则抛异常、阻止容器启动完成。关闭检查意即消费者调用时才检查提供者是否可用。提供者的容器要么懒加载，要么早加载但通过API被延迟引用。
+启动检查指的是消费者一启动注册中心就检查提供者是否可用，否则抛异常、阻止消费者所在服务器启动完成。关闭检查意即消费者调用时才检查提供者是否可用。提供者的容器要么懒加载，要么早加载但通过API被延迟引用。
 
 启动检查的开关由check属性控制：
 
@@ -167,9 +163,9 @@ public class OrderServiceImpl implements OrderService {
 
 ### 超时异常
 
-consumer标签给timeout属性默认值1000ms，意即消费者在1秒内没收到结果就抛响应超时异常，避免线程长时阻塞。
+consumer标签可设timeout属性，默认值为1000ms，意即消费者在1秒内没收到结果就抛出响应超时异常，避免线程长时阻塞。
 
-timeout属性可在多处配置，优先级规则总结起来是：
+timeout属性可在多种标签内配置，优先级规则总结起来是：
 
 - 方法级优先、接口级次之、全局再次之。
 - 级别相同，则消费者优先，提供者次之。
@@ -198,7 +194,7 @@ retries属性配合timeout属性，超时抛异常不够人性化，故不报错
 <dubbo:reference interface="com.van.mall.service.AddressService" id="addressService" check="false" retries="3"></dubbo:reference>
 ```
 
-当某个提供者出现超时，重试就可能挑另一个提供者。修改protocol标签的port属性，掌握IDE的多窗口测试，模拟多个提供者。附带讲服务名就不是唯一的，一个服务名可对应多个端口号不同的服务。
+当某个提供者出现超时，重试就可能挑另一个提供者。修改protocol标签的port属性，掌握IDE的多窗口测试，模拟多个提供者。这样就说明一个服务名可对应多个端口号-多个进程。
 
 删改查属幂等操作，即调用一次与重试多次是等效的，而插入属非幂等操作，不能由于消费者的等不及而重试，因为很可能造成重复插入（当超时原因是卡在已插入数据之后），故retries属性只能施加于幂等操作上。
 
@@ -223,7 +219,7 @@ retries属性配合timeout属性，超时抛异常不够人性化，故不报错
 
 ### 本地存根
 
-为被调用接口做静态代理，在消费者这边不直接注入远程实现对象及调用其方法，而注入代理对象，间接调用，目的是扩充一些逻辑，如参数校验。一般代理类与公共接口属同一项目，作依赖的一部分导入消费者项目。
+为被调用接口做静态代理，在消费者这边不直接注入远程实现对象及调用其方法，而注入代理对象、间接调用，目的是扩充一些逻辑，如参数校验。一般代理类与公共接口属同一项目，作依赖的一部分导入消费者项目。
 
 ```java
 public class AddressServiceStub implements AddressService {

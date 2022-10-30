@@ -156,8 +156,8 @@ WHERE salary < 6000 OR salary > 8000;
 SELECT 12 | 5, 12 & 5, 12 ^ 5, 12 & ~ 5, ~ 5, 8 >> 1, 2 << 2
 FROM DUAL;
 
--- 排序 默认按插入顺序排
-SELECT employee_id, last_name, salary 
+-- 排序
+SELECT employee_id, last_name, salary
 FROM employees
 ORDER BY salary DESC; -- 默认ASC
 
@@ -167,7 +167,7 @@ ORDER BY "ANNUAL_SAL"; -- 列别名可用于ORDER BY、HAVING，不能用于WHER
 
 SELECT employee_id, salary 
 FROM employees
-ORDER BY department_id; -- 可以按非查询字段排序，不过取某记录的几个字段的时候就得把排序字段也取出来
+ORDER BY department_id; -- 可以按非查询字段排序
 
 -- 多级排序
 SELECT employee_id, salary 
@@ -239,12 +239,12 @@ FROM employees e LEFT OUTER JOIN departments d ON e.department_id = d.department
 SELECT e.employee_id, d.department_name
 FROM employees e RIGHT OUTER JOIN departments d ON e.department_id = d.department_id;
 
--- 4. A-B即A-A交B，左外连接基础上去掉一部分
+-- 4. A-B即A交B在A上的补集，左外连接基础上去掉一部分
 SELECT e.employee_id, d.department_name
 FROM employees e LEFT OUTER JOIN departments d ON e.department_id = d.department_id
 WHERE e.department_id IS NULL;
 
--- 5. B-A即B-A交B
+-- 5. B-A即A交B在B上的补集，右外连接基础上去掉一部分
 SELECT e.employee_id, d.department_name
 FROM employees e RIGHT OUTER JOIN departments d ON e.department_id = d.department_id
 WHERE e.employee_id IS NULL;
@@ -276,7 +276,7 @@ FROM employees e INNER JOIN departments d ON e.department_id = d.department_id A
 
 -- 自然连接带USING，指定某组同名字段
 SELECT e.employee_id, d.department_name
-FROM employees e INNER JOIN departments d
+FROM employees e NATURAL JOIN departments d
 USING (department_id)
 
 -- 函数在不同DBMS之间的通用性很差
@@ -488,7 +488,7 @@ WHERE department_id IN (10, 20, 30);
 
 -- SQL天然体现了循环，更高级的循环在存储过程中
 
--- 加密与解密函数，现在推行尽早加密，在后台就该加密，不用等到数据库来做
+-- 加密与解密函数，现在推行尽早加密，在后台就该加密，不要等到数据库来做
 SELECT
 	MD5('MYSQL'),
 	SHA('MYSQL') -- sha比md5更安全，两者是不可逆的，既然无法解密，那么验证用的就是暗文，这说明明文唯一对应暗文
@@ -548,7 +548,7 @@ FROM employees
 GROUP BY department_id;
 -- 梳理顺序：WHERE->GROUP BY->ORDER BY->LIMIT
 
--- 多级分组，无序性，多级排序是有序的
+-- 多级分组
 SELECT department_id, job_id, AVG(salary)
 FROM employees
 GROUP BY department_id, job_id;
@@ -674,7 +674,7 @@ WHERE job_id <> 'IT_PROG' AND salary < ANY ( -- 等价于小于最大值，后�
 	FROM employees
 	WHERE job_id = 'IT_PROG'
 );
--- 有的题目描述得不严谨，死记住任一或任意相当于存在，高中课本里任一或任意相当于所有
+-- 有的题目描述得不严谨，死抠任一或任意相当于存在，高中课本里任一或任意相当于所有
 
 -- 这种写法最简单，可惜MySQL里聚集函数不能嵌套，Oracle可以
 SELECT department_id, MIN(AVG(salary))

@@ -20,7 +20,7 @@ VALUES
 (5, 'wang', '2004-1-1', 3000);
 
 INSERT INTO emp (id, `name`)
-VALUES (4, 'John'); -- 没填的自动填默认值，没给默认值默认值就是null
+VALUES (4, 'John'); -- 没填的自动填默认值，没给默认值默认值就是null，给了默认值填null还是null
 
 -- 蠕虫复制，即基于现有的表
 INSERT INTO emp

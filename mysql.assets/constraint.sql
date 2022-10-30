@@ -10,7 +10,7 @@ CREATE TABLE tmp (
 	email VARCHAR(50) -- 像这个50也是一种约束
 );
 
--- 前提是不能存在NULL分量
+-- 前提是不能已存在NULL分量
 ALTER TABLE tmp
 MODIFY email VARCHAR(50) NOT NULL;
 
@@ -68,7 +68,9 @@ MODIFY id INT AUTO_INCREMENT;
 ALTER TABLE tmp
 MODIFY id INT;
 
--- 添加外键FOREIGN KEY 主表、父表、被参考表、被引用表；外键定义在从表、子表、参考表、引用表。引用的列必须有唯一约束（索引）。先创建主表，再创建从表；先删除从表（记录），再删除主表（记录）。创建外键时会为该列自动创建一个索引，名同列名，删除外键时须手动删除对应索引
+-- 添加外键FOREIGN KEY 主表、父表、被参考表、被引用表；外键定义在从表、子表、参考表、引用表
+-- 引用的列必须有唯一约束（索引） 先创建主表，再创建从表；先删除从表（记录），再删除主表（记录）
+-- 创建外键时会为该列自动创建一个索引，名同列名，删除外键时对应索引还在，须另行删除
 
 CREATE TABLE sc (
 	sno INT,

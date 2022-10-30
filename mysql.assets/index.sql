@@ -53,7 +53,7 @@ EXPLAIN SELECT * FROM book WHERE `comment` = '热销中';
 
 -- 全文索引（对FULLTEXT）、空间索引（对GEOMETRY）略
 
--- 表已建立之后创建索引，两套等价
+-- 表已建立之后创建索引
 ALTER TABLE book
 ADD INDEX idx_cmt(`comment`);
 
@@ -63,6 +63,7 @@ ADD UNIQUE INDEX uk_idx_bname(book_name);
 ALTER TABLE book
 ADD INDEX mul_bid_bname_info(book_id, book_name, info);
 
+-- 等价
 CREATE INDEX idx_cmt ON book(`comment`);
 
 CREATE UNIQUE INDEX uk_idx_bname ON book(book_name);
@@ -92,7 +93,7 @@ CREATE TABLE tmp (
 SELECT * FROM tmp
 ORDER BY a ASC, b DESC;
 
--- 这样就完了
+-- 这样就完蛋
 SELECT * FROM tmp
 ORDER BY a DESC, b ASC;
 

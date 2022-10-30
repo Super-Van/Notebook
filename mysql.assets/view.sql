@@ -32,7 +32,7 @@ FROM emp
 WHERE department_id IS NOT NULL
 GROUP BY department_id;
 
--- 下面俩更新都不成立，教材中讲了一般行列子集视图才可更新，且还得看表的约束情况，以及一些特殊的视图（尚待研究），且各DBMS各有要求
+-- 下面俩更新都不成立，教材中讲了一般仅行列子集视图可更新，且还得看表的约束情况，以及一些特殊的视图（尚待研究），且各DBMS各有要求
 UPDATE dept_sal_view
 SET avg_sal = avg * 1.5;
 

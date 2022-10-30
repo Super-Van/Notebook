@@ -61,7 +61,7 @@ EXPLAIN SELECT * FROM employees WHERE department_id IN (30, 50, 90);
 
 -- index：用到索引，但遍历整个索引
 
--- ALL：全表扫描
+-- aLL：全表扫描
 EXPLAIN SELECT * FROM employees;
 
 -- 像阿里巴巴手册要求，至少是range，要求到ref，最好是const

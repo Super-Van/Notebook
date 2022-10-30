@@ -285,7 +285,7 @@ AutoConfigurationPackages.register(registry, (String[])(new AutoConfigurationPac
 
 仔细观察可知这些组件就是主程序类所属包及其子包下的组件：metadata是被@Import标注的@AutoConfigurationPackage的相关信息，就包括它标注的类MainApplication，接着getPackageNames方法返回的就是MainApplication所处包名。
 
-看另一个注解Import传入了ImportSelector接口的实现类AutoConfigurationImportSelector的Class实例，在实现方法selectImports体内批量注册组件，它调用getAutoConfigurationEntry方法。后者体内又调用getCandidateConfigurations方法，这个方法返回了所有可能注册的配置类。体内用SpringFactoriesLoader类调用loadFactoryNames方法。体内调用loadSpringFactories方法。这个方法体内，发现会扫描当前项目内匹配`META-INF/spring.factories`路径的文件，恰好spring-boot-autoconfigure包下面就有这个文件，点开发现所有内置场景相关的所有配置类的全类名，尤以名字以AutoConfiguration结尾的为最多。那么对第三方场景启动器，其自动配置类的加载也体现于jar包META-INF目录下的spring.factories文件中。
+看另一个注解Import传入了ImportSelector接口的实现类AutoConfigurationImportSelector的Class实例，在实现方法selectImports体内批量注册组件，它调用getAutoConfigurationEntry方法。后者体内又调用getCandidateConfigurations方法，这个方法返回了所有可能注册的配置类。体内用SpringFactoriesLoader类调用loadFactoryNames方法。体内调用loadSpringFactories方法。这个方法体内，发现会扫描当前项目内匹配`META-INF/spring.factories`路径的文件，恰好spring-boot-autoconfigure包下面就有这个文件，点开发现所有内置场景相关的所有配置类的全类名，尤以名字以AutoConfiguration结尾的为最多。那么对第三方场景启动器，其自动配置类也出现在相应jar包META-INF目录下的spring.factories文件中。
 
 这些配置类都会被加载，但是依靠条件注解按需注册自身及管理的其他类，如ConditionalOnClass-缺少依赖的类就不注册、ConditionalOnMissingBean-用户注册了就不重复注册。典例如配置类DispatcherServletAutoConfiguration的dispatcherServlet方法-注册springmvc的前端控制器。
 
@@ -868,7 +868,7 @@ spring.servlet.multipart.max-request-size=100MB
 
 首先看自动配置。关注ErrorMvcAutoConfiguration配置类，它依赖了绑定配置文件的ServerProperties、ResourceProperties、WebMvcProperties这几个类。
 
-注册了BasicErrorController组件，依赖ErrorProperties类，其模板路径值是`server.error.path`配置项的值，默认是`/error`，往下看到errorHtml与error方法，分别浏览器与非浏览器客户端返回ModelAndView对象与ResponseEntity对象。在errorHtml方法体内，调用resolveErrorView方法，传入请求对象、响应对象、错误状态码、其他错误信息映射。体内遍历ErrorViewResolver列表属性，运行时仅有[后面](#unique)的DefaultErrorViewResolverConfiguration类型（其实就这一个实现类）元素，它调用resolveErrorView方法，传入响应对象以外的三个对象并往上层层返回。
+注册了BasicErrorController组件，依赖ErrorProperties类，其模板路径值是`server.error.path`配置项的值，默认是`/error`，往下看到errorHtml与error方法，分别浏览器与非浏览器客户端返回ModelAndView对象与ResponseEntity对象。在errorHtml方法体内，调用resolveErrorView方法，传入请求对象、响应对象、错误状态码、其他错误信息映射。体内遍历ErrorViewResolver列表属性，运行时仅有[后面](#unique)的DefaultErrorViewResolverConfiguration类型（因为就这一个实现类）元素，它调用resolveErrorView方法，传入响应对象以外的三个对象并往上层层返回。
 
 同为配置类的内部类WhitelabelErrorViewConfiguration注册了View组件，@Bean的name值为`error`，又注册了BeanNameViewResolver组件，点开其实现的resolveViewName方法可知会按照视图名从容器中检索View对象，这就跟前面相呼应了-根据视图名`error`检索底层映射中键为`error`的View对象，这个视图对象隶属StaticView类，其实现的render方法体内就有默认错误页面内容的拼接。
 
@@ -887,7 +887,7 @@ HandlerExceptionResolverComposite 它下面又包含一个resolvers属性，也�
 		DefaultHandlerExceptionResolver
 ```
 
-逐元素调用resolveException方法，继续传入四个对象，返回ModelAndView对象，只要不为null就退出循环，DefaultErrorAttributes元素的实现逻辑是将异常信息保存到请求域对象中，返回null，HandlerExceptionResolverComposite元素实现的逻辑是遍历其resolvers属性，同样逐元素调用resolveException方法，联系springmvc笔记，这三种类型的实现逻辑概括于概述一节。这些元素调用此方法都返回null的话，就继续往上抛，由doDispatch方法体内更外层的catch语句捕获，结果看不出特别的处理，那么遵循servlet的规范，会由tomcat内部转发到`/error`，携带错误状态码等数据，后续过程就落到本章开头了。
+逐元素调用resolveException方法，继续传入四个对象，返回ModelAndView对象，只要不为null就退出循环，DefaultErrorAttributes元素的实现逻辑是将异常信息保存到请求域对象中，返回null，HandlerExceptionResolverComposite元素实现的逻辑是遍历其resolvers属性，同样逐元素调用resolveException方法，联系springmvc笔记，这三种类型的实现逻辑概括于概述一节。这些元素调用此方法都返回null的话，就继续往上抛，由doDispatch方法体内更外层的catch语句捕获，结果看不出特别的处理，那么遵循servlet的规范，会由tomcat转发到`/error`，携带错误状态码等数据，后续过程就落到本章开头了。
 
 ```java
 @ControllerAdvice
@@ -909,7 +909,7 @@ public class RepeatLoginException extends Exception {
 }
 ```
 
-略述这些元素调用resolveException方法的底层：ExceptionHandlerExceptionResolver寻找打了@ExceptionHandler的处理方法；ResponseStatusExceptionResolver看似处理，其实仍是令tomcat内部转发到`/error`，携带@ResponseStatus的value、reason值等数据；DefaultHandlerExceptionResolver也是令tomcat内部转发到`/error`，携带各种内置异常类型对应的错误状态码等数据，体现于底层响应对象调用的sendError方法。
+略述这些元素调用resolveException方法的底层：ExceptionHandlerExceptionResolver寻找打了@ExceptionHandler的处理方法；ResponseStatusExceptionResolver看似处理，其实仍是令tomcat转发到`/error`，携带@ResponseStatus的value、reason值等数据；DefaultHandlerExceptionResolver也是令tomcat转发到`/error`，携带各种内置异常类型下的错误状态码等数据，体现于底层响应对象调用的sendError方法。
 
 ### 原生组件
 
@@ -949,7 +949,7 @@ public class NativeComponentConfig {
 
 比如发送`/my`请求，发现只有这原生的servlet和filter拦截了，springmvc的DispatcherServle无动于衷，来探究一下原理。
 
-没有web.xml了，DispatcherServlet是怎么进入servlet容器的？来到DispatcherServletAutoConfiguration类，注意到注册方法dispatcherServlet，依赖WebMvcProperties类，下面是同为配置类的DispatcherServletRegistrationConfiguration类，其下有注册DispatcherServletRegistration的方法，这个类继承了ServletRegistrationBean，故刚才那个注册方法是将DispatcherServlet纳入IOC容器，这个方法是将其纳入服务器，并且在后者体内发现创建DispatcherServletRegistrationBean对象时构造器传入的路径模板是`webMvcProperties.getServlet().getPath()`，点开发现默认值是`/`，所以遵循精确优先原则，发送`/my`请求时，MyServlet对象优先处理，过滤器也有用，而DispatcherServle的doDispatch方法引发的拦截器等功能当然全都失效。
+没有web.xml了，DispatcherServlet是怎么进入servlet容器的？来到DispatcherServletAutoConfiguration类，注意到注册方法dispatcherServlet，依赖WebMvcProperties类，下方有同为配置类的DispatcherServletRegistrationConfiguration，其下有注册DispatcherServletRegistrationBean类的方法，它继承了ServletRegistrationBean类，故刚才那个注册方法是将DispatcherServlet纳入IOC容器，这个方法是将其纳入服务器，并且在后者体内发现给DispatcherServletRegistrationBean构造器传入的路径模板是`webMvcProperties.getServlet().getPath()`，解析出来是`/`，所以遵循精确优先原则，发送`/my`请求时，MyServlet对象优先处理，过滤器也有用，而DispatcherServle的doDispatch方法引发的拦截器等功能当然全都失效。
 
 ### 嵌入式容器
 
@@ -1465,11 +1465,11 @@ public class MyEndpoint {
 一种做法是借助配置文件的切换。首先它们的名字有讲究，如application-prod、application-test、application，然后在application文件里指定环境：
 
 ```properties
-#值就得跟application-后的某个后缀
+#值就得跟某个application-xxx的后缀
 spring.profiles.active=prod
 ```
 
-配置文件永远加载，再根据其中的环境配置连带加载另一个配置文件，即两文件里的配置项都生效，同名的话后面的覆盖前面的。
+application文件永远加载，再根据其中的环境配置连带加载另一个配置文件，同名的话后面的覆盖前面的。
 
 若项目已经打包，则可通过命令行更改环境：
 
@@ -1480,9 +1480,9 @@ java -jar boot-admin-0.0.1-SNAPSHOT.jar --spring.profiles.active=test --person.n
 
 控制台会显示当前环境。
 
-还可以用@Profile配合Bean、Component等注解来决定哪些配置生效，spring笔记中讲过了。环境标识的激活同上。
+还可以用@Profile配合Bean、Component等注解来决定哪些配置生效，spring笔记中讲过了，环境标识的激活同上。
 
-可以融合多个环境下的配置：
+可以融合多个配置文件：
 
 ```properties
 spring.profiles.group.prodgroup[0]=prod1
@@ -1496,7 +1496,7 @@ spring.profiles.group.testgroup[0]=test
 
 yaml文件、properties文件、环境变量、命令行参数等可作外部配置源，像`$`符就从它们中检索配置项。文档里按优先级顺序罗列了十几条，后面的同名配置项会覆盖前面的。
 
-文档第三节按优先级顺序罗列了配置文件的查找路径，同样后面的同名配置项会覆盖前面的。由此不难想到一个提升效率的技巧，在项目依然打包后，在jar包同级目录等目录中创建配置文件，覆盖前面的配置，而无需重新打包部署。
+文档第三节按优先级顺序罗列了配置文件的查找路径，同样后面的同名配置项会覆盖前面的。由此不难想到一个提升效率的技巧，在项目依然打包后，在jar包同级目录等目录中创建配置文件，覆盖前面的配置，而无需重新打包。
 
 ## 自定义starter
 
@@ -1546,13 +1546,15 @@ public class VanServiceAutoConfigure {
 }
 ```
 
-摘录被依赖项目van-spring-boot-autoconfigure的`src/main/resources/META-INF/spring.factories`（即打出的包下的`META-INF/spring.factories`）：
+在被依赖项目van-spring-boot-autoconfigure中创建`src/main/resources/META-INF/spring.factories`：
 
 ```factories
 # Auto configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.van.config.VanServiceAutoConfigure
 ```
+
+打包后就有META-INF目录中的spring.factories。
 
 ## 启动原理
 

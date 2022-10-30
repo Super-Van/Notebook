@@ -19,7 +19,7 @@ SELECT @@session.character_set_client;
 
 SELECT @@character_set_client; -- 先找会话，找不到再找系统
 
--- 修改系统变量 一是通过my.ini修改，但重启才生效代价太大，于是用SET命令
+-- 修改系统变量 一是通过my.ini修改，重启服务生效，二是用SET命令
 -- 针对本次服务实例有效，重启就重置
 SET @@global.autocommit = false;
 

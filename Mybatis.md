@@ -122,7 +122,7 @@ try {
 }
 ```
 
-一个工厂对象可产生多个SqlSession对象，一个SqlSession对象对应一条连接，可支配多个事务、产生多个代理对象。
+一个工厂对象可产生多个SqlSession对象，一个SqlSession对象对应一条连接（一次会话），可支配多个事务、产生多个代理对象。
 
 ## 提取DTD
 
@@ -206,7 +206,7 @@ class Employee {}
 
 ### typeHandlers
 
-mybatis提供了类型处理（转换）器，用于执行SQL前设置参数以及获取结果集时将字段分量赋给域，期间可能有类型转换，详见[typeHandlers](https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers)。
+mybatis提供了类型处理（转换）器，用于在底层执行SQL前设置参数以及获取结果集时将字段分量赋给域等，期间可能做类型转换，详见[typeHandlers](https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers)。
 
 欲自定义类型处理器，需实现TypeHandler接口，或继承其实现类BaseTypeHandler，接着重写方法，添加配置。官方有示例，[最后一章](#处理枚举)也有例子。
 
@@ -327,7 +327,7 @@ mybatis提供增删改查标签，在标签体内嵌入SQL语句。
 
 标签属性详情参考官网，这里选几个研究一下，其他的要么很少用要么放后面谈。
 
-利用useGeneratedKeys与keyProperty属性获取DBS执行插入时给定的自增值并赋给参数对象的某个属性。
+利用useGeneratedKeys与keyProperty属性获取DBS执行插入时给定的自增值并回填给参数对象的相应属性。
 
 ```xml
 <!-- 分配的自增主键值赋给参数对象的id域 -->
@@ -548,7 +548,7 @@ UPDATE employee SET email = #{value} WHERE id = #{id}
 mapper.getEmpsDynamicOrder("email", "desc").forEach(System.out::println);
 ```
 
-用#可附加一些规则：javaType、jdbcType、mode、numericScale、resultMap、typeHandler、jdbcTypeName、expression。像jdbcType在有些情况下是必要的，如oracle等数据库不接受mybatis处理的null，从底层来看是因为mybatis将null转成JDBC制定的other类型的值other（见于JdbcType枚举，可对比JavaType枚举和它），但oracle不认识other。
+用#可附加一些规则：javaType、jdbcType、mode、numericScale、resultMap、typeHandler、jdbcTypeName、expression。像jdbcType在有些情况下是必要的，如oracle等数据库不接受mybatis处理的null，从底层来看是因为mybatis将null转成JDBC制定的other类型的值other（见于JdbcType枚举，可与JavaType枚举相对比），但oracle不认识other。
 
 ```xml
 <select id="getEmpById" resultType="bean.Employee" databaseId="orcl">
@@ -607,7 +607,7 @@ public Map<String, Object> getEmpByIdAsMap(Integer id);
 /**
  * @return 多条记录化为一个映射，记录转化的对象作值，默认记录的主键分量作键
  */
-@MapKey("id") // 指定对象的id属性作键
+@MapKey("lastName") // 指定对象的lastName属性作键
 public Map<Integer, Employee> getEmpsAsMap();
 ```
 
@@ -954,7 +954,7 @@ where标签仍有缺陷，它只能去除第一个满足条件的if标签体里�
 
 ### choose
 
-对比choose标签与if标签，后者取任意个选择条件（多选多），前者只取1个条件（多选一），所以没有AND。
+对比choose标签与if标签，后者可存在多个条件被满足，前者只存在1个或0个条件被满足，所以体内没有AND。
 
 ```xml
 <select id="getEmailByEmp" resultType="String">
@@ -974,7 +974,7 @@ where标签仍有缺陷，它只能去除第一个满足条件的if标签体里�
             <when test="gender != null">
                 gender = #{gender}
             </when>
-            <!-- otherwise不写就可能取0个条件 -->
+            <!-- otherwise不写就可能没一个条件被满足 -->
             <otherwise>
                 1 = 1
             </otherwise>
@@ -1224,29 +1224,17 @@ try (SqlSession sqlSession = sqlSessionFactory.openSession(true);) {
 
 - 代理对象由不同SqlSession对象生成。
 - 实参不重复。
-- 事务结束-提交或回滚。
-- 执行DML语句。
-- 手动清空SqlSession对象里的一级缓存。
+- 对同表执行DML语句。
+- 手动清空SqlSession对象里的缓存。
 
-给出后三种情况的实例：
+给出后两种情况的实例（其他的参考项目）：
 
 ```java
 try (SqlSession sqlSession = sqlSessionFactory.openSession();) { // 默认关闭自动提交
     EmployeeDao mapper = sqlSession.getMapper(EmployeeDao.class);
     Employee emp1 = mapper.getEmpById(2);
-    // 事务结束-提交或回滚-显式或隐式
-    // sqlSession.commit();
-    sqlSession.rollback();
-    Employee emp2 = mapper.getEmpById(3);
-    // false
-    System.out.println(emp1 == emp2);
-}
-
-try (SqlSession sqlSession = sqlSessionFactory.openSession();) {
-    EmployeeDao mapper = sqlSession.getMapper(EmployeeDao.class);
-    Employee emp1 = mapper.getEmpById(2);
-    // 执行DML但未提交，事务未结束
-    mapper.updateEmailById(2, "dufu@qq.com");
+    // 对同一张表执行DML但未提交，事务未结束
+    mapper.updateEmailById(3, "dufu@qq.com");
     Employee emp2 = mapper.getEmpById(2);
     // false
     System.out.println(emp1 == emp2);
@@ -1255,7 +1243,7 @@ try (SqlSession sqlSession = sqlSessionFactory.openSession();) {
 try (SqlSession sqlSession = sqlSessionFactory.openSession(true);) { // 开启自动提交
     EmployeeDao mapper = sqlSession.getMapper(EmployeeDao.class);
     Employee emp1 = mapper.getEmpById(2);
-    // 清空一级缓存
+    // 手动清空缓存
     sqlSession.clearCache();
     Employee emp2 = mapper.getEmpById(3);
     // false
@@ -1265,7 +1253,7 @@ try (SqlSession sqlSession = sqlSessionFactory.openSession(true);) { // 开启�
 
 ### 二级缓存
 
-二级缓存（全局缓存）时效更久：每当事务或会话结束，就将SqlSession对象保存的一级缓存数据根据命名空间分门别类地持久化到外存中，一个命名空间对应一个文件，那么又一个SqlSession对象产生，它产生的对应某命名空间（dao层接口）的代理对象调用某SQL方法时，先去外存里对应命名空间的二级缓存中看有没有对应数据，没有则去内存里的一级缓存中查找，还没有则访问数据库。
+二级缓存（全局缓存）时效更久：每当事务或会话结束，将SqlSession对象保存的一级缓存数据根据命名空间分门别类地持久化到外存中，一个命名空间对应一个文件，那么又一个SqlSession对象产生，它产生的对应某命名空间（dao层接口）的代理对象调用某SQL方法时，先去对应命名空间的二级缓存中看有没有对应数据，没有则去一级缓存中查找，还没有则访问数据库。
 
 mybatis默认关闭二级缓存，开启步骤：
 
@@ -1330,7 +1318,7 @@ CRUD标签的flushCache属性决定操作执行完一、二级缓存的清空与
 
 ### 第三方
 
-有更为专业的第三方来实现缓存行为-数据的存取，于是mybatis提供了Cache接口给第三方去实现，缓存机制仍由自己设计。这里介绍EhCache。
+有更为专业的第三方来实现缓存行为-数据的存取，于是mybatis提供了Cache接口给第三方去实现。这里介绍EhCache。
 
 准备四个jar包，参考项目；复制网上的配置文件；测试即可。
 
@@ -1482,7 +1470,7 @@ public class MyPlugin implements Interceptor {
 }
 ```
 
-然后将其注册进全局配置：
+然后将在全局配置中注册插件：
 
 ```xml
 <plugins>
@@ -1502,7 +1490,7 @@ public class MyPlugin implements Interceptor {
 - signatureMap-目标类Class实例作键、被代理方法集合作值的映射。
 - target-目标类实例。
 
-当注册了多个插件，从全局配置文件上到下扫描的顺序执行各插件对象的plugin方法生成代理对象，如此一来上面第三个属性target最底层的才是四大代理对象之一，往上每一层都是下一层的代理对象，于是代理对象的intercept方法会按插件配置的逆序执行。
+当注册了多个插件，从全局配置文件上到下扫描的顺序执行各插件对象的plugin方法生成代理对象，如此一来上面第三个属性target最底层的才是四大代理对象之一，往上每一层都是下一层的代理对象，于是这些代理对象的intercept方法的执行就像穿过同心圆。
 
 对四大对象方法的扩展就体现于intercept方法，那么我们弄个篡改占位符实参的例子：
 
@@ -1663,4 +1651,4 @@ public class EnumTeacherStatusTypeHandler implements TypeHandler<TeacherStatus> 
 }
 ```
 
-应在typeHandler标签中指定handler值为自定义的类型处理器。或者不配置这个，转而在保存-写insert语句时，在取值符里添加typeHandler属性，在查询-写resultMap时，在result标签中添加typeHandler属性。
+应在typeHandler标签中指定handler值为自定义的类型处理器全类名。或者在插入-写insert标签体时取值符里添加typeHandler属性，在查询-写resultMap标签时，在result标签中添加typeHandler属性。

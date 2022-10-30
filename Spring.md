@@ -2850,7 +2850,7 @@ my interceptor preHandle
 http://localhost:8080/springmvc-annotation/async
 ```
 
-按文档里的描述，主线程结束响应对象并没有关闭，针对副线程又发了一个请求，前端控制器二次拦截，然后调用doDispatch方法，一级级往下调到处理方法，但此时的处理方法已经不是原来那个了，而是实现的call方法，所以打印显示拦截器拦了两次。
+按文档里的描述，主线程结束响应对象并没有关闭，副线程利用tomcat做转发，前端控制器二次拦截，然后调用doDispatch方法，一级级往下调到处理方法，但此时的处理方法已经不是原来那个了，而是实现的call方法，所以打印显示拦截器拦了两次。
 
 有专门针对异步任务的拦截器，原生的叫AsyncListener，springmvc里的叫AsyncHandlerInterceptor。原理是执行同步、异步任务的线程分属两个线程池。
 
@@ -2905,5 +2905,5 @@ public class DeferredResultQueue {
 }
 ```
 
-怎么测试呢？先访问`/generateOrder`，处理方法执行完底层最多等5秒。在5秒内访问`/createOrder`，一旦监听到DeferredResult对象（队列里就它一个元素，很简省）有了结果，就又自动访问`/generateOrder`，但响应的是结果对象-Order实例（并没有进原方法）。若在5秒内没有访问`/createOrder`即没有成功执行第21行，则也是又自动访问`/generateOrder`，不过响应的是失败信息。
+怎么测试呢？先访问`/generateOrder`，处理方法执行完底层最多等5秒。在5秒内访问`/createOrder`，一旦监听到DeferredResult对象（队列里就它一个元素，很简省）有了结果，就利用tomcat转发到`/generateOrder`，但响应的是结果对象Order实例（并没有进原方法体）。若在5秒内没有访问`/createOrder`，则也是转发到`/generateOrder`，不过响应的是失败信息。
 
